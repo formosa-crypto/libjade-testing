@@ -1,0 +1,56 @@
+param int twoTo32 = 4294967296;
+param int twoTo32Minus1 = 4294967295;
+param int dilithium_modulo = 8380417;
+param int dilithium_modulo_inv = 58728449;
+param int dilithium_modulo_inv_neg = 4236238847;
+
+// Tell me that's not true...
+export fn brute_force_mod64(reg u64 lhs rhs) -> reg u64
+{
+	reg u64 temp;
+	reg u64 result;
+	result = lhs;
+	temp = rhs;
+	while(temp < lhs) {
+		temp <<= 1;
+	}
+	while(temp >= rhs) {
+		if(result >= temp) {
+			result -= temp;
+		}
+		temp >>= 1;
+	}
+	return result;
+}
+
+export fn montgomery(reg u32 x) -> reg u64
+{
+	reg u64 y;
+	y = (64u) x;
+	y <<= 32;
+	y = brute_force_mod64(y, dilithium_modulo);
+	return y;
+}
+
+export fn montgomery_REDC(reg u64 x) -> reg u32
+{
+	reg u64 m;
+	reg u32 t;
+
+	//m = ((x & twoTo32Minus1) * dilithium_modulo_inv_neg) & twoTo32Minus1;
+	m = x;
+	m &= twoTo32Minus1;
+	m *= dilithium_modulo_inv_neg;
+	m &= twoTo32Minus1;
+
+	//t = (x + m * dilithium_N) >> 32
+	m *= dilithium_modulo;
+	m += x;
+	m = m >> 32;
+	t = (32u) m;
+
+	if(t >= dilithium_modulo) {
+		t -= dilithium_modulo;
+	}
+	return t;
+}
