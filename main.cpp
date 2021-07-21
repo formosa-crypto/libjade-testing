@@ -8,7 +8,6 @@ using std::endl;
 extern "C" {
 	uint64_t montgomery(uint32_t x);
 	uint32_t montgomery_REDC(uint64_t mx);
-	uint64_t brute_force_mod64(uint64_t lhs, uint64_t rhs);
 }
 
 const uint64_t dilithium_N = (1 << 23) - (1 << 13) + 1;

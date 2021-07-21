@@ -4,17 +4,16 @@ param int dilithium_modulo = 8380417;
 param int dilithium_modulo_inv = 58728449;
 param int dilithium_modulo_inv_neg = 4236238847;
 
-// Tell me that's not true...
-export fn brute_force_mod64(reg u64 lhs rhs) -> reg u64
+fn brute_force_mod(reg u64 x) -> reg u64
 {
 	reg u64 temp;
 	reg u64 result;
-	result = lhs;
-	temp = rhs;
-	while(temp < lhs) {
+	temp = dilithium_modulo;
+	result = x;
+	while(temp < x) {
 		temp <<= 1;
 	}
-	while(temp >= rhs) {
+	while(temp >= dilithium_modulo) {
 		if(result >= temp) {
 			result -= temp;
 		}
@@ -28,7 +27,7 @@ export fn montgomery(reg u32 x) -> reg u64
 	reg u64 y;
 	y = (64u) x;
 	y <<= 32;
-	y = brute_force_mod64(y, dilithium_modulo);
+	y = brute_force_mod(y);
 	return y;
 }
 
