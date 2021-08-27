@@ -6,11 +6,14 @@ using std::endl;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	uint64_t montgomery(uint32_t x);
-	uint32_t montgomery_REDC(uint64_t mx);
+	uint64_t montgomery_REDC(uint64_t mx);
 }
 
 const uint64_t dilithium_N = (1 << 23) - (1 << 13) + 1;
+
+uint64_t montgomery(uint32_t x) {
+	return (uint64_t(x) << 32) % dilithium_N;
+}
 
 int main() {
 	uint64_t z = 823719;

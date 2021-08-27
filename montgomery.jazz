@@ -1,18 +1,17 @@
 param int twoTo32 = 4294967296;
 param int twoTo32Minus1 = 4294967295;
 param int dilithium_modulo = 8380417;
+param int dilithium_modulo_left_shift_41 = 18428731874223325184;
 param int dilithium_modulo_inv = 58728449;
 param int dilithium_modulo_inv_neg = 4236238847;
 
+/*
 fn brute_force_mod(reg u64 x) -> reg u64
 {
-	reg u64 temp;
 	reg u64 result;
-	temp = dilithium_modulo;
+	reg u64 temp;
 	result = x;
-	while(temp < x) {
-		temp <<= 1;
-	}
+	temp = dilithium_modulo_left_shift_41;
 	while(temp >= dilithium_modulo) {
 		if(result >= temp) {
 			result -= temp;
@@ -30,11 +29,11 @@ export fn montgomery(reg u32 x) -> reg u64
 	y = brute_force_mod(y);
 	return y;
 }
+*/
 
-export fn montgomery_REDC(reg u64 x) -> reg u32
+export fn montgomery_REDC(reg u64 x) -> reg u64
 {
 	reg u64 m;
-	reg u32 t;
 
 	//m = ((x & twoTo32Minus1) * dilithium_modulo_inv_neg) & twoTo32Minus1;
 	m = x;
@@ -46,10 +45,9 @@ export fn montgomery_REDC(reg u64 x) -> reg u32
 	m *= dilithium_modulo;
 	m += x;
 	m = m >> 32;
-	t = (32u) m;
 
-	if(t >= dilithium_modulo) {
-		t -= dilithium_modulo;
+	if(m >= dilithium_modulo) {
+		m -= dilithium_modulo;
 	}
-	return t;
+	return m;
 }
