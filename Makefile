@@ -7,4 +7,4 @@ main: main.cpp montgomery.s
 	jasminc -pasm $< > $@
 
 clean:
-	rm -f *.japp *.s
+	rm -f *.japp *.s montgomery.ec
