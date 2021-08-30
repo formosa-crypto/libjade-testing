@@ -4,8 +4,11 @@ param int dilithium_modulo = 8380417;
 param int dilithium_modulo_left_shift_41 = 18428731874223325184;
 param int dilithium_modulo_inv = 58728449;
 param int dilithium_modulo_inv_neg = 4236238847;
+param int dilithium_primitive_root = 1753;
+param int m_1 = 4193792;
+param int m_root = 2091667;
 
-/*
+/* UNUSED; things are supposed to be precomputed instead.
 fn brute_force_mod(reg u64 x) -> reg u64
 {
 	reg u64 result;
@@ -31,6 +34,7 @@ export fn montgomery(reg u32 x) -> reg u64
 }
 */
 
+// Actually u32 is enough to store a number in montgomery form...
 export fn montgomery_REDC(reg u64 x) -> reg u64
 {
 	reg u64 m;
@@ -51,3 +55,143 @@ export fn montgomery_REDC(reg u64 x) -> reg u64
 	}
 	return m;
 }
+
+fn montgomery_mult(reg u64 mx, reg u64 my) -> reg u64
+{
+	reg u64 prod;
+
+	prod = mx * my;
+	prod = montgomery_REDC(prod);
+
+	return prod;
+}
+
+//really?
+fn do_shift_right(reg u8 value, reg u8 shifts) -> reg u8{
+	reg u8 result;
+	reg u8 i;
+	result = value;
+	i = 0;
+	while(i < shifts) {
+		result >>= 1;
+		i += 1;
+	}
+	return result;
+}
+
+fn bitreverse(reg u8 x, reg u8 numbits) -> reg u8
+{
+	reg u8 result;
+	reg u8 i;
+	stack u8 temp;
+	reg u8 bit;
+	reg u8 temp;
+
+	result = 0;	
+	
+	i = 0;
+	while(i < numbits) {
+		bit = x;
+		bit = do_shift_right(bit, i);
+		bit &= 1;
+		bit <<= 7;
+		bit = do_shift_right(bit, i);
+		result |= bit;
+		i += 1;
+	}
+
+	return result;
+}
+
+export fn test_read_array(reg u64 ptr) -> reg u64 {
+	reg u64 result;
+	result = [ptr + 8];
+	return result;
+}
+
+export fn fft(reg u64 f, reg u64 precomputed_roots)
+{
+	reg u8 butterfly_level;
+	reg u8 num_butterfly_groups;
+	reg u8 butterfly_group;
+	//Number of butterflies. NOT number of elements.
+	reg u64 butterfly_group_size; //u64 for indexing?
+	reg u8 butterfly_group_start;
+
+	reg u64 butterfly_index; //u64 for indexing?
+	reg u64 first_twiddle_factor;
+	reg u64 second_twiddle_factor;
+	reg u64 temp1;
+	reg u64 temp2;
+
+	//for twiddle factor computation
+	reg u8 numbits;
+	reg u8 x;
+	reg u8 exp;
+
+	//reusable address holder
+	//why don't we have scoped variables?
+	reg u64 addr;
+
+
+	//Complaint: Can't unroll...
+	//Even though all bounds can be determined at compile time.
+	butterfly_level = 0;
+	while(butterfly_level < 8) {
+		num_butterfly_groups = 1;
+		num_butterfly_groups <<= butterfly_level;
+		butterfly_group = 0;
+		while(butterfly_group < num_butterfly_groups) {
+			butterfly_group_size = 128;
+			butterfly_group_size >>= butterfly_level;
+			butterfly_index = 0;
+
+			numbits = butterfly_level;
+			numbits += 1;
+
+			//compute twiddle factors
+			x = butterfly_group;
+			//cryptic error message on x *= 2 or x = 2 * x?
+			//assembler error Invalid pexpr for word
+			x = x + x;
+
+			exp = bitreverse(x, numbits);
+			//compilation error in functions fft and fft at position line 166: assembler error lea: not able to assemble address
+			//PLEASE REPORT
+			addr = (64u) exp;
+			first_twiddle_factor = [precomputed_roots + 8 * addr];
+			x += 1;
+			exp = bitreverse(x, numbits);
+			second_twiddle_factor = [precomputed_roots + 8 * addr];
+
+			butterfly_group_start = 2 * butterfly_group * butterfly_group_size;
+			while(butterfly_index < butterfly_group_size) {
+				//address for 
+				addr = butterfly_index;
+				addr += butterfly_group_size;
+				temp1 = [f + addr * 8];
+				temp1 *= first_twiddle_factor;
+				temp1 = montgomery_REDC(temp1);
+				temp1 += [f + butterfly_index * 8];
+
+				temp2 = [f + addr * 8];
+				temp2 *= second_twiddle_factor;
+				temp2 = montgomery_REDC(temp1);
+				temp2 += [f + butterfly_index * 8];
+
+				[f + butterfly_index * 8] = temp1;
+				[f + addr * 8] = temp2;
+			
+				butterfly_index += 1;
+			}
+			butterfly_group += 1;
+		}
+		butterfly_level += 1;
+	}
+}
+
+export fn ifft(reg u64 f)
+{
+
+}
+
