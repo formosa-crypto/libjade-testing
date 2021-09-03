@@ -66,6 +66,16 @@ fn montgomery_mult(reg u64 mx, reg u64 my) -> reg u64
 	return prod;
 }
 
+fn montgomery_add(reg u64 mx, reg u64 my) -> reg u64
+{
+	reg u64 sum;
+	sum = mx + my;
+	if(sum >= dilithium_modulo) {
+		sum -= dilithium_modulo;
+	}
+	return sum;
+}
+
 //really?
 fn do_shift_right(reg u8 value, reg u8 shifts) -> reg u8{
 	reg u8 result;
@@ -115,12 +125,12 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 	reg u8 num_butterfly_groups;
 	reg u8 butterfly_group;
 	//Number of butterflies. NOT number of elements.
-	reg u64 butterfly_group_size; //u64 for indexing?
+	//u64 for address?
+	reg u64 num_butterflies_per_group;
 	reg u8 butterfly_group_start;
-
-	reg u64 butterfly_index; //u64 for indexing?
-	reg u64 first_twiddle_factor;
-	reg u64 second_twiddle_factor;
+	//u64 for indexing?
+	reg u64 butterfly_index;
+	// results of butterfly
 	reg u64 temp1;
 	reg u64 temp2;
 
@@ -128,59 +138,74 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 	reg u8 numbits;
 	reg u8 x;
 	reg u8 exp;
+	reg u64 first_twiddle_factor;
+	reg u64 second_twiddle_factor;
+	//u64 req. for addressing?
+	reg u64 exp64;
 
-	//reusable address holder
-	//why don't we have scoped variables?
-	reg u64 addr;
-
+	reg u64 butterfly_left_addr;
+	reg u64 butterfly_right_addr;
 
 	//Complaint: Can't unroll...
 	//Even though all bounds can be determined at compile time.
 	butterfly_level = 0;
-	while(butterfly_level < 8) {
+	while(butterfly_level < 2) {
 		num_butterfly_groups = 1;
+		
+		//variable shift...?
+		//why no errors here?
 		num_butterfly_groups <<= butterfly_level;
+
+		num_butterflies_per_group = 128;
+		num_butterflies_per_group >>= butterfly_level;
+
 		butterfly_group = 0;
 		while(butterfly_group < num_butterfly_groups) {
-			butterfly_group_size = 128;
-			butterfly_group_size >>= butterfly_level;
-			butterfly_index = 0;
+
+			// -- compute twiddle factors -- //
 
 			numbits = butterfly_level;
 			numbits += 1;
 
-			//compute twiddle factors
 			x = butterfly_group;
-			//cryptic error message on x *= 2 or x = 2 * x?
-			//assembler error Invalid pexpr for word
-			x = x + x;
+			x <<= 1;
 
-			exp = bitreverse(x, numbits);
 			//compilation error in functions fft and fft at position line 166: assembler error lea: not able to assemble address
 			//PLEASE REPORT
-			addr = (64u) exp;
-			first_twiddle_factor = [precomputed_roots + 8 * addr];
+
+			exp = bitreverse(x, numbits);
+			exp64 = (64u) exp;
+			first_twiddle_factor = [precomputed_roots + 8 * exp64];
+
 			x += 1;
 			exp = bitreverse(x, numbits);
-			second_twiddle_factor = [precomputed_roots + 8 * addr];
+			exp64 = (64u) exp;
+			second_twiddle_factor = [precomputed_roots + 8 * exp64];
 
-			butterfly_group_start = 2 * butterfly_group * butterfly_group_size;
-			while(butterfly_index < butterfly_group_size) {
-				//address for 
-				addr = butterfly_index;
-				addr += butterfly_group_size;
-				temp1 = [f + addr * 8];
-				temp1 *= first_twiddle_factor;
-				temp1 = montgomery_REDC(temp1);
-				temp1 += [f + butterfly_index * 8];
+			// -- end compute twiddle factors -- //
 
-				temp2 = [f + addr * 8];
-				temp2 *= second_twiddle_factor;
-				temp2 = montgomery_REDC(temp1);
-				temp2 += [f + butterfly_index * 8];
+			butterfly_group_start =
+				butterfly_group * num_butterflies_per_group;
+			butterfly_group_start <<= 1;
 
-				[f + butterfly_index * 8] = temp1;
-				[f + addr * 8] = temp2;
+			butterfly_index = 0;
+			while(butterfly_index < num_butterflies_per_group) {
+				butterfly_left_addr = (64u) butterfly_group_start;
+				butterfly_left_addr += butterfly_index;
+
+				butterfly_right_addr = butterfly_left_addr;
+				butterfly_right_addr += num_butterflies_per_group;
+
+				temp1 = [f + butterfly_right_addr * 8];
+				temp1 = montgomery_mult(temp1, first_twiddle_factor);
+				temp1 = montgomery_add(temp1, [f + butterfly_left_addr * 8]);
+
+				temp2 = [f + butterfly_right_addr * 8];
+				temp2 = montgomery_mult(temp2, second_twiddle_factor);
+				temp2 = montgomery_add(temp2, [f + butterfly_left_addr * 8]);
+
+				[f + butterfly_left_addr * 8] = temp1;
+				[f + butterfly_right_addr * 8] = temp2;
 			
 				butterfly_index += 1;
 			}
@@ -188,10 +213,5 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 		}
 		butterfly_level += 1;
 	}
-}
-
-export fn ifft(reg u64 f)
-{
-
 }
 

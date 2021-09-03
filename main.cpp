@@ -57,7 +57,7 @@ void montgomery_of_poly(uint32_t f[poly_deg], uint64_t mf[poly_deg]) {
 		mf[i] = montgomery(f[i]);
 }
 
-void zero_poly(uint32_t f[poly_deg]) {
+template<typename T> void zero_poly(T f[poly_deg]) {
 	for(int i = 0; i < poly_deg; ++i)
 		f[i] = 0;
 }
@@ -136,8 +136,21 @@ void test_poly_product() {
 }
 
 void test_fft() {
-	//TODO
+	auto mroots = precomputeMRoots();
+	uint64_t f[poly_deg];
+	zero_poly(f);
+	f[0] = 1;
+	fft(f, mroots.data());
 
+	cout << "fft terms..." << endl;
+	for(int i = 0; i < 16; ++i) {
+		cout << f[16 * i];
+		for(int j = 1; j < 16; ++j) {
+			cout << ' ' << f[16 * i + j];
+		}
+		cout << endl;
+	}
+	cout << "end fft terms." << endl;
 }
 
 int main() {
@@ -145,13 +158,7 @@ int main() {
 	test_montgomery();
 	cout << "testing poly product..." << endl;
 	test_poly_product();
-	auto mroots = precomputeMRoots();
-	for(int i = 0; i < 5; ++i)
-		PRINT(mroots[i]);
-
-	vector<uint64_t> v { 11, 22, 33 };
-
-	PRINT(test_read_array(v.data()));
-
+	cout << "testing FFT..." << endl;
+	test_fft();
 	return 0;
 }
