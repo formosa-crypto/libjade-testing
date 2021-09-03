@@ -62,6 +62,16 @@ template<typename T> void zero_poly(T f[poly_deg]) {
 		f[i] = 0;
 }
 
+template<typename T> void print_poly(T f[poly_deg]) {
+	for(int i = 0; i < 16; ++i) {
+		cout << f[16 * i];
+		for(int j = 1; j < 16; ++j) {
+			cout << ' ' << f[16 * i + j];
+		}
+		cout << endl;
+	}
+}
+
 void multiply_polys(uint32_t f[poly_deg], uint32_t g[poly_deg], uint32_t product[poly_deg]) {
 	zero_poly(product);
 	for(int i = 0; i < poly_deg; ++i) {
@@ -138,19 +148,26 @@ void test_poly_product() {
 void test_fft() {
 	auto mroots = precomputeMRoots();
 	uint64_t f[poly_deg];
-	zero_poly(f);
-	f[0] = 1;
-	fft(f, mroots.data());
 
-	cout << "fft terms..." << endl;
-	for(int i = 0; i < 16; ++i) {
-		cout << f[16 * i];
-		for(int j = 1; j < 16; ++j) {
-			cout << ' ' << f[16 * i + j];
-		}
-		cout << endl;
-	}
-	cout << "end fft terms." << endl;
+
+	cout << "fft of 1:" << endl;
+	zero_poly(f);
+	f[0] = montgomery(1);
+	fft(f, mroots.data());
+	print_poly(f);
+
+	cout << "fft of x:" << endl;
+	zero_poly(f);
+	f[1] = montgomery(1);
+	fft(f, mroots.data());
+	print_poly(f);
+	
+	cout << "fft of 1+x:" << endl;
+	zero_poly(f);
+	f[0] = montgomery(1);
+	f[1] = montgomery(1);
+	fft(f, mroots.data());
+	print_poly(f);
 }
 
 int main() {

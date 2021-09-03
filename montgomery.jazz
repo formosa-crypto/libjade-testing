@@ -56,7 +56,8 @@ export fn montgomery_REDC(reg u64 x) -> reg u64
 	return m;
 }
 
-fn montgomery_mult(reg u64 mx, reg u64 my) -> reg u64
+/*
+export fn montgomery_mult(reg u64 mx, reg u64 my) -> reg u64
 {
 	reg u64 prod;
 
@@ -75,10 +76,11 @@ fn montgomery_add(reg u64 mx, reg u64 my) -> reg u64
 	}
 	return sum;
 }
+*/
 
 //really?
-fn do_shift_right(reg u8 value, reg u8 shifts) -> reg u8{
-	reg u8 result;
+fn do_shift_right(stack u8 value, stack u8 shifts) -> stack u8{
+	stack u8 result;
 	reg u8 i;
 	result = value;
 	i = 0;
@@ -92,10 +94,8 @@ fn do_shift_right(reg u8 value, reg u8 shifts) -> reg u8{
 fn bitreverse(reg u8 x, reg u8 numbits) -> reg u8
 {
 	reg u8 result;
-	reg u8 i;
-	stack u8 temp;
-	reg u8 bit;
-	reg u8 temp;
+	stack u8 i;
+	stack u8 bit;
 
 	result = 0;	
 	
@@ -119,6 +119,57 @@ export fn test_read_array(reg u64 ptr) -> reg u64 {
 	return result;
 }
 
+/*
+export fn compute_first_twiddle_factor(reg u8 butterfly_level,
+											reg u8 butterfly_group,
+											reg u64 roots) -> reg u64 {
+	reg u8 numbits;
+	reg u8 x;
+	reg u8 exp;
+	reg u64 result;
+	reg u64 exp64;
+
+	numbits = butterfly_level;
+	numbits += 1;
+
+	x = butterfly_group;
+	x <<= 1;
+
+	//compilation error in functions fft and fft at position line 166: assembler error lea: not able to assemble address
+	//PLEASE REPORT
+
+	exp = bitreverse(x, numbits);
+	exp64 = (64u) exp;
+	result = [roots + 8 * exp64];
+	return result;
+}
+
+export fn compute_second_twiddle_factor(reg u8 butterfly_level,
+											reg u8 butterfly_group,
+											reg u64 roots) -> reg u64 {
+	reg u8 numbits;
+	reg u8 x;
+	reg u8 exp;
+	reg u64 result;
+	reg u64 exp64;
+
+	numbits = butterfly_level;
+	numbits += 1;
+
+	x = butterfly_group;
+	x <<= 1;
+	x += 1;
+
+	//compilation error in functions fft and fft at position line 166: assembler error lea: not able to assemble address
+	//PLEASE REPORT
+
+	exp = bitreverse(x, numbits);
+	exp64 = (64u) exp;
+	result = [roots + 8 * exp64];
+	return result;
+}
+*/
+
 export fn fft(reg u64 f, reg u64 precomputed_roots)
 {
 	reg u8 butterfly_level;
@@ -127,7 +178,8 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 	//Number of butterflies. NOT number of elements.
 	//u64 for address?
 	reg u64 num_butterflies_per_group;
-	reg u8 butterfly_group_start;
+	// apparently has to be u64 to do math?
+	reg u64 butterfly_group_start;
 	//u64 for indexing?
 	reg u64 butterfly_index;
 	// results of butterfly
@@ -138,10 +190,11 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 	reg u8 numbits;
 	reg u8 x;
 	reg u8 exp;
-	reg u64 first_twiddle_factor;
-	reg u64 second_twiddle_factor;
 	//u64 req. for addressing?
 	reg u64 exp64;
+
+	stack u64 first_twiddle_factor;
+	stack u64 second_twiddle_factor;
 
 	reg u64 butterfly_left_addr;
 	reg u64 butterfly_right_addr;
@@ -149,7 +202,7 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 	//Complaint: Can't unroll...
 	//Even though all bounds can be determined at compile time.
 	butterfly_level = 0;
-	while(butterfly_level < 2) {
+	while(butterfly_level < 8) {
 		num_butterfly_groups = 1;
 		
 		//variable shift...?
@@ -173,40 +226,55 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 			//compilation error in functions fft and fft at position line 166: assembler error lea: not able to assemble address
 			//PLEASE REPORT
 
+			//TODO bring back
 			exp = bitreverse(x, numbits);
 			exp64 = (64u) exp;
 			first_twiddle_factor = [precomputed_roots + 8 * exp64];
 
 			x += 1;
+			//TODO bring back
 			exp = bitreverse(x, numbits);
 			exp64 = (64u) exp;
 			second_twiddle_factor = [precomputed_roots + 8 * exp64];
 
 			// -- end compute twiddle factors -- //
 
-			butterfly_group_start =
-				butterfly_group * num_butterflies_per_group;
+			//group start was u8 but then this doesn't go?
+			butterfly_group_start = (64u) butterfly_group;
+			butterfly_group_start *= num_butterflies_per_group;
 			butterfly_group_start <<= 1;
 
 			butterfly_index = 0;
 			while(butterfly_index < num_butterflies_per_group) {
-				butterfly_left_addr = (64u) butterfly_group_start;
+				butterfly_left_addr = butterfly_group_start;
 				butterfly_left_addr += butterfly_index;
 
 				butterfly_right_addr = butterfly_left_addr;
 				butterfly_right_addr += num_butterflies_per_group;
 
 				temp1 = [f + butterfly_right_addr * 8];
-				temp1 = montgomery_mult(temp1, first_twiddle_factor);
-				temp1 = montgomery_add(temp1, [f + butterfly_left_addr * 8]);
+				/* mont. mult */
+				temp1 *= first_twiddle_factor;
+				temp1 = montgomery_REDC(temp1);
+				/* mont. add */
+				temp1 += [f + butterfly_left_addr * 8];
+				if(temp1 >= dilithium_modulo) {
+					temp1 -= dilithium_modulo;
+				}
 
 				temp2 = [f + butterfly_right_addr * 8];
-				temp2 = montgomery_mult(temp2, second_twiddle_factor);
-				temp2 = montgomery_add(temp2, [f + butterfly_left_addr * 8]);
+				/* mont. mult */
+				temp2 *= second_twiddle_factor;
+				temp2 = montgomery_REDC(temp2);
+				/* mont. add */
+				temp2 += [f + butterfly_left_addr * 8];
+				if(temp2 >= dilithium_modulo) {
+					temp2 -= dilithium_modulo;
+				}
 
 				[f + butterfly_left_addr * 8] = temp1;
 				[f + butterfly_right_addr * 8] = temp2;
-			
+
 				butterfly_index += 1;
 			}
 			butterfly_group += 1;
