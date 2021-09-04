@@ -1,6 +1,6 @@
 [submodule "libjc"]
-	path = libs/libjc
+	path = libjc
 	url = https://github.com/tfaoliveira/libjc
 [submodule "dilithium"]
-	path = libs/dilithium
+	path = dilithium
 	url = https://github.com/pq-crystals/dilithium/
