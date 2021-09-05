@@ -8,32 +8,6 @@ param int dilithium_primitive_root = 1753;
 param int m_1 = 4193792;
 param int m_root = 2091667;
 
-/* UNUSED; things are supposed to be precomputed instead.
-fn brute_force_mod(reg u64 x) -> reg u64
-{
-	reg u64 result;
-	reg u64 temp;
-	result = x;
-	temp = dilithium_modulo_left_shift_41;
-	while(temp >= dilithium_modulo) {
-		if(result >= temp) {
-			result -= temp;
-		}
-		temp >>= 1;
-	}
-	return result;
-}
-
-export fn montgomery(reg u32 x) -> reg u64
-{
-	reg u64 y;
-	y = (64u) x;
-	y <<= 32;
-	y = brute_force_mod(y);
-	return y;
-}
-*/
-
 // Actually u32 is enough to store a number in montgomery form...
 inline fn montgomery_REDC(reg u64 x) -> reg u64
 {
@@ -55,28 +29,6 @@ inline fn montgomery_REDC(reg u64 x) -> reg u64
 	}
 	return m;
 }
-
-/*
-export fn montgomery_mult(reg u64 mx, reg u64 my) -> reg u64
-{
-	reg u64 prod;
-
-	prod = mx * my;
-	prod = montgomery_REDC(prod);
-
-	return prod;
-}
-
-fn montgomery_add(reg u64 mx, reg u64 my) -> reg u64
-{
-	reg u64 sum;
-	sum = mx + my;
-	if(sum >= dilithium_modulo) {
-		sum -= dilithium_modulo;
-	}
-	return sum;
-}
-*/
 
 //really?
 inline fn do_shift_right(stack u8 value, stack u8 shifts) -> stack u8{
@@ -112,57 +64,6 @@ fn bitreverse(reg u8 x, reg u8 numbits) -> reg u8
 
 	return result;
 }
-
-/*
-export fn compute_first_twiddle_factor(reg u8 butterfly_level,
-											reg u8 butterfly_group,
-											reg u64 roots) -> reg u64 {
-	reg u8 numbits;
-	reg u8 x;
-	reg u8 exp;
-	reg u64 result;
-	reg u64 exp64;
-
-	numbits = butterfly_level;
-	numbits += 1;
-
-	x = butterfly_group;
-	x <<= 1;
-
-	//compilation error in functions fft and fft at position line 166: assembler error lea: not able to assemble address
-	//PLEASE REPORT
-
-	exp = bitreverse(x, numbits);
-	exp64 = (64u) exp;
-	result = [roots + 8 * exp64];
-	return result;
-}
-
-export fn compute_second_twiddle_factor(reg u8 butterfly_level,
-											reg u8 butterfly_group,
-											reg u64 roots) -> reg u64 {
-	reg u8 numbits;
-	reg u8 x;
-	reg u8 exp;
-	reg u64 result;
-	reg u64 exp64;
-
-	numbits = butterfly_level;
-	numbits += 1;
-
-	x = butterfly_group;
-	x <<= 1;
-	x += 1;
-
-	//compilation error in functions fft and fft at position line 166: assembler error lea: not able to assemble address
-	//PLEASE REPORT
-
-	exp = bitreverse(x, numbits);
-	exp64 = (64u) exp;
-	result = [roots + 8 * exp64];
-	return result;
-}
-*/
 
 export fn fft(reg u64 f, reg u64 precomputed_roots)
 {
