@@ -11,4 +11,4 @@ main: main.cpp montgomery.s
 write_roots: write_roots.cpp
 
 clean:
-	rm -f *.japp *.s montgomery.ec main *.eco
+	rm -f *.japp *.s montgomery.ec main *.eco write_roots
