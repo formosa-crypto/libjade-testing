@@ -9,6 +9,7 @@ using std::vector;
 
 constexpr const int poly_deg = 256;
 
+/*
 extern "C" {
 	uint64_t montgomery_REDC(uint64_t mx);
 	uint64_t montgomery_mult(uint64_t mx, uint64_t my);
@@ -169,13 +170,16 @@ void test_fft() {
 	fft(f, mroots.data());
 	print_poly(f);
 }
+*/
 
 int main() {
+	/*
 	cout << "testing montgomery..." << endl;
 	test_montgomery();
 	cout << "testing poly product..." << endl;
 	test_poly_product();
 	cout << "testing FFT..." << endl;
 	test_fft();
+	*/
 	return 0;
 }
