@@ -90,6 +90,12 @@ fn compute_first_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
 
 	exp = bitreverse(x, numbits);
 	exp64 = (64u) exp;
+
+	// exp64 *= 2 ^ (7 - level)
+	// Scales to take into account that we're indexing into 256th roots
+	exp64 <<= 7;
+	exp64 >>= butterfly_level;
+
 	result = ptr_roots_of_unity[(int) exp64];
 
 	return result;
@@ -119,6 +125,10 @@ fn compute_second_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
 	x += 1;
 	exp = bitreverse(x, numbits);
 	exp64 = (64u) exp;
+
+	exp64 <<= 7;
+	exp64 >>= butterfly_level;
+
 	result = ptr_roots_of_unity[(int) exp64];
 
 	return result;
@@ -221,3 +231,140 @@ fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 	return f;
 }
 
+// Might not be a good idea to copy and paste code like this
+// Only to make very small changes
+// But if I pass more parameters, am I gonna run out of registers?
+
+//TODO inv
+fn compute_inv_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
+	-> reg u64
+{
+	reg u64 result;
+
+	reg u8 numbits;
+	reg u8 x;
+	reg u8 exp;
+	//u64 req. for addressing?
+	reg u64 exp64;
+
+	reg ptr u64[256] ptr_roots_of_unity;
+	ptr_roots_of_unity = roots_of_unity;
+	
+	numbits = butterfly_level;
+	numbits += 1;
+
+	x = butterfly_group;
+	// x <<= 1; x <<= 1;
+	// first was there to begin with
+	// second is for 2 in the denominator
+	x <<= 2;
+
+	// -- inverse -- //
+
+	//x = 256 - x; not doable since x is u8
+	x ^= 255;
+	x += 1;
+
+	// -- done inverse -- //
+
+	exp = bitreverse(x, numbits);
+	exp64 = (64u) exp;
+
+	exp64 <<= 7;
+	exp64 >>= butterfly_level;
+
+	result = ptr_roots_of_unity[(int) exp64];
+	return result;
+}
+
+fn ifft(reg ptr u32[256] f) -> reg ptr u32[256]
+{
+	reg u8 butterfly_level;
+	stack u8 num_butterfly_groups;
+	reg u8 butterfly_group;
+	//Number of butterflies. NOT number of elements.
+	stack u64 num_butterflies_per_group;
+	//Need u64 for arithmetics?
+	reg u64 butterfly_group_start;
+	reg u64 butterfly_index;
+
+	reg u64 inv_twiddle_factor;
+
+	//inputs of butterfly
+	reg u64 butterfly_left_val;
+	reg u64 butterfly_right_val;
+
+	// results of butterfly
+	reg u64 temp1;
+	reg u64 temp2;
+	reg u64 temp3;
+
+	reg u64 first_twiddle_factor;
+	reg u64 second_twiddle_factor;
+
+	reg u64 butterfly_left_addr;
+	reg u64 butterfly_right_addr;
+
+
+	//Complaint: Can't unroll...
+	//Even though all bounds can be determined at compile time.
+	butterfly_level = 7;
+	while(butterfly_level >= 0) {
+		num_butterfly_groups = 1;
+		
+		//variable shift...?
+		//why no errors here?
+		num_butterfly_groups <<= butterfly_level;
+
+		num_butterflies_per_group = 128;
+		num_butterflies_per_group >>= butterfly_level;
+
+		butterfly_group = 0;
+		while(butterfly_group < num_butterfly_groups) {
+
+			inv_twiddle_factor = compute_inv_twiddle_factor(butterfly_level, butterfly_group);
+
+			//group start was u8 but then this doesn't go?
+			butterfly_group_start = (64u) butterfly_group;
+			butterfly_group_start *= num_butterflies_per_group;
+			butterfly_group_start <<= 1;
+
+			butterfly_index = 0;
+			while(butterfly_index < num_butterflies_per_group) {
+				butterfly_left_addr = butterfly_group_start;
+				butterfly_left_addr += butterfly_index;
+
+				butterfly_right_addr = butterfly_left_addr;
+				butterfly_right_addr += num_butterflies_per_group;
+
+				butterfly_left_val = (64u) f[(int) butterfly_left_addr];
+				butterfly_right_val = (64u) f[(int) butterfly_right_addr];
+
+				temp1 = butterfly_right_val;
+				temp1 += butterfly_left_val;
+				temp1 <<= 1;
+
+				temp1 = butterfly_left_val;
+				temp2 += dilithium_modulo;
+				temp2 -= butterfly_right_val;
+				//this is certainly not constant time...
+				if(temp2 > dilithium_modulo) {
+					temp2 -= dilithium_modulo;
+				}
+
+				/* mont. mult */
+				temp2 *= inv_twiddle_factor;
+				//always get register merge issues...
+				temp3 = montgomery_REDC(temp2);
+				
+				f[(int) butterfly_left_addr] = (32u) temp1;
+				f[(int) butterfly_right_addr] = (32u) temp3;
+
+				butterfly_index += 1;
+			}
+			butterfly_group += 1;
+		}
+		butterfly_level += 1;
+	}
+	return f;
+}
