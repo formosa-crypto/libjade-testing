@@ -9,15 +9,16 @@ using std::vector;
 
 constexpr const int poly_deg = 256;
 
-/*
+
 extern "C" {
-	uint64_t montgomery_REDC(uint64_t mx);
-	uint64_t montgomery_mult(uint64_t mx, uint64_t my);
+	//uint64_t montgomery_REDC(uint64_t mx);
+	//uint64_t montgomery_mult(uint64_t mx, uint64_t my);
 	//64 bits int only for pointer params...? Why?
 	//untested fft; this probably ain't gonna work...
 	void fft(uint64_t f[poly_deg], uint64_t precomputed_mroots[256]);
 }
 
+/*
 const uint64_t dilithium_N = (1 << 23) - (1 << 13) + 1;
 
 uint64_t montgomery(uint32_t x) {

@@ -8,5 +8,7 @@ main: main.cpp montgomery.s
 %.s: %.japp
 	jasminc -pasm $< > $@
 
+write_roots: write_roots.cpp
+
 clean:
 	rm -f *.japp *.s montgomery.ec main *.eco

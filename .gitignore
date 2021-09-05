@@ -3,3 +3,5 @@
 main
 *.eco
 montgomery.ec
+write_roots
+roots_of_unity.jazz

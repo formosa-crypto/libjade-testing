@@ -1,3 +1,5 @@
+#include "roots_of_unity.jazz"
+
 param int twoTo32 = 4294967296;
 param int twoTo32Minus1 = 4294967295;
 param int dilithium_modulo = 8380417;
@@ -65,7 +67,8 @@ fn bitreverse(reg u8 x, reg u8 numbits) -> reg u8
 	return result;
 }
 
-export fn fft(reg u64 f, reg u64 precomputed_roots)
+//TODO array of 32 bits uints, not 64
+fn fft(reg ptr u64[256] f) -> reg ptr u64[256]
 {
 	reg u8 butterfly_level;
 	stack u8 num_butterfly_groups;
@@ -86,11 +89,14 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 	//u64 req. for addressing?
 	reg u64 exp64;
 
-	stack u64 first_twiddle_factor;
-	stack u64 second_twiddle_factor;
+	reg u64 first_twiddle_factor;
+	reg u64 second_twiddle_factor;
 
 	reg u64 butterfly_left_addr;
 	reg u64 butterfly_right_addr;
+
+	reg ptr u64[256] ptr_roots_of_unity;
+	ptr_roots_of_unity = roots_of_unity;
 
 	//Complaint: Can't unroll...
 	//Even though all bounds can be determined at compile time.
@@ -116,17 +122,14 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 			x = butterfly_group;
 			x <<= 1;
 
-			//compilation error in functions fft and fft at position line 166: assembler error lea: not able to assemble address
-			//PLEASE REPORT
-
 			exp = bitreverse(x, numbits);
 			exp64 = (64u) exp;
-			first_twiddle_factor = [precomputed_roots + 8 * exp64];
+			first_twiddle_factor = ptr_roots_of_unity[(int) exp64];
 
 			x += 1;
 			exp = bitreverse(x, numbits);
 			exp64 = (64u) exp;
-			second_twiddle_factor = [precomputed_roots + 8 * exp64];
+			second_twiddle_factor = ptr_roots_of_unity[(int) exp64];
 
 			// -- end compute twiddle factors -- //
 
@@ -143,29 +146,29 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 				butterfly_right_addr = butterfly_left_addr;
 				butterfly_right_addr += num_butterflies_per_group;
 
-				temp1 = [f + butterfly_right_addr * 8];
+				temp1 = f[(int) butterfly_right_addr];
 				/* mont. mult */
 				temp1 *= first_twiddle_factor;
 				temp1 = montgomery_REDC(temp1);
 				
 				/* mont. add */
-				temp1 += [f + butterfly_left_addr * 8];
+				temp1 += f[(int) butterfly_left_addr];
 				if(temp1 >= dilithium_modulo) {
 					temp1 -= dilithium_modulo;
 				}
 
-				temp2 = [f + butterfly_right_addr * 8];
+				temp2 = f[(int) butterfly_right_addr];
 				/* mont. mult */
 				temp2 *= second_twiddle_factor;
 				temp2 = montgomery_REDC(temp2);
 				/* mont. add */
-				temp2 += [f + butterfly_left_addr * 8];
+				temp2 = f[(int) butterfly_left_addr];
 				if(temp2 >= dilithium_modulo) {
 					temp2 -= dilithium_modulo;
 				}
-
-				[f + butterfly_left_addr * 8] = temp1;
-				[f + butterfly_right_addr * 8] = temp2;
+				
+				f[(int) butterfly_left_addr] = temp1;
+				f[(int) butterfly_right_addr] = temp2;
 
 				butterfly_index += 1;
 			}
@@ -173,5 +176,6 @@ export fn fft(reg u64 f, reg u64 precomputed_roots)
 		}
 		butterfly_level += 1;
 	}
+	return f;
 }
 
