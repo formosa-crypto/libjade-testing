@@ -2,6 +2,7 @@
 *.o
 main
 *.eco
+*.japp
 montgomery.ec
 write_roots
 roots_of_unity.jazz

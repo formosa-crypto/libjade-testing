@@ -10,7 +10,8 @@ param int dilithium_primitive_root = 1753;
 param int m_1 = 4193792;
 param int m_root = 2091667;
 
-// Actually u32 is enough to store a number in montgomery form...
+// Making this inline resolves conflicting register issues...
+// Otherwise "x = montgomery_REDC(x) apparently doesn't work.
 inline fn montgomery_REDC(reg u64 x) -> reg u64
 {
 	reg u64 m;
@@ -67,8 +68,63 @@ fn bitreverse(reg u8 x, reg u8 numbits) -> reg u8
 	return result;
 }
 
-//TODO array of 32 bits uints, not 64
-fn fft(reg ptr u64[256] f) -> reg ptr u64[256]
+fn compute_first_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
+	-> reg u64
+{
+	reg u64 result;
+
+	reg u8 numbits;
+	reg u8 x;
+	reg u8 exp;
+	//u64 req. for addressing?
+	reg u64 exp64;
+
+	reg ptr u64[256] ptr_roots_of_unity;
+	ptr_roots_of_unity = roots_of_unity;
+	
+	numbits = butterfly_level;
+	numbits += 1;
+
+	x = butterfly_group;
+	x <<= 1;
+
+	exp = bitreverse(x, numbits);
+	exp64 = (64u) exp;
+	result = ptr_roots_of_unity[(int) exp64];
+
+	return result;
+}
+
+//Not very efficient...
+//But runs out of register otherwise?
+fn compute_second_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
+	-> reg u64
+{
+	reg u64 result;
+
+	reg u8 numbits;
+	reg u8 x;
+	reg u8 exp;
+	//u64 req. for addressing?
+	reg u64 exp64;
+
+	reg ptr u64[256] ptr_roots_of_unity;
+	ptr_roots_of_unity = roots_of_unity;
+	
+	numbits = butterfly_level;
+	numbits += 1;
+
+	x = butterfly_group;
+	x <<= 1;
+	x += 1;
+	exp = bitreverse(x, numbits);
+	exp64 = (64u) exp;
+	result = ptr_roots_of_unity[(int) exp64];
+
+	return result;
+}
+
+fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 {
 	reg u8 butterfly_level;
 	stack u8 num_butterfly_groups;
@@ -78,16 +134,14 @@ fn fft(reg ptr u64[256] f) -> reg ptr u64[256]
 	//Need u64 for arithmetics?
 	reg u64 butterfly_group_start;
 	reg u64 butterfly_index;
+
+	//inputs of butterfly
+	reg u64 butterfly_left_val;
+	reg u64 butterfly_right_val;
+
 	// results of butterfly
 	reg u64 temp1;
 	reg u64 temp2;
-
-	//for twiddle factor computation
-	reg u8 numbits;
-	reg u8 x;
-	reg u8 exp;
-	//u64 req. for addressing?
-	reg u64 exp64;
 
 	reg u64 first_twiddle_factor;
 	reg u64 second_twiddle_factor;
@@ -95,8 +149,6 @@ fn fft(reg ptr u64[256] f) -> reg ptr u64[256]
 	reg u64 butterfly_left_addr;
 	reg u64 butterfly_right_addr;
 
-	reg ptr u64[256] ptr_roots_of_unity;
-	ptr_roots_of_unity = roots_of_unity;
 
 	//Complaint: Can't unroll...
 	//Even though all bounds can be determined at compile time.
@@ -114,24 +166,8 @@ fn fft(reg ptr u64[256] f) -> reg ptr u64[256]
 		butterfly_group = 0;
 		while(butterfly_group < num_butterfly_groups) {
 
-			// -- compute twiddle factors -- //
-
-			numbits = butterfly_level;
-			numbits += 1;
-
-			x = butterfly_group;
-			x <<= 1;
-
-			exp = bitreverse(x, numbits);
-			exp64 = (64u) exp;
-			first_twiddle_factor = ptr_roots_of_unity[(int) exp64];
-
-			x += 1;
-			exp = bitreverse(x, numbits);
-			exp64 = (64u) exp;
-			second_twiddle_factor = ptr_roots_of_unity[(int) exp64];
-
-			// -- end compute twiddle factors -- //
+			first_twiddle_factor = compute_first_twiddle_factor(butterfly_level, butterfly_group);
+			second_twiddle_factor = compute_second_twiddle_factor(butterfly_level, butterfly_group);
 
 			//group start was u8 but then this doesn't go?
 			butterfly_group_start = (64u) butterfly_group;
@@ -146,29 +182,35 @@ fn fft(reg ptr u64[256] f) -> reg ptr u64[256]
 				butterfly_right_addr = butterfly_left_addr;
 				butterfly_right_addr += num_butterflies_per_group;
 
-				temp1 = f[(int) butterfly_right_addr];
+				butterfly_left_val = (64u) f[(int) butterfly_left_addr];
+				butterfly_right_val = (64u) f[(int) butterfly_right_addr];
+
+				temp1 = butterfly_right_val;
+
 				/* mont. mult */
 				temp1 *= first_twiddle_factor;
 				temp1 = montgomery_REDC(temp1);
 				
 				/* mont. add */
-				temp1 += f[(int) butterfly_left_addr];
+				temp1 += butterfly_left_val;
 				if(temp1 >= dilithium_modulo) {
 					temp1 -= dilithium_modulo;
 				}
 
-				temp2 = f[(int) butterfly_right_addr];
+				temp2 = butterfly_right_val;
+
 				/* mont. mult */
 				temp2 *= second_twiddle_factor;
 				temp2 = montgomery_REDC(temp2);
+
 				/* mont. add */
-				temp2 = f[(int) butterfly_left_addr];
+				temp2 += butterfly_left_val;
 				if(temp2 >= dilithium_modulo) {
 					temp2 -= dilithium_modulo;
 				}
 				
-				f[(int) butterfly_left_addr] = temp1;
-				f[(int) butterfly_right_addr] = temp2;
+				f[(int) butterfly_left_addr] = (32u) temp1;
+				f[(int) butterfly_right_addr] = (32u) temp2;
 
 				butterfly_index += 1;
 			}
