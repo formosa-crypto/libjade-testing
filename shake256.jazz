@@ -1,5 +1,7 @@
-#ifndef FIPS202_HH
-#define FIPS202_HH
+#ifndef SHAKE512_JAZZ
+#define SHAKE512_JAZZ
+
+/* -- Stolen and modified from the Kyber repo -- */
 
 param int SHAKE128_RATE = 168;
 param int SHAKE256_RATE = 136;
@@ -10,14 +12,6 @@ fn index(inline int x, inline int y) -> inline int {
   inline int r;
   r = (x % 5) + 5 * (y % 5);
   return r;
-}
-
-
-inline
-fn ROL64(reg u64 x, inline int c) -> reg u64 {
-  reg u64 y;
-  _, _, y = #ROL_64(x, c);
-  return y;
 }
 
 inline
@@ -180,31 +174,76 @@ fn st0(reg ptr u64[25] state) -> reg ptr u64[25]
   return state;
 }
 
+// Dilithium keygen inputs 256 bits to SHAKE256
+// That's 32 bytes.
+fn shake256_absorb32(reg ptr u64[25] state, reg const ptr u8[32] in) -> reg ptr u64[25]
+{
+  //param int SHAKE256_RATE = 136;
+  reg u8 c;
+  inline int i;
+
+  state = st0(state);
+
+  //Inefficient to load one byte at a time...
+  //TODO optimize me...
+  //assuming little endian though?
+
+  for i = 0 to 32 {
+    c = in[i];
+    state[u8 i] ^= c;
+  }
+  //I don't understand the following 2 lines
+  state[u8 32] ^= 0x1f;
+  state[u8 135] ^= 0x80;
+
+  return state;
+}
+
+
+//param int SHAKE256_RATE = 136;
+//Maybe should allow squeezing partial blocks
+//for performance?
+fn shake256_squeezeblock(reg ptr u64[25] state, reg ptr u8[136] out)
+	-> reg ptr u64[25], reg ptr u8[136]
+{
+  reg u8 c;
+  inline int i;
+
+  state = __keccakf1600_ref(state);
+
+  for i = 0 to SHAKE256_RATE {
+    c = state[u8 (int) i];
+    out[i] = c;
+  }
+  return state, out;
+}
+
+/*
 
 inline
-fn add_full_block(
+fn shake256_add_full_block(
   stack u64[25] state,
-  reg u64 in,
-  reg u64 inlen,
-  reg u64 r8
-) -> stack u64[25], reg u64, reg u64
+  reg ptr u8[136] in
+) -> stack u64[25]
 {
+	//r8 = 136...
+	//r64 = (r8 >> 3) = 17
+	//block size = r64
+
   reg u64 i t r64;
 
-  r64 = r8;
-  r64 >>= 3;
+	//Umm isn't this assuming little-endian?
+  r64 = 17;
   i = 0;
   while (i < r64)
   {
-    t = [in + 8 * i];
+  	t = in[u64 (int) i];
+    //t = [in + 8 * i];
     state[(int) i] ^= t;
     i = i + 1;
   }
 
-  in += r8;
-  inlen -= r8;
-
-  return state, in, inlen;
+  return state;
 }
 
 
@@ -212,13 +251,16 @@ inline
 fn add_final_block(
   stack u64[25] state,
   reg u64 in,
-  reg u64 inlen,
-  reg u8 trail_byte,
-  reg u64 r8
+  reg u64 inlen
 ) -> stack u64[25]
 {
   reg u64 i, t, inlen8;
   reg u8 c;
+
+  reg u8 trail_byte;
+  // somehow this is 0x1f?
+  // shouldn't this be 1111 ie. 0x0f?
+  trail_byte = 31;
 
   inlen8 = inlen;
   inlen8 >>= 3;
@@ -240,12 +282,12 @@ fn add_final_block(
 
   state[u8 (int) i] ^= trail_byte;
 
-  i = r8;
-  i -= 1;
+  i = 135;
   state[u8 (int) i] ^= 0x80;
 
   return state;
 }
+*/
 
 
 inline
@@ -304,6 +346,16 @@ fn xtr_bytes(
   }
 }
 
+/*
+
+Usage:
+
+TODO...
+
+
+*/
+
+/*
 
 inline
 fn __keccak1600_ref(
@@ -313,6 +365,9 @@ fn __keccak1600_ref(
   reg   u64 rate
 )
 {
+	//trail_byte is somehow set as 0x1f...
+	//shouldn't it be 1111 ie. 0x0f?
+
   stack u64[25] state;
   stack u64 s_in, s_inlen, s_rate;
   reg u64 out, outlen, t;
@@ -364,6 +419,9 @@ fn __keccak1600_ref(
   xtr_bytes(state, out, outlen);
 }
 
+*/
+
+/*
 
 inline
 fn keccak1600_ref(reg u64 out outlen in inlen, stack u64[2] config)
@@ -484,5 +542,6 @@ fn shake128_squeezeblock(reg ptr u64[25] state, reg ptr u8[SHAKE128_RATE] out) -
   }
   return state, out;
 }
+*/
 
 #endif

@@ -1,6 +1,6 @@
 CXXFLAGS = -Wall -Wextra -Wpedantic -std=c++17
 
-main: main.cpp montgomery.s
+main: main.cpp montgomery.s shake256.s
 
 %.japp: %.jazz
 	gpp -o $@ $<
