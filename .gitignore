@@ -6,3 +6,4 @@ main
 montgomery.ec
 write_roots
 roots_of_unity.jazz
+test_keygen

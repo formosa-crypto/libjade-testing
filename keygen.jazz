@@ -1,0 +1,42 @@
+param int PK_LEN = 1952;
+param int SK_LEN = 4016;
+
+fn keygen(reg ptr u8[PK_LEN] pk, reg ptr u8[SK_LEN] sk)
+	-> reg ptr u8[PK_LEN], reg ptr u8[SK_LEN]
+{
+	pk[0] = 11;
+	pk[1] = 22;
+	pk[2] = 33;
+	pk[PK_LEN - 1] = 44;
+	sk[0] = 55;
+	sk[1] = 66;
+	sk[2] = 77;
+	sk[SK_LEN - 1] = 88;
+	return pk, sk;
+}
+
+
+export
+fn keygen_jazz(reg u64 pk_ptr, reg u64 sk_ptr)
+{
+	stack u8[PK_LEN] pk;
+	stack u8[SK_LEN] sk;
+	reg u8 c;
+	reg u64 i;
+
+	pk, sk = keygen(pk, sk);
+
+	i = 0;
+	while(i < PK_LEN) {
+		c = pk[(int) i];
+		(u8)[pk_ptr + i] = c;
+		i += 1;
+	}
+
+	i = 0;
+	while(i < SK_LEN) {
+		c = sk[(int) i];
+		(u8)[sk_ptr + i] = c;
+		i += 1;
+	}
+}

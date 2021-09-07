@@ -1,6 +1,8 @@
 CXXFLAGS = -Wall -Wextra -Wpedantic -std=c++17
 
-main: main.cpp montgomery.s shake256.s
+test_keygen: test_keygen.cpp keygen.s
+
+main: main.cpp montgomery.s shake256.s keygen.s
 
 %.japp: %.jazz
 	gpp -o $@ $<
