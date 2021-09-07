@@ -13,4 +13,4 @@ main: main.cpp montgomery.s shake256.s keygen.s
 write_roots: write_roots.cpp
 
 clean:
-	rm -f *.japp *.s montgomery.ec main *.eco write_roots
+	rm -f *.japp *.s montgomery.ec main *.eco write_roots test_keygen
