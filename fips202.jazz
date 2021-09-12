@@ -512,18 +512,22 @@ fn shake256_absorb32(reg ptr u64[25] state, reg const ptr u8[32] in) -> reg ptr 
 
 //Maybe should allow squeezing partial blocks
 //for performance?
-fn shake256_squeezeblock(reg ptr u64[25] state, reg ptr u8[SHAKE256_RATE] out)
-	-> reg ptr u64[25], reg ptr u8[SHAKE256_RATE]
+inline
+fn shake256_squeezeblock(stack u64[25] state, stack u8[SHAKE256_RATE] out)
+	-> stack u64[25], stack u8[SHAKE256_RATE]
 {
   reg u8 c;
-  inline int i;
+  reg u64 i;
 
   state = __keccakf1600_ref(state);
 
-  for i = 0 to SHAKE256_RATE {
-    c = state[u8 (int) i];
-    out[i] = c;
-  }
+	i = 0;
+	while(i < SHAKE256_RATE) {
+		c = state[u8 (int) i];
+		out[(int) i] = c;
+		i += 1;
+	}
+
   return state, out;
 }
 

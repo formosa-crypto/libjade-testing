@@ -1,9 +1,44 @@
+#include "fips202.jazz"
+
 param int PK_LEN = 1952;
 param int SK_LEN = 4016;
 
-fn keygen(reg ptr u8[PK_LEN] pk, reg ptr u8[SK_LEN] sk)
-	-> reg ptr u8[PK_LEN], reg ptr u8[SK_LEN]
+inline
+fn keygen(stack u8[PK_LEN] pk,
+		stack u8[SK_LEN] sk,
+		stack u8[32] random_zeta)
+		-> stack u8[PK_LEN], stack u8[SK_LEN]
 {
+	stack u64[25] state;
+	stack u8[SHAKE256_RATE] s256_out;
+
+	stack u8[32] rho;
+	stack u8[32] sigma;
+	stack u8[32] k;
+
+	//temp variables
+	//reg u8 c;
+	//reg u64 i;
+
+	state = shake256_absorb32(state, random_zeta);
+
+	
+	state, s256_out = shake256_squeezeblock(state, s256_out);
+/*
+
+	c = state[0];
+	pk[0] = c;
+
+	//TODO optimize
+	//Maybe can load 8 bytes at a time using u64
+	i = 0;
+	while(i < 32) {
+		c = s256_out[(int) i];
+		rho[(int) i] = c;
+		i = i + 1;
+	}
+	*/
+
 	pk[0] = 11;
 	pk[1] = 22;
 	pk[2] = 33;
@@ -15,28 +50,30 @@ fn keygen(reg ptr u8[PK_LEN] pk, reg ptr u8[SK_LEN] sk)
 	return pk, sk;
 }
 
-
+//zeta is 32 bytes
 export
-fn keygen_jazz(reg u64 pk_ptr, reg u64 sk_ptr)
+fn keygen_jazz(reg u64 pk_ptr, reg u64 sk_ptr, reg u64 randomness)
 {
 	stack u8[PK_LEN] pk;
 	stack u8[SK_LEN] sk;
+	stack u8[32] random_zeta;
 	reg u8 c;
-	reg u64 i;
+	inline int i;
 
-	pk, sk = keygen(pk, sk);
-
-	i = 0;
-	while(i < PK_LEN) {
-		c = pk[(int) i];
-		(u8)[pk_ptr + i] = c;
-		i += 1;
+	for i = 0 to 32 {
+		c = (u8)[randomness + i];
+		random_zeta[(int) i] = c;
 	}
 
-	i = 0;
-	while(i < SK_LEN) {
-		c = sk[(int) i];
+	pk, sk = keygen(pk, sk, random_zeta);
+
+	for i = 0 to PK_LEN {
+		c = pk[i];
+		(u8)[pk_ptr + i] = c;
+	}
+
+	for i = 0 to SK_LEN {
+		c = sk[i];
 		(u8)[sk_ptr + i] = c;
-		i += 1;
 	}
 }

@@ -4,7 +4,7 @@ test_keygen: test_keygen.cpp keygen.s
 
 main: main.cpp montgomery.s shake256.s keygen.s
 
-%.japp: %.jazz
+%.japp: %.jazz *.jazz
 	gpp -o $@ $<
 
 %.s: %.japp

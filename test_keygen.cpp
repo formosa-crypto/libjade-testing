@@ -13,22 +13,28 @@ constexpr const int pk_len = 1952;
 constexpr const int sk_len = 4016;
 
 extern "C" {
-	//uint64_t montgomery_REDC(uint64_t mx);
-	//uint64_t montgomery_mult(uint64_t mx, uint64_t my);
-	//64 bits int only for pointer params...? Why?
-	//untested fft; this probably ain't gonna work...
-	//void fft(uint64_t f[poly_deg], uint64_t precomputed_mroots[256]);
-	void keygen_jazz(char pk[pk_len], char sk[sk_len]);
+	void keygen_jazz(char pk[pk_len], char sk[sk_len], char randomness[32]);
+}
+
+uint8_t sampleByte() {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<> distrib(0,  255);
+	return distrib(gen);
 }
 
 int main() {
 	char pk[pk_len];
 	char sk[sk_len];
-	keygen_jazz(pk, sk);
-	PRINT(int(pk[0]));
+	char randomness[32];
+	for(int i = 0; i < 32; ++i) {
+		randomness[i] = sampleByte();
+	}
+
+	keygen_jazz(pk, sk, randomness);
+
 	PRINT(int(pk[1]));
-	PRINT(int(pk[2]));
-	//PRINT(int(pk[3]));
-	PRINT(int(pk[pk_len - 1]));
+	PRINT(int(sk[1]));
+
 	return 0;
 }
