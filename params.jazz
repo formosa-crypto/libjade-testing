@@ -1,0 +1,39 @@
+#ifndef PARAMS_HH
+#define PARAMS_HH
+
+/*
+param int KYBER_Q = 3329;
+param int KYBER_N = 256;
+param int KYBER_K = 3;
+param int KYBER_VECN = 768; /* KYBER_K * KYBER_N */
+
+param int KYBER_SYMBYTES = 32;
+param int KYBER_ETA = 2;
+param int KYBER_POLYBYTES = 384;
+param int KYBER_POLYVECBYTES = (KYBER_K * KYBER_POLYBYTES);
+param int KYBER_POLYVECCOMPRESSEDBYTES = (KYBER_K * 320);
+*/
+
+//Modulus
+param int DILITHIUM_q = 8380417;
+//Dropped bits from t
+param int DILITHIUM_d = 13;
+// number of plus or minus 1s in c
+param int DILITHIUM_tau = 49;
+param int DILITHIUM_challenge_entropy = 225;
+// log of y coefficient range
+parma int DILITHIUM_log_gamma1 = 19;
+// low-order rounding range
+param int DILITHIUM_gamma2
+// number of rows in A
+param int DILITHIUM_k = 6;
+// number of columns in A
+param int DILITHIUM_l = 5;
+// secret key range
+param int DILITHIUM_eta = 4;
+// tau * eta
+param int DILITHIUM_beta = 196;
+// max number of 1s in the hint h
+param int DILITHIUM_omega = 55;
+
+#endif
