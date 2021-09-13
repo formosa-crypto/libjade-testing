@@ -4,7 +4,8 @@
 #define FFT
 
 //really?
-inline fn do_shift_right(stack u8 value, stack u8 shifts) -> stack u8{
+inline
+fn do_shift_right(stack u8 value, stack u8 shifts) -> stack u8{
 	stack u8 result;
 	reg u8 i;
 	result = value;
@@ -16,9 +17,11 @@ inline fn do_shift_right(stack u8 value, stack u8 shifts) -> stack u8{
 	return result;
 }
 
-fn bitreverse(reg u8 x, reg u8 numbits) -> reg u8
+// consider precomputing
+inline
+fn bitreverse(stack u8 x, stack u8 numbits) -> stack u8
 {
-	reg u8 result;
+	stack u8 result;
 	stack u8 i;
 	stack u8 bit;
 
@@ -38,15 +41,16 @@ fn bitreverse(reg u8 x, reg u8 numbits) -> reg u8
 	return result;
 }
 
-fn compute_first_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
-	-> reg u64
+inline
+fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
+	-> stack u32[2]
 {
-	reg u64 result;
+	stack u64[2] result;
 
-	reg u8 numbits;
-	reg u8 x;
-	reg u8 exp;
-	//u64 req. for addressing?
+	stack u8 numbits;
+	stack u8 x;
+	stack u8 exp;
+	//TODO Check if casting to 64 bits is necessary
 	reg u64 exp64;
 
 	reg ptr u64[256] ptr_roots_of_unity;
@@ -60,55 +64,30 @@ fn compute_first_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
 
 	exp = bitreverse(x, numbits);
 	exp64 = (64u) exp;
-
 	// exp64 *= 2 ^ (7 - level)
 	// Scales to take into account that we're indexing into 256th roots
 	exp64 <<= 7;
 	exp64 >>= butterfly_level;
 
-	result = ptr_roots_of_unity[(int) exp64];
+	result[0] = ptr_roots_of_unity[(int) exp64];
 
-	return result;
-}
-
-//Not very efficient...
-//But runs out of register otherwise?
-fn compute_second_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
-	-> reg u64
-{
-	reg u64 result;
-
-	reg u8 numbits;
-	reg u8 x;
-	reg u8 exp;
-	//u64 req. for addressing?
-	reg u64 exp64;
-
-	reg ptr u64[256] ptr_roots_of_unity;
-	ptr_roots_of_unity = roots_of_unity;
-	
-	numbits = butterfly_level;
-	numbits += 1;
-
-	x = butterfly_group;
-	x <<= 1;
 	x += 1;
+
 	exp = bitreverse(x, numbits);
 	exp64 = (64u) exp;
-
 	exp64 <<= 7;
 	exp64 >>= butterfly_level;
 
-	result = ptr_roots_of_unity[(int) exp64];
+	result[1] = ptr_roots_of_unity[(int) exp64];
 
 	return result;
 }
 
 fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 {
-	reg u8 butterfly_level;
+	inline int butterfly_level;
 	stack u8 num_butterfly_groups;
-	reg u8 butterfly_group;
+	stack u8 butterfly_group;
 	//Number of butterflies. NOT number of elements.
 	stack u64 num_butterflies_per_group;
 	//Need u64 for arithmetics?
@@ -123,21 +102,16 @@ fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 	reg u64 temp1;
 	reg u64 temp2;
 
-	reg u64 first_twiddle_factor;
-	reg u64 second_twiddle_factor;
+	stack u32[2] twiddle_factors;
 
 	reg u64 butterfly_left_addr;
 	reg u64 butterfly_right_addr;
 
 
-	//Complaint: Can't unroll...
+	//Complaint: Can't unroll inner loop...
 	//Even though all bounds can be determined at compile time.
-	butterfly_level = 0;
-	while(butterfly_level < 8) {
+	for butterfly_level = 0 to 8 {
 		num_butterfly_groups = 1;
-		
-		//variable shift...?
-		//why no errors here?
 		num_butterfly_groups <<= butterfly_level;
 
 		num_butterflies_per_group = 128;
@@ -145,9 +119,8 @@ fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 
 		butterfly_group = 0;
 		while(butterfly_group < num_butterfly_groups) {
-
-			first_twiddle_factor = compute_first_twiddle_factor(butterfly_level, butterfly_group);
-			second_twiddle_factor = compute_second_twiddle_factor(butterfly_level, butterfly_group);
+			twiddle_factors = compute_twiddle_factors(
+				butterfly_level, butterfly_group);
 
 			//group start was u8 but then this doesn't go?
 			butterfly_group_start = (64u) butterfly_group;
@@ -165,38 +138,19 @@ fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 				butterfly_left_val = (64u) f[(int) butterfly_left_addr];
 				butterfly_right_val = (64u) f[(int) butterfly_right_addr];
 
-				temp1 = butterfly_right_val;
+				temp1 = montgomery_mult(butterfly_right_val, twiddle_factors[0]);
+				temp1 = montgomery_add(temp1, butterfly_left_val);
 
-				/* mont. mult */
-				temp1 *= first_twiddle_factor;
-				temp1 = montgomery_REDC(temp1);
-				
-				/* mont. add */
-				temp1 += butterfly_left_val;
-				if(temp1 >= dilithium_modulo) {
-					temp1 -= dilithium_modulo;
-				}
+				temp2 = montgomery_mult(butterfly_right_val, twiddle_factors[1]);
+				temp2 = montgomery_add(temp2, butterfly_left_val);
 
-				temp2 = butterfly_right_val;
-
-				/* mont. mult */
-				temp2 *= second_twiddle_factor;
-				temp2 = montgomery_REDC(temp2);
-
-				/* mont. add */
-				temp2 += butterfly_left_val;
-				if(temp2 >= dilithium_modulo) {
-					temp2 -= dilithium_modulo;
-				}
-				
-				f[(int) butterfly_left_addr] = (32u) temp1;
-				f[(int) butterfly_right_addr] = (32u) temp2;
+				f[(int) butterfly_left_addr] = temp1;
+				f[(int) butterfly_right_addr] = temp2;
 
 				butterfly_index += 1;
 			}
 			butterfly_group += 1;
 		}
-		butterfly_level += 1;
 	}
 	return f;
 }
@@ -205,6 +159,7 @@ fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 // Only to make very small changes
 // But if I pass more parameters, am I gonna run out of registers?
 
+/*
 //TODO inv
 fn compute_inv_twiddle_factor(reg u8 butterfly_level, reg u8 butterfly_group)
 	-> reg u64
@@ -338,5 +293,6 @@ fn ifft(reg ptr u32[256] f) -> reg ptr u32[256]
 	}
 	return f;
 }
+*/
 
 #endif

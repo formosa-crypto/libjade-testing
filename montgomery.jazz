@@ -14,27 +14,59 @@ param int dilithium_primitive_root = 1753;
 param int m_1 = 4193792;
 param int m_root = 2091667;
 
-// Making this inline resolves conflicting register issues...
-// Otherwise "x = montgomery_REDC(x) apparently doesn't work.
-inline fn montgomery_REDC(reg u64 x) -> reg u64
+inline
+fn montgomery_REDC(stack u64 x) -> stack u32
 {
+	stack u32 result;
 	reg u64 m;
 
 	//m = ((x & twoTo32Minus1) * dilithium_modulo_inv_neg) & twoTo32Minus1;
-	m = x;
+	m = (64u) x;
 	m &= twoTo32Minus1;
 	m *= dilithium_modulo_inv_neg;
 	m &= twoTo32Minus1;
 
 	//t = (x + m * dilithium_N) >> 32
 	m *= dilithium_modulo;
-	m += x;
+	m += (64u) x;
 	m = m >> 32;
 
 	if(m >= dilithium_modulo) {
 		m -= dilithium_modulo;
 	}
-	return m;
+
+	result = (32u) m;
+	return result;
+}
+
+inline
+fn montgomery_add(stack u32 x y) -> stack u32 s
+{
+	stack u32 result;
+
+	result = x;
+	result +=s y;
+
+	if(result >=s dilithium_modulo) {
+		result -= dilithium_modulo;
+	}
+
+	if(result < 0) {
+		result += dilithiium_modulo;
+	}
+
+	return result;
+}
+
+inline
+fn montgomery_mult(stack u32 x y) -> stack u32
+{
+	stack u64 xy;
+	stack u32 result;
+
+	xy = x * y;
+	result = montgomery_REDC(xy);
+	return result;
 }
 
 #endif

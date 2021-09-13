@@ -49,6 +49,7 @@ fn keygen(stack u8[PK_LEN] pk,
 	mat_A = gen_matrix(rho);
 	noises = gen_noises(rho_prime);
 
+	/*
 	pk[0] = 11;
 	pk[1] = 22;
 	pk[2] = 33;
@@ -57,6 +58,7 @@ fn keygen(stack u8[PK_LEN] pk,
 	sk[1] = 66;
 	sk[2] = 77;
 	sk[SK_LEN - 1] = 88;
+	*/
 	return pk, sk;
 }
 
