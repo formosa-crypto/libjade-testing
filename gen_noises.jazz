@@ -1,0 +1,92 @@
+#ifndef GEN_NOISES
+#define GEN_NOISES
+
+#include "fips202.jazz"
+#include "params.jazz"
+
+//reminder to self
+//param int SHAKE256_RATE = 136;
+
+inline
+fn gen_noises_entry(stack u8[64] rho_prime, inline int i) -> stack u8[256]
+{
+	// Poly
+	stack u8[256] result;
+	stack u8 term;
+
+	// For keccak
+	stack u64[25] state;
+	reg u64 offset;
+
+	// temps
+	inline int i;
+	reg u8 c1 c2;
+	reg u8 c;
+	reg u64 addr;
+
+	stack u8[66] seed;
+
+	for i = 0 to 64 {
+		c1 = rho_prime[i];
+		seed[i] = c1;
+	}
+	
+	seed[65] = i;
+	seed[66] = 0;
+
+	state = shake256_absorb66(seed);
+	state = __keccakf1600_ref(state);
+	offset = 0;
+
+	term = 0;
+	while(term < 256) {
+		if(offset >= SHAKE256_RATE) {
+			state = __keccakf1600_ref(state);
+			offset = 0;
+		}
+		
+
+		c1 = state[u8 (int) offset];
+		c2 = c1;
+		c1 >>= 2;
+		c2 &= 15;
+
+		if(c1 <= 9) {
+			c = 4 - c1;
+			result[(int) term] = c;
+			term += 1;
+		}
+
+		if(c2 <= 9) {
+			if(term < 256) {
+				c = 4 - c2;
+				result[(int) term] = c;
+				term += 1;
+			}
+		}
+	}
+
+	return result;
+}
+
+
+inline
+fn gen_noises(stack u8[64] rho_prime)
+	-> stack u8[(DILITHIUM_k + DILITHIUM_l) * 256]
+{
+	stack u8[256] entry;
+	stack u8[(DILITHIUM_k + DILITHIUM_l) * 256] results;
+
+	inline int i j;
+
+	for i = 0 to DILITHIUM_k + DILITHIUM_l {
+		entry = gen_noises_entry(rho_prime, i);
+		for j = 0 to 256 {
+			results[256 * i + j] = entry[j];
+		}
+	}
+
+	return results;
+}
+
+#endif

@@ -8,7 +8,7 @@
 //param int SHAKE256_RATE = 136;
 
 inline
-fn gen_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 * 256]
+fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 * 256]
 {
 	stack u8[3 * 256] result;
 	stack u8 term;
@@ -30,6 +30,7 @@ fn gen_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 * 256]
 	seed[33] = j;
 
 	state = shake256_absorb34(seed);
+	state = __keccakf1600_ref(state);
 
 	offset = 0;
 	term = 0;
@@ -89,7 +90,7 @@ fn gen_matrix(stack u8[32] rho) -> stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l]
 
 	for i = 0 to DILITHIUM_k {
 		for j = 0 to DILITHIUM_l {
-			entry = gen_entry(rho, i, j);
+			entry = gen_matrix_entry(rho, i, j);
 			for k = 0 to 3 * 256 {
 				matrix[3 * 256 * (i * DILITHIUM_l + j)] = entry[k];
 			}
