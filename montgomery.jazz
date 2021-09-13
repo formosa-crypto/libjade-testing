@@ -1,5 +1,6 @@
 #include "roots_of_unity.jazz"
 
+//Maybe combine into params.jazz?
 param int twoTo32 = 4294967296;
 param int twoTo32Minus1 = 4294967295;
 param int dilithium_modulo = 8380417;

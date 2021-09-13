@@ -22,9 +22,9 @@ param int DILITHIUM_d = 13;
 param int DILITHIUM_tau = 49;
 param int DILITHIUM_challenge_entropy = 225;
 // log of y coefficient range
-parma int DILITHIUM_log_gamma1 = 19;
+param int DILITHIUM_log_gamma1 = 19;
 // low-order rounding range
-param int DILITHIUM_gamma2
+param int DILITHIUM_gamma2 = 261888;
 // number of rows in A
 param int DILITHIUM_k = 6;
 // number of columns in A

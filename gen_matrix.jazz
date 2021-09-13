@@ -1,207 +1,98 @@
 #ifndef GEN_MATRIX_HH
 #define GEN_MATRIX_HH
 
-#include "fips202.jahh"
-#include "params.jahh"
+#include "fips202.jazz"
+#include "params.jazz"
+
+//reminder to self
+//param int SHAKE256_RATE = 136;
 
 inline
-fn rej_uniform(stack u16[KYBER_N] rp, reg u64 offset, stack u8[SHAKE128_RATE] buf) ->  reg u64, stack u16[KYBER_N]
+fn gen_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 * 256]
 {
-  reg u16 val1 val2;
-  reg u16 t;
-  reg u64 pos ctr;
-  reg u64 cnd0 cnd1 exit;
+	stack u8[3 * 256] result;
+	stack u8 term;
+	stack u8[3] vs;
+	stack u32 value;
+	stack u16 offset;
+	stack u64[25] state;
+	inline int i;
+	reg u8 c;
+	reg u16 addr;
 
+	stack u8[34] seed;
+	for i = 0 to 32 {
+		seed[i] = rho[i];
+	}
+	//TODO is this the correct order?
+	seed[32] = i;
+	seed[33] = j;
 
-  ctr = offset;
-  pos = 0;
-  exit = 0;
+	state = shake256_absorb34(seed);
 
-  while(exit == 0)
-  {
-    val1 = (16u)buf[(int)pos];
-    pos += 1;
-    t   = (16u)buf[(int)pos];
-    val2 = t;
-    val2 >>= 4;
-    t &= 0x0F;
-    t <<= 8;
-    val1 |= t;
-    pos += 1;
+	offset = 0;
+	term = 0;
+	while(term < 256) {
+		for i = 0 to 3 {
+			if(offset >= SHAKE256_RATE) {
+				state = __keccakf1600_ref(state);
+				offset = 0;
+			}
+			vs[i] = state[u8 (int) offset];
+			offset += 1;
+		}
 
-    t   = (16u)buf[(int)pos];
-    t <<= 4;
-    val2 |= t;
-    pos += 1;
+		//umm endianness?
+		//TODO little endian for now; will fix later if wrong
 
-    if(val1 < KYBER_Q)
-    {
-      rp[(int)ctr] = val1;
-      ctr += 1;
-    }
+		//remove highest bit
+		c = vs[2];
+		c &= 127;
+		vs[2] = c;
 
-    if(val2 < KYBER_Q)
-    {
-      if(ctr < KYBER_N)
-      {
-        rp[(int)ctr] = val2;
-        ctr += 1;
-      }
-    }
+		//assemble value
+		value = (32u) vs[2];
+		for i = 1 to 3 {
+			value <<= 8;
+			value += (32u) vs[2 - i];
+		}
 
-    // Check if we should exit the loop
-    cnd0  = KYBER_N;
-    cnd0 -= ctr;
-    cnd0 -= 1;
-    cnd1  = SHAKE128_RATE;
-    cnd1 -= pos;
-    cnd1 -= 3; //TODO: (potentially) wasting 2 'good' bytes
-    exit  = cnd0 | cnd1;
-    exit >>= 63;
-  }
+		// End little endian assumption block
 
-  return ctr, rp;
+		if(value < DILITHIUM_q) {
+			for i = 0 to 3 {
+				//result[3 * term + i] = vs[i]
+				addr = (16u) term;
+				addr *= 3;
+				addr += i;
+				result[(int) addr] = vs[i];
+			}
+			term += 1;
+		}
+	}
+
+	return result;
 }
+
 
 inline
-fn gen_matrix(stack u8[KYBER_SYMBYTES] seed, reg u64 transposed) -> stack u16[KYBER_VECN], stack u16[KYBER_VECN], stack u16[KYBER_VECN]
+fn gen_matrix(stack u8[32] rho) -> stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l]
 {
-  stack u8[34] extseed;
-  stack u8[SHAKE128_RATE] buf;
-  stack u64[25] state;
-  stack u16[KYBER_N] poly;
-  stack u16[KYBER_VECN] r0;
-  stack u16[KYBER_VECN] r1;
-  stack u16[KYBER_VECN] r2;
+	stack u8[3 * 256] entry;
+	stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l] matrix;
 
-  reg u8 c;
-  reg u16 t;
-  reg u64 ctr k l;
-  stack u64 sctr;
-  stack u64 stransposed;
-  inline int j;
+	inline int i j k;
 
-  stransposed = transposed;
+	for i = 0 to DILITHIUM_k {
+		for j = 0 to DILITHIUM_l {
+			entry = gen_entry(rho, i, j);
+			for k = 0 to 3 * 256 {
+				matrix[3 * 256 * (i * DILITHIUM_l + j)] = entry[k];
+			}
+		}
+	}
 
-  for j = 0 to KYBER_SYMBYTES
-  {
-    c = seed[j];
-    extseed[j] = c;
-  }
-
-  // Compute r0
-  for j = 0 to KYBER_K
-  {
-    transposed = stransposed;
-    if(transposed == 0)
-    {
-      extseed[KYBER_SYMBYTES] = j;
-      extseed[KYBER_SYMBYTES+1] = 0;
-    }
-    else
-    {
-      extseed[KYBER_SYMBYTES] = 0;
-      extseed[KYBER_SYMBYTES+1] = j;
-    }
-
-    state = shake128_absorb34(state, extseed);
-
-    ctr = 0;
-    while (ctr < KYBER_N)
-    {
-      sctr = ctr;
-      state, buf = shake128_squeezeblock(state, buf);
-      ctr = sctr;
-      ctr, poly  = rej_uniform(poly, ctr, buf);
-    }
-
-    k = 0;
-    l = j * KYBER_N;
-    while (k < KYBER_N)
-    {
-      t = poly[(int) k];
-      r0[(int) l] = t;
-      k += 1;
-      l += 1;
-    }
-  }
-
-  // Compute r1
-  for j = 0 to KYBER_K
-  {
-    transposed = stransposed;
-    if(transposed == 0)
-    {
-      extseed[KYBER_SYMBYTES] = j;
-      extseed[KYBER_SYMBYTES+1] = 1;
-    }
-    else
-    {
-      extseed[KYBER_SYMBYTES] = 1;
-      extseed[KYBER_SYMBYTES+1] = j;
-    }
-
-    state = shake128_absorb34(state, extseed);
-
-    ctr = 0;
-    while (ctr < KYBER_N)
-    {
-      sctr = ctr;
-      state, buf = shake128_squeezeblock(state, buf);
-      ctr = sctr;
-      ctr, poly  = rej_uniform(poly, ctr, buf);
-    }
-
-    k = 0;
-    l = j * KYBER_N;
-    while (k < KYBER_N)
-    {
-      t = poly[(int) k];
-      r1[(int) l] = t;
-      k += 1;
-      l += 1;
-    }
-  }
-
-  // Compute r2
-  for j = 0 to KYBER_K
-  {
-    transposed = stransposed;
-    if(transposed == 0)
-    {
-      extseed[KYBER_SYMBYTES] = j;
-      extseed[KYBER_SYMBYTES+1] = 2;
-    }
-    else
-    {
-      extseed[KYBER_SYMBYTES] = 2;
-      extseed[KYBER_SYMBYTES+1] = j;
-    }
-
-    state = shake128_absorb34(state, extseed);
-
-    ctr = 0;
-    while (ctr < KYBER_N)
-    {
-      sctr = ctr;
-      state, buf = shake128_squeezeblock(state, buf);
-      ctr = sctr;
-      ctr, poly  = rej_uniform(poly, ctr, buf);
-    }
-
-    k = 0;
-    l = j * KYBER_N;
-    while (k < KYBER_N)
-    {
-      t = poly[(int) k];
-      r2[(int) l] = t;
-      k += 1;
-      l += 1;
-    }
-  }
-
-  return r0, r1, r2;
+	return matrix;
 }
-
 
 #endif

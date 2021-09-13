@@ -1,7 +1,11 @@
 #include "fips202.jazz"
+#include "gen_matrix.jazz"
 
 param int PK_LEN = 1952;
 param int SK_LEN = 4016;
+
+//reminder to self
+//param int SHAKE256_RATE = 136;
 
 inline
 fn keygen(stack u8[PK_LEN] pk,
@@ -13,32 +17,35 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u8[SHAKE256_RATE] s256_out;
 
 	stack u8[32] rho;
-	stack u8[32] sigma;
+	stack u8[32] rho_prime;
 	stack u8[32] k;
 
 	//temp variables
-	//reg u8 c;
-	//reg u64 i;
+	reg u8 c;
+	inline int i;
 
 	state = shake256_absorb32(state, random_zeta);
-
-	
 	state, s256_out = shake256_squeezeblock(state, s256_out);
-/*
-
-	c = state[0];
-	pk[0] = c;
 
 	//TODO optimize
 	//Maybe can load 8 bytes at a time using u64
-	i = 0;
-	while(i < 32) {
-		c = s256_out[(int) i];
-		rho[(int) i] = c;
-		i = i + 1;
+	for i = 0 to 32 {
+		c = s256_out[i];
+		rho[i] = c;
 	}
-	*/
+	for i = 32 to 64 {
+		c = s256_out[i];
+		rho_prime[i - 32] = c;
+	}
+	for i = 64 to 96 {
+		c = s256_out[i];
+		k[i - 32] = c;
+	}
 
+	
+	
+
+/*
 	pk[0] = 11;
 	pk[1] = 22;
 	pk[2] = 33;
@@ -47,6 +54,7 @@ fn keygen(stack u8[PK_LEN] pk,
 	sk[1] = 66;
 	sk[2] = 77;
 	sk[SK_LEN - 1] = 88;
+	*/
 	return pk, sk;
 }
 
