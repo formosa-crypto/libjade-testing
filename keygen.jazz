@@ -17,8 +17,10 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u8[SHAKE256_RATE] s256_out;
 
 	stack u8[32] rho;
-	stack u8[32] rho_prime;
+	stack u8[64] rho_prime;
 	stack u8[32] k;
+
+	stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l] mat_A;
 
 	//temp variables
 	reg u8 c;
@@ -33,16 +35,19 @@ fn keygen(stack u8[PK_LEN] pk,
 		c = s256_out[i];
 		rho[i] = c;
 	}
-	for i = 32 to 64 {
+	for i = 32 to 96 {
 		c = s256_out[i];
 		rho_prime[i - 32] = c;
 	}
-	for i = 64 to 96 {
+	for i = 96 to 128 {
 		c = s256_out[i];
-		k[i - 32] = c;
+		k[i - 96] = c;
 	}
 
+	mat_A = gen_matrix(rho);
+
 	
+
 	
 
 /*
