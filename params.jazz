@@ -35,5 +35,7 @@ param int DILITHIUM_eta = 4;
 param int DILITHIUM_beta = 196;
 // max number of 1s in the hint h
 param int DILITHIUM_omega = 55;
+// poly degrees
+param int DILITHIUM_polydeg = 256;
 
 #endif
