@@ -1,0 +1,21 @@
+#ifndef HIGH_LOW_ORDER
+#define HIGH_LOW_ORDER
+
+inline
+fn power2round(reg u32 r)
+	-> reg u32, reg u32
+{
+	reg u32 highbits, lowbits;
+
+	highbits = r >> Li2_d;
+	lowbits = r & (Li2_expd - 1);
+
+	if(lowbits > Li2_expd / 2) {
+		lowbits = Li2_q + lowbits - Li2_expd;
+		highbits += 1;
+	}
+
+	return highbits, lowbits;
+}
+
+#endif
