@@ -1,9 +1,11 @@
-#include "montgomery.jazz"
-
 #ifndef FFT
 #define FFT
 
+#include "montgomery.jazz"
+#include "params.jazz"
+
 //really?
+//TODO Maybe just cast to reg u64 and back or something instead...
 inline
 fn do_shift_right(stack u8 value, stack u8 shifts) -> stack u8{
 	stack u8 result;
@@ -45,7 +47,7 @@ inline
 fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
 	-> stack u32[2]
 {
-	stack u64[2] result;
+	stack u32[2] result;
 
 	stack u8 numbits;
 	stack u8 x;
@@ -53,7 +55,7 @@ fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
 	//TODO Check if casting to 64 bits is necessary
 	reg u64 exp64;
 
-	reg ptr u64[256] ptr_roots_of_unity;
+	reg ptr u32[256] ptr_roots_of_unity;
 	ptr_roots_of_unity = roots_of_unity;
 	
 	numbits = butterfly_level;
@@ -83,7 +85,8 @@ fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
 	return result;
 }
 
-fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
+inline
+fn fft(stack u32[DILITHIUM_polydeg] f) -> stack u32[DILITHIUM_polydeg]
 {
 	inline int butterfly_level;
 	stack u8 num_butterfly_groups;
@@ -99,8 +102,8 @@ fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 	reg u64 butterfly_right_val;
 
 	// results of butterfly
-	reg u64 temp1;
-	reg u64 temp2;
+	stack u32 temp1;
+	stack u32 temp2;
 
 	stack u32[2] twiddle_factors;
 
@@ -155,9 +158,9 @@ fn fft(reg ptr u32[256] f) -> reg ptr u32[256]
 	return f;
 }
 
+
 // Might not be a good idea to copy and paste code like this
 // Only to make very small changes
-// But if I pass more parameters, am I gonna run out of registers?
 
 /*
 //TODO inv
@@ -294,5 +297,6 @@ fn ifft(reg ptr u32[256] f) -> reg ptr u32[256]
 	return f;
 }
 */
+
 
 #endif

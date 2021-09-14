@@ -1,6 +1,7 @@
 #include "fips202.jazz"
 #include "gen_matrix.jazz"
 #include "gen_noises.jazz"
+#include "fft.jazz"
 
 param int PK_LEN = 1952;
 param int SK_LEN = 4016;
@@ -22,8 +23,8 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u8[32] k;
 
 	stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l] mat_A;
-	stack u8[DILITHIUM_k * DILITHIUM_polydeg] s1;
-	stack u8[DILITHIUM_l * DILITHIUM_polydeg] s2;
+	stack u32[DILITHIUM_l * DILITHIUM_polydeg] s1;
+	stack u32[DILITHIUM_k * DILITHIUM_polydeg] s2;
 
 	//temp variables
 	reg u8 c;
@@ -50,9 +51,12 @@ fn keygen(stack u8[PK_LEN] pk,
 	mat_A = gen_matrix(rho);
 	s1, s2 = gen_noises(rho_prime);
 
+	//s1 = fft_vec(s1);
+	
 
 
-	/*
+	// Random values for now until I know how to pack
+	// Do NOT delete or Valgrind will complain
 	pk[0] = 11;
 	pk[1] = 22;
 	pk[2] = 33;
@@ -61,7 +65,7 @@ fn keygen(stack u8[PK_LEN] pk,
 	sk[1] = 66;
 	sk[2] = 77;
 	sk[SK_LEN - 1] = 88;
-	*/
+
 	return pk, sk;
 }
 

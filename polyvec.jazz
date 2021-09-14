@@ -1,0 +1,40 @@
+#ifndef POLYVEC
+#define POLYVEC
+
+#include "fft.jazz"
+
+inline
+fn fft_vec(stack u32[DILITHIUM_polydeg * DILITHIUM_l] vec)
+	-> stack u32[DILITHIUM_polydeg * DILITHIUM_l]
+{
+	inline int i;
+
+	//TODO How do subarrays work...?
+	//Let's just do some brute forcing for now, will have to fix later.
+
+	stack u32[DILITHIUM_polydeg] entry;
+	reg u16 j;
+
+	for i = 0 to DILITHIUM_l {
+		//TODO Brute force copying subarray
+		//Bad idea obviously
+		j = 0;
+		while(j < DILITHIUM_polydeg) {
+			entry[(int) j] = vec[i * DILITHIUM_polydeg + (int) j];
+			j += 1;
+		}
+
+		//Actual fft...
+		entry = fft(entry);
+
+		//Copying back...
+		j = 0;
+		while(j < DILITHIUM_polydeg) {
+			vec[i * DILITHIUM_polydeg + (int) j] = entry[(int) j];
+		}
+	}
+
+	return vec;
+}
+
+#endif

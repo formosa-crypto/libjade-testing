@@ -8,10 +8,11 @@
 //param int SHAKE256_RATE = 136;
 
 inline
-fn gen_noises_entry(stack u8[64] rho_prime, inline int i) -> stack u8[256]
+fn gen_noises_entry(stack u8[64] rho_prime, inline int i)
+	-> stack u32[DILITHIUM_polydeg]
 {
 	// Poly
-	stack u8[256] result;
+	stack u32[DILITHIUM_polydeg] result;
 	stack u8 term;
 
 	// For keccak
@@ -21,7 +22,7 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i) -> stack u8[256]
 	// temps
 	inline int i;
 	reg u8 c1 c2;
-	reg u8 c;
+	reg u32 v;
 	reg u64 addr;
 
 	stack u8[66] seed;
@@ -52,15 +53,25 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i) -> stack u8[256]
 		c2 &= 15;
 
 		if(c1 <= 9) {
-			c = 4 - c1;
-			result[(int) term] = c;
+			if(c1 <= 4) {
+				v = 4;
+			} else {
+				v = DILITHIUM_q + 4;
+			}
+			v -= (32u) c1;
+			result[(int) term] = v;
 			term += 1;
 		}
 
 		if(c2 <= 9) {
 			if(term < 256) {
-				c = 4 - c2;
-				result[(int) term] = c;
+				if(c1 <= 4) {
+					v = 4;
+				} else {
+					v = DILITHIUM_q + 4;
+				}
+				v -= (32u) c1;
+				result[(int) term] = v;
 				term += 1;
 			}
 		}
@@ -72,25 +83,27 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i) -> stack u8[256]
 
 inline
 fn gen_noises(stack u8[64] rho_prime)
-	-> stack u8[DILITHIUM_k * DILITHIUM_polydeg], stack u8[DILITHIUM_l * DILITHIUM_polydeg]
+	-> stack u32[DILITHIUM_l * DILITHIUM_polydeg], stack u32[DILITHIUM_k * DILITHIUM_polydeg]
 {
-	stack u8[256] entry;
-	stack u8[DILITHIUM_k * DILITHIUM_polydeg] s1;
-	stack u8[DILITHIUM_l * DILITHIUM_polydeg] s2;
+	stack u32[DILITHIUM_polydeg] entry;
+	stack u32[DILITHIUM_l * DILITHIUM_polydeg] s1;
+	stack u32[DILITHIUM_k * DILITHIUM_polydeg] s2;
 
 	inline int i j;
 
-	for i = 0 to DILITHIUM_k {
+	for i = 0 to DILITHIUM_l {
 		entry = gen_noises_entry(rho_prime, i);
-		for j = 0 to 256 {
-			s1[256 * i + j] = entry[j];
+
+		//TODO subarray maybe...?
+		for j = 0 to DILITHIUM_polydeg {
+			s1[DILITHIUM_polydeg * i + j] = entry[j];
 		}
 	}
 
-	for i = 0 to DILITHIUM_l {
-		entry = gen_noises_entry(rho_prime, i + DILITHIUM_k);
-		for j = 0 to 256 {
-			s2[256 * (i + DILITHIUM_k) + j] = entry[j];
+	for i = 0 to DILITHIUM_k {
+		entry = gen_noises_entry(rho_prime, i + DILITHIUM_l);
+		for j = 0 to DILITHIUM_polydeg {
+			s2[DILITHIUM_polydeg * (i + DILITHIUM_l) + j] = entry[j];
 		}
 	}
 

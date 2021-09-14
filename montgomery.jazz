@@ -40,19 +40,18 @@ fn montgomery_REDC(stack u64 x) -> stack u32
 }
 
 inline
-fn montgomery_add(stack u32 x y) -> stack u32 s
+fn montgomery_add(stack u32 x y) -> stack u32
 {
 	stack u32 result;
 
-	result = x;
-	result +=s y;
+	result = x + y;
 
 	if(result >=s dilithium_modulo) {
 		result -= dilithium_modulo;
 	}
 
 	if(result < 0) {
-		result += dilithiium_modulo;
+		result += dilithium_modulo;
 	}
 
 	return result;
@@ -64,7 +63,8 @@ fn montgomery_mult(stack u32 x y) -> stack u32
 	stack u64 xy;
 	stack u32 result;
 
-	xy = x * y;
+	xy = (64u) x;
+	xy *= (64u) y;
 	result = montgomery_REDC(xy);
 	return result;
 }

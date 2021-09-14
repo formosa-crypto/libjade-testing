@@ -79,7 +79,7 @@ int main() {
 	//test_montgomery();
 	fout << "#ifndef ROOTS_OF_UNITY" << endl;
 	fout << "#define ROOTS_OF_UNITY" << endl;
-	fout << "u64[256] roots_of_unity = {" << endl;
+	fout << "u32[256] roots_of_unity = {" << endl;
 
 	auto mRoots = precomputeMRoots();
 
