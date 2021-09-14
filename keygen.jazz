@@ -22,7 +22,8 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u8[32] k;
 
 	stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l] mat_A;
-	stack u8[(DILITHIUM_k + DILITHIUM_l) * 256] noises;
+	stack u8[DILITHIUM_k * DILITHIUM_polydeg] s1;
+	stack u8[DILITHIUM_l * DILITHIUM_polydeg] s2;
 
 	//temp variables
 	reg u8 c;
@@ -47,7 +48,9 @@ fn keygen(stack u8[PK_LEN] pk,
 	}
 
 	mat_A = gen_matrix(rho);
-	noises = gen_noises(rho_prime);
+	s1, s2 = gen_noises(rho_prime);
+
+
 
 	/*
 	pk[0] = 11;

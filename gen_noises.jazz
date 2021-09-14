@@ -72,21 +72,29 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i) -> stack u8[256]
 
 inline
 fn gen_noises(stack u8[64] rho_prime)
-	-> stack u8[(DILITHIUM_k + DILITHIUM_l) * 256]
+	-> stack u8[DILITHIUM_k * DILITHIUM_polydeg], stack u8[DILITHIUM_l * DILITHIUM_polydeg]
 {
 	stack u8[256] entry;
-	stack u8[(DILITHIUM_k + DILITHIUM_l) * 256] results;
+	stack u8[DILITHIUM_k * DILITHIUM_polydeg] s1;
+	stack u8[DILITHIUM_l * DILITHIUM_polydeg] s2;
 
 	inline int i j;
 
-	for i = 0 to DILITHIUM_k + DILITHIUM_l {
+	for i = 0 to DILITHIUM_k {
 		entry = gen_noises_entry(rho_prime, i);
 		for j = 0 to 256 {
-			results[256 * i + j] = entry[j];
+			s1[256 * i + j] = entry[j];
 		}
 	}
 
-	return results;
+	for i = 0 to DILITHIUM_l {
+		entry = gen_noises_entry(rho_prime, i + DILITHIUM_k);
+		for j = 0 to 256 {
+			s2[256 * (i + DILITHIUM_k) + j] = entry[j];
+		}
+	}
+
+	return s1, s2;
 }
 
 #endif
