@@ -86,7 +86,7 @@ fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
 }
 
 inline
-fn fft(stack u32[DILITHIUM_polydeg] f) -> stack u32[DILITHIUM_polydeg]
+fn fft(stack u32[Li2_polydeg] f) -> stack u32[Li2_polydeg]
 {
 	inline int butterfly_level;
 	stack u8 num_butterfly_groups;

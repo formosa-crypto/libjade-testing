@@ -4,23 +4,23 @@
 #include "fft.jazz"
 
 inline
-fn fft_vec(stack u32[DILITHIUM_polydeg * DILITHIUM_l] vec)
-	-> stack u32[DILITHIUM_polydeg * DILITHIUM_l]
+fn fft_vec(stack u32[Li2_polydeg * Li2_l] vec)
+	-> stack u32[Li2_polydeg * Li2_l]
 {
 	inline int i;
 
 	//TODO How do subarrays work...?
 	//Let's just do some brute forcing for now, will have to fix later.
 
-	stack u32[DILITHIUM_polydeg] entry;
+	stack u32[Li2_polydeg] entry;
 	reg u16 j;
 
-	for i = 0 to DILITHIUM_l {
+	for i = 0 to Li2_l {
 		//TODO Brute force copying subarray
 		//Bad idea obviously
 		j = 0;
-		while(j < DILITHIUM_polydeg) {
-			entry[(int) j] = vec[i * DILITHIUM_polydeg + (int) j];
+		while(j < Li2_polydeg) {
+			entry[(int) j] = vec[i * Li2_polydeg + (int) j];
 			j += 1;
 		}
 
@@ -29,8 +29,8 @@ fn fft_vec(stack u32[DILITHIUM_polydeg * DILITHIUM_l] vec)
 
 		//Copying back...
 		j = 0;
-		while(j < DILITHIUM_polydeg) {
-			vec[i * DILITHIUM_polydeg + (int) j] = entry[(int) j];
+		while(j < Li2_polydeg) {
+			vec[i * Li2_polydeg + (int) j] = entry[(int) j];
 		}
 	}
 

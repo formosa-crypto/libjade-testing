@@ -64,7 +64,7 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 
 		// End little endian assumption block
 
-		if(value < DILITHIUM_q) {
+		if(value < Li2_q) {
 			for i = 0 to 3 {
 				//result[3 * term + i] = vs[i]
 				addr = (64u) term;
@@ -81,18 +81,18 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 
 
 inline
-fn gen_matrix(stack u8[32] rho) -> stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l]
+fn gen_matrix(stack u8[32] rho) -> stack u8[3 * 256 * Li2_k * Li2_l]
 {
 	stack u8[3 * 256] entry;
-	stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l] matrix;
+	stack u8[3 * 256 * Li2_k * Li2_l] matrix;
 
 	inline int i j k;
 
-	for i = 0 to DILITHIUM_k {
-		for j = 0 to DILITHIUM_l {
+	for i = 0 to Li2_k {
+		for j = 0 to Li2_l {
 			entry = gen_matrix_entry(rho, i, j);
 			for k = 0 to 3 * 256 {
-				matrix[3 * 256 * (i * DILITHIUM_l + j)] = entry[k];
+				matrix[3 * 256 * (i * Li2_l + j)] = entry[k];
 			}
 		}
 	}

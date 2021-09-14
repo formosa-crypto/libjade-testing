@@ -22,9 +22,9 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u8[64] rho_prime;
 	stack u8[32] k;
 
-	stack u8[3 * 256 * DILITHIUM_k * DILITHIUM_l] mat_A;
-	stack u32[DILITHIUM_l * DILITHIUM_polydeg] s1;
-	stack u32[DILITHIUM_k * DILITHIUM_polydeg] s2;
+	stack u8[3 * 256 * Li2_k * Li2_l] mat_A;
+	stack u32[Li2_l * Li2_polydeg] s1;
+	stack u32[Li2_k * Li2_polydeg] s2;
 
 	//temp variables
 	reg u8 c;
