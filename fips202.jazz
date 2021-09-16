@@ -1,6 +1,3 @@
-#ifndef FIPS202
-#define FIPS202
-
 /* -- Stolen and modified from the Kyber repo -- */
 
 param int SHAKE128_RATE = 168;
@@ -580,5 +577,3 @@ fn shake256_squeezeblock(stack u64[25] state, stack u8[SHAKE256_RATE] out)
 
   return state, out;
 }
-
-#endif

@@ -1,8 +1,7 @@
 #ifndef GEN_MATRIX_HH
 #define GEN_MATRIX_HH
 
-#include "fips202.jazz"
-
+require "fips202.jazz"
 require "params.jazz"
 
 //reminder to self
