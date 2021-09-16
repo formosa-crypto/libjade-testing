@@ -1,4 +1,4 @@
-#include "roots_of_unity.jazz"
+require "roots_of_unity.jazz"
 
 //Maybe combine into params.jazz?
 param int twoTo32 = 4294967296;

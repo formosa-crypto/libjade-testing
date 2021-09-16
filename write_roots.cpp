@@ -77,8 +77,6 @@ void test_montgomery() {
 int main() {
 	ofstream fout("roots_of_unity.jazz");
 	//test_montgomery();
-	fout << "#ifndef ROOTS_OF_UNITY" << endl;
-	fout << "#define ROOTS_OF_UNITY" << endl;
 	fout << "u32[256] roots_of_unity = {" << endl;
 
 	auto mRoots = precomputeMRoots();
@@ -90,6 +88,5 @@ int main() {
 	}
 
 	fout << endl << "};" << endl;
-	fout << "#endif" << endl;
 	return 0;
 }
