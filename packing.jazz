@@ -1,0 +1,18 @@
+#ifndef PACKING
+#define PACKING
+
+inline
+fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[10 * Li2_polydeg * Li2_k / 8] buf)
+{
+	inline int i;
+	
+	for i = 0 to Li2_polydeg / 4 {
+		buf[5*i+0] = t1[4*i+0] >> 0;
+		buf[5*i+1] = (t1[4*i+0] >> 8) | (t1[4*i+1] << 2);
+		buf[5*i+2] = (t1[4*i+1] >> 6) | (t1[4*i+2] << 4);
+		buf[5*i+3] = (t1[4*i+2] >> 4) | (t1[4*i+3] << 6);
+		buf[5*i+4] = (t1[4*i+3] >> 2);
+	}
+}
+
+#endif

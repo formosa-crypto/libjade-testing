@@ -2,6 +2,7 @@
 #include "gen_matrix.jazz"
 #include "gen_noises.jazz"
 #include "polyvec.jazz"
+#include "packing.jazz"
 
 param int PK_LEN = 1952;
 param int SK_LEN = 4016;
@@ -27,6 +28,8 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u32[Li2_k * Li2_polydeg] s2;
 
 	stack u32[Li2_k * Li2_polydeg] t t1 t0;
+
+	stack u8[10 *  Li2_polydeg * Li2_k / 8] t1_packed;
 
 	//temp variables
 	reg u8 c;
@@ -57,6 +60,9 @@ fn keygen(stack u8[PK_LEN] pk,
 	//s1 = fft_vec(s1);
 
 	t1, t0 = power2round_vec(t);
+
+	polyt1_pack(t1, t1_packed);
+
 
 	
 
