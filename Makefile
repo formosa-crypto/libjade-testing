@@ -4,13 +4,10 @@ test_keygen: test_keygen.cpp keygen.s
 
 main: main.cpp montgomery.s shake256.s keygen.s
 
-%.japp: %.jazz *.jazz
-	gpp -o $@ $<
-
-%.s: %.japp
+%.s: %.jazz *.jazz
 	jasminc -pasm $< > $@
 
 write_roots: write_roots.cpp
 
 clean:
-	rm -f *.japp *.s montgomery.ec main *.eco write_roots test_keygen
+	rm -f *.s montgomery.ec main *.eco write_roots test_keygen
