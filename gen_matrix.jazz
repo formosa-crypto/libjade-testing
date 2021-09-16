@@ -1,6 +1,3 @@
-#ifndef GEN_MATRIX_HH
-#define GEN_MATRIX_HH
-
 require "fips202.jazz"
 require "params.jazz"
 
@@ -99,5 +96,3 @@ fn gen_matrix(stack u8[32] rho) -> stack u8[3 * 256 * Li2_k * Li2_l]
 
 	return matrix;
 }
-
-#endif

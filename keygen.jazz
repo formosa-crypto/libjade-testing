@@ -1,6 +1,6 @@
 require "fips202.jazz"
-#include "gen_matrix.jazz"
-#include "gen_noises.jazz"
+require "gen_matrix.jazz"
+require "gen_noises.jazz"
 #include "polyvec.jazz"
 #include "packing.jazz"
 

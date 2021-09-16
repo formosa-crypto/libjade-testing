@@ -1,6 +1,3 @@
-#ifndef GEN_NOISES
-#define GEN_NOISES
-
 require "fips202.jazz"
 require "params.jazz"
 
@@ -109,5 +106,3 @@ fn gen_noises(stack u8[64] rho_prime)
 
 	return s1, s2;
 }
-
-#endif
