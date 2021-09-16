@@ -141,8 +141,11 @@ fn __keccakf1600_ref(reg ptr u64[25] state) -> reg ptr u64[25] {
   reg ptr u64[24] constptr;
 
   reg u64 rctr;
+  reg u64 c;
   
-  constptr = roundconstants;
+  //want to use this one instead of the one inside the loop...
+  //but I get one-varmap error if I do that.
+  //constptr = roundconstants;
   rctr = 0;
 
   while (rctr < 192) {
@@ -151,7 +154,8 @@ fn __keccakf1600_ref(reg ptr u64[25] state) -> reg ptr u64[25] {
     state = pi(state);
     state = chi(state);
     constptr = roundconstants;
-    state = iota(state, constptr.[(int)rctr]);
+	c = constptr.[(int)rctr];
+    state = iota(state, c);
     rctr += 8;
   }
 
@@ -481,11 +485,13 @@ fn shake128_squeezeblock(reg ptr u64[25] state, reg ptr u8[SHAKE128_RATE] out) -
 /* -- Below are added for Dilithium -- */
 
 // Dilithium keygen inputs 32 bytes to SHAKE256
-fn shake256_absorb32(reg ptr u64[25] state, reg const ptr u8[32] in) -> reg ptr u64[25]
+inline
+fn shake256_absorb32(stack u8[32] in) -> stack u64[25]
 {
   //param int SHAKE256_RATE = 136;
   reg u8 c;
   inline int i;
+  stack u64[25] state;
 
   state = st0(state);
 

@@ -35,7 +35,7 @@ fn keygen(stack u8[PK_LEN] pk,
 	reg u8 c;
 	inline int i;
 
-	state = shake256_absorb32(state, random_zeta);
+	state = shake256_absorb32(random_zeta);
 	state, s256_out = shake256_squeezeblock(state, s256_out);
 
 	//TODO optimize
