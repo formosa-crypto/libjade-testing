@@ -1,3 +1,4 @@
+require "poly.jazz"
 require "high-low-order.jazz"
 //TODO uncomment once fft is fixed
 //require "fft.jazz"
@@ -56,4 +57,44 @@ fn power2round_vec(stack u32[Li2_k * Li2_polydeg] v)
 	}
 
 	return t1, t0;
+}
+
+inline
+fn sum_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
+	-> stack u32[Li2_k * Li2_polydeg]
+{
+	stack u32[Li2_k * Li2_polydeg] vsum;
+	inline int i;
+	reg ptr u32[Li2_polydeg] v1_term v2_term vsum_term;
+	
+	for i = 0 to Li2_k {
+		v1_term = v1[Li2_polydeg * i : Li2_polydeg];
+		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
+		vsum_term = vsum[Li2_polydeg * i : Li2_polydeg];
+		poly_add(v1_term, v2_term, vsum_term);
+		vsum[Li2_polydeg * i : Li2_polydeg] = vsum_term;
+	}
+	return vsum;
+}
+
+inline
+fn dot_prod_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
+	-> stack u32[Li2_polydeg]
+{	
+	stack u32[Li2_polydeg] dotprod;
+	stack u32[Li2_polydeg] term_prod;
+
+	reg ptr u32[Li2_polydeg] v1_term v2_term;
+
+	inline int i;
+	
+	zero_poly(dotprod);
+	for i = 0 to Li2_k {
+		v1_term = v1[Li2_polydeg * i : Li2_polydeg];
+		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
+		poly_mult(v1_term, v2_term, term_prod);
+		poly_add(dotprod, term_prod, dotprod);
+	}
+
+	return dotprod;
 }
