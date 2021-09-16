@@ -2,7 +2,8 @@
 #define GEN_MATRIX_HH
 
 #include "fips202.jazz"
-#include "params.jazz"
+
+require "params.jazz"
 
 //reminder to self
 //param int SHAKE256_RATE = 136;

@@ -2,7 +2,7 @@
 #define FFT
 
 #include "montgomery.jazz"
-#include "params.jazz"
+require "params.jazz"
 
 //really?
 //TODO Maybe just cast to reg u64 and back or something instead...

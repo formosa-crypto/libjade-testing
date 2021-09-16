@@ -1,6 +1,3 @@
-#ifndef PARAMS_HH
-#define PARAMS_HH
-
 // Modulus
 param int Li2_q = 8380417;
 // Dropped bits from t
@@ -26,5 +23,3 @@ param int Li2_beta = 196;
 param int Li2_omega = 55;
 // poly degrees
 param int Li2_polydeg = 256;
-
-#endif
