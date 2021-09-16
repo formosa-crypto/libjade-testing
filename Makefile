@@ -13,4 +13,4 @@ roots_of_unity.jazz: write_roots
 	./write_roots
 
 clean:
-	rm -f *.s montgomery.ec main *.eco write_roots test_keygen
+	rm -f *.s montgomery.ec main *.eco write_roots test_keygen roots_of_unity.jazz
