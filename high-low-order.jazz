@@ -1,6 +1,3 @@
-#ifndef HIGH_LOW_ORDER
-#define HIGH_LOW_ORDER
-
 inline
 fn power2round(reg u32 r)
 	-> reg u32, reg u32
@@ -17,5 +14,3 @@ fn power2round(reg u32 r)
 
 	return highbits, lowbits;
 }
-
-#endif

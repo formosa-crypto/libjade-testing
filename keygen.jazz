@@ -1,8 +1,8 @@
 require "fips202.jazz"
 require "gen_matrix.jazz"
 require "gen_noises.jazz"
-#include "polyvec.jazz"
-#include "packing.jazz"
+require "polyvec.jazz"
+require "packing.jazz"
 
 param int PK_LEN = 1952;
 param int SK_LEN = 4016;

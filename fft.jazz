@@ -1,7 +1,4 @@
-#ifndef FFT
-#define FFT
-
-#include "montgomery.jazz"
+require "montgomery.jazz"
 require "params.jazz"
 
 //really?
@@ -298,5 +295,3 @@ fn ifft(reg ptr u32[256] f) -> reg ptr u32[256]
 }
 */
 
-
-#endif

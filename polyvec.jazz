@@ -1,9 +1,6 @@
-#ifndef POLYVEC
-#define POLYVEC
-
-#include "high-low-order.jazz"
-
-//TODO include FFT once things get figured out
+require "high-low-order.jazz"
+//TODO uncomment once fft is fixed
+//require "fft.jazz"
 
 /*
 inline
@@ -60,5 +57,3 @@ fn power2round_vec(stack u32[Li2_k * Li2_polydeg] v)
 
 	return t1, t0;
 }
-
-#endif
