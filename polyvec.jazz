@@ -71,7 +71,7 @@ fn sum_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
 		v1_term = v1[Li2_polydeg * i : Li2_polydeg];
 		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
 		vsum_term = vsum[Li2_polydeg * i : Li2_polydeg];
-		poly_add(v1_term, v2_term, vsum_term);
+		vsum_term = poly_add(v1_term, v2_term, vsum_term);
 		vsum[Li2_polydeg * i : Li2_polydeg] = vsum_term;
 	}
 	return vsum;
@@ -88,12 +88,12 @@ fn dot_prod_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
 
 	inline int i;
 	
-	zero_poly(dotprod);
+	dotprod = zero_poly(dotprod);
 	for i = 0 to Li2_k {
 		v1_term = v1[Li2_polydeg * i : Li2_polydeg];
 		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
-		poly_mult(v1_term, v2_term, term_prod);
-		poly_add(dotprod, term_prod, dotprod);
+		term_prod = poly_mult(v1_term, v2_term, term_prod);
+		dotprod = poly_add(dotprod, term_prod, dotprod);
 	}
 
 	return dotprod;
