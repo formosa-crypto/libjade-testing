@@ -1,11 +1,15 @@
 CXXFLAGS = -Wall -Wextra -Wpedantic -std=c++17
+LDFLAGS = -I ./dilithium/ref -L./dilithium/ref -lpqcrystals_dilithium5_ref -lpqcrystals_fips202_ref
 
-test_keygen: test_keygen.cpp keygen.s
+test_keygen: test_keygen.cpp keygen.s dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) dilithium/ref/randombytes.o test_keygen.cpp -o $@ $(LDFLAGS)
 
-main: main.cpp montgomery.s shake256.s keygen.s
+main: main.cpp montgomery.s shake256.s keygen.s dilithium/ref/randombytes.o
 
 %.s: %.jazz *.jazz roots_of_unity.jazz
 	jasminc -pasm $< > $@
+
+%.o: %.h %.cpp
 
 write_roots: write_roots.cpp
 
