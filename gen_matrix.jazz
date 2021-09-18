@@ -5,9 +5,9 @@ require "params.jazz"
 //param int SHAKE256_RATE = 136;
 
 inline
-fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 * 256]
+fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 * Li2_polydeg]
 {
-	stack u8[3 * 256] result;
+	stack u8[3 * Li2_polydeg] result;
 	stack u8 term;
 	stack u8[3] vs;
 	reg u32 value v;
@@ -31,7 +31,7 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 
 	offset = 0;
 	term = 0;
-	while(term < 256) {
+	while(term < Li2_polydeg) {
 		for i = 0 to 3 {
 			if(offset >= SHAKE256_RATE) {
 				state = __keccakf1600_ref(state);
@@ -42,9 +42,6 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 			vs[i] = c;
 			offset += 1;
 		}
-
-		//umm endianness?
-		//TODO little endian for now; will fix later if wrong
 
 		//remove highest bit
 		c = vs[2];
@@ -58,8 +55,6 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 			v = (32u) vs[2 - i];
 			value += v;
 		}
-
-		// End little endian assumption block
 
 		if(value < Li2_q) {
 			for i = 0 to 3 {
@@ -78,18 +73,18 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 
 
 inline
-fn gen_matrix(stack u8[32] rho) -> stack u8[3 * 256 * Li2_k * Li2_l]
+fn gen_matrix(stack u8[32] rho) -> stack u8[3 * Li2_polydeg * Li2_k * Li2_l]
 {
-	stack u8[3 * 256] entry;
-	stack u8[3 * 256 * Li2_k * Li2_l] matrix;
+	stack u8[3 * Li2_polydeg] entry;
+	stack u8[3 * Li2_polydeg * Li2_k * Li2_l] matrix;
 
 	inline int i j k;
 
 	for i = 0 to Li2_k {
 		for j = 0 to Li2_l {
 			entry = gen_matrix_entry(rho, i, j);
-			for k = 0 to 3 * 256 {
-				matrix[3 * 256 * (i * Li2_l + j)] = entry[k];
+			for k = 0 to 3 * Li2_polydeg {
+				matrix[3 * Li2_polydeg * (i * Li2_l + j)] = entry[k];
 			}
 		}
 	}
