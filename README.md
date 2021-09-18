@@ -9,3 +9,4 @@ Work in progress.
 * Currently hard-coded at level 3
 * `roots_of_unity.jazz` is auto-generated using write-roots.cpp.
 * EasyCrypt proofs severely outdated
+* I don't know how to use CMake...
