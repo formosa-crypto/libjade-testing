@@ -3,6 +3,7 @@ require "montgomery.jazz"
 
 inline
 fn poly_add(reg ptr u32[Li2_polydeg] f g sum)
+	-> reg ptr u32[Li2_polydeg]
 {
 	stack u32 x1 x2 y;
 	inline int i;
@@ -13,10 +14,12 @@ fn poly_add(reg ptr u32[Li2_polydeg] f g sum)
 		y = montgomery_add(x1, x2);
 		sum[i] = y;
 	}
+	return sum;
 }
 
 inline
 fn poly_mult(reg ptr u32[Li2_polydeg] fft_f fft_g fft_prod)
+	-> reg ptr u32[Li2_polydeg]
 {
 	inline int i;
 	stack u32 x1 x2 y;
@@ -26,14 +29,17 @@ fn poly_mult(reg ptr u32[Li2_polydeg] fft_f fft_g fft_prod)
 		y = montgomery_mult(x1, x2);
 		fft_prod[i] = y;
 	}
+	return fft_prod;
 }
 
 inline
 fn zero_poly(reg ptr u32[Li2_polydeg] f)
+	-> reg ptr u32[Li2_polydeg]
 {
 	inline int i;
 	for i = 0 to Li2_polydeg {
 		// Montgomery of 0 is 0
 		f[i] = 0;
 	}
+	return f;
 }
