@@ -23,7 +23,7 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u8[64] rho_prime;
 	stack u8[32] k;
 
-	stack u8[3 * 256 * Li2_k * Li2_l] mat_A;
+	stack u8[3 * Li2_polydeg * Li2_k * Li2_l] mat_A;
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
 
@@ -31,10 +31,13 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	stack u8[10 *  Li2_polydeg * Li2_k / 8] t1_packed;
 
+	reg ptr u8[3 * Li2_polydeg * Li2_k * Li2_l] matrix_dest;
+
 	//temp variables
 	reg u8 c;
 	inline int i;
 
+	// code here
 	state = shake256_absorb32(random_zeta);
 	state, s256_out = shake256_squeezeblock(state, s256_out);
 
@@ -61,22 +64,10 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	t1, t0 = power2round_vec(t);
 
-	polyt1_pack(t1, t1_packed);
+	pk[0:32] = rho_pack(rho, pk[0:32]);
 
-
-	
-
-
-	// Random values for now until I know how to pack
-	// Do NOT delete or Valgrind will complain
-	pk[0] = 11;
-	pk[1] = 22;
-	pk[2] = 33;
-	pk[PK_LEN - 1] = 44;
-	sk[0] = 55;
-	sk[1] = 66;
-	sk[2] = 77;
-	sk[SK_LEN - 1] = 88;
+	pk[32:10 * Li2_polydeg * Li2_k / 8] = polyt1_pack(
+		t1, pk[32:10 * Li2_polydeg * Li2_k / 8]);
 
 	return pk, sk;
 }
