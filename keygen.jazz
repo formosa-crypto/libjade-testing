@@ -37,31 +37,37 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	//temp variables
 	reg u8 c;
-	inline int i;
+	reg u64 i;
 
 	// code here
 	state = shake256_absorb32(random_zeta);
 	state, s256_out = shake256_squeezeblock(state, s256_out);
 
 	//TODO Maybe can load 8 bytes at a time using u64?
-	for i = 0 to 32 {
-		c = s256_out[i];
-		rho[i] = c;
+
+	i = 0;
+	while(i < 32) {
+		c = s256_out[(int) i];
+		rho[(int) i] = c;
+		i += 1;
 	}
-	for i = 32 to 96 {
-		c = s256_out[i];
-		rho_prime[i - 32] = c;
+	while(i < 96) {
+		c = s256_out[(int) i];
+		rho_prime[(int) (i - 32)] = c;
+		i += 1;
 	}
-	for i = 96 to 128 {
-		c = s256_out[i];
-		k[i - 96] = c;
+	while(i < 128) {
+		c = s256_out[(int) i];
+		k[(int) (i - 96)] = c;
+		i += 1;
 	}
 
-	fft_matA = gen_matrix(rho);
+	//fft_matA = gen_matrix(rho);
 
-	s1, s2 = gen_noises(rho_prime);
-	//TODO uncomment all of these
+	//s1, s2 = gen_noises(rho_prime);
 	fft_s1 = fft_vec(s1);
+
+/*
 
 	//t = mult_mat_vec(fft_matA, fft_s1);
 	//TODO
@@ -75,6 +81,7 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	pk[32:10 * Li2_polydeg * Li2_k / 8] = polyt1_pack(
 		t1, pk[32:10 * Li2_polydeg * Li2_k / 8]);
+*/
 
 	return pk, sk;
 }
@@ -87,22 +94,28 @@ fn keygen_jazz(reg u64 pk_ptr, reg u64 sk_ptr, reg u64 randomness)
 	stack u8[SK_LEN] sk;
 	stack u8[32] random_zeta;
 	reg u8 c;
-	inline int i;
+	reg u64 i;
 
-	for i = 0 to 32 {
+	i = 0;
+	while(i < 32) {
 		c = (u8)[randomness + i];
 		random_zeta[(int) i] = c;
+		i += 1;
 	}
 
 	pk, sk = keygen(pk, sk, random_zeta);
 
-	for i = 0 to PK_LEN {
-		c = pk[i];
+	i = 0;
+	while(i < PK_LEN) {
+		c = pk[(int) i];
 		(u8)[pk_ptr + i] = c;
+		i += 1;
 	}
 
-	for i = 0 to SK_LEN {
-		c = sk[i];
+	i = 0;
+	while(i < SK_LEN) {
+		c = sk[(int) i];
 		(u8)[sk_ptr + i] = c;
+		i += 1;
 	}
 }
