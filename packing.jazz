@@ -2,24 +2,28 @@ inline
 fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[10 * Li2_polydeg * Li2_k / 8] buf)
 	-> reg ptr u8[10 * Li2_polydeg * Li2_k / 8]
 {
-	inline int i;
+	reg u64 i;
+	reg u64 addr;
 	reg u32 x;
 	reg u8 c;
-
-	for i = 0 to Li2_polydeg / 4 {
+	
+	i = 0;
+	while(i < Li2_polydeg / 4) {
+		//TODO
+		/*
 		//buf[5*i+0] = t1[4*i+0] >> 0;
-		x = t1[4 * i];
+		x = t1[(int) (4 * i)];
 		c = (8u) x;
-		buf[5 * i] = c;
+		buf[(int) (5 * i)] = c;
 
 		//buf[5*i+1] = (t1[4*i+0] >> 8) | (t1[4*i+1] << 2);
-		x = t1[4 * i];
+		x = t1[(int) (4 * i)];
 		x >>= 8;
 		c = (8u) x;
-		x = t1[4 * i + 1];
+		x = t1[(int) (4 * i + 1)];
 		x <<= 2;
 		c |= x;
-		buf[5 * i + 1] = c;
+		buf[(int) (5 * i + 1)] = c;
 		
 		//buf[5*i+2] = (t1[4*i+1] >> 6) | (t1[4*i+2] << 4);
 		x = t1[4 * i + 1];
@@ -44,6 +48,7 @@ fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[10 * Li2_polydeg 
 		x >>= 2;
 		c = (8u) x;
 		buf[5 * i + 4] = c;
+		*/
 	}
 
 	return buf;

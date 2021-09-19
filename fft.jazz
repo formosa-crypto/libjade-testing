@@ -1,8 +1,6 @@
 require "montgomery.jazz"
 require "params.jazz"
 
-//really?
-//TODO Maybe just cast to reg u64 and back or something instead...
 inline
 fn do_shift_right(stack u8 value, inline int shifts) -> stack u8
 {
@@ -12,16 +10,6 @@ fn do_shift_right(stack u8 value, inline int shifts) -> stack u8
 	v = (32u) value;
 	v >>= shifts;
 	result = (8u) v;
-
-	/*
-	reg u8 i;
-	result = value;
-	i = 0;
-	while(i < shifts) {
-		result >>= 1;
-		i += 1;
-	}
-	*/
 	return result;
 }
 
