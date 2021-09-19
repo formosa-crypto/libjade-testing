@@ -6,15 +6,15 @@ test_keygen: test_keygen.cpp keygen.s dilithium/ref/randombytes.o
 
 main: main.cpp montgomery.s shake256.s keygen.s dilithium/ref/randombytes.o
 
-%.s: %.jazz *.jazz roots_of_unity.jazz
+%.s: %.jazz *.jazz twiddle_factors.jazz
 	jasminc -pasm $< > $@
 
 %.o: %.h %.cpp
 
-write_roots: write_roots.cpp
+write_twiddle_factors: write_twiddle_factors.cpp
 
-roots_of_unity.jazz: write_roots
-	./write_roots
+twiddle_factors.jazz: write_twiddle_factors
+	./write_twiddle_factors
 
 clean:
-	rm -f *.s montgomery.ec main *.eco write_roots test_keygen roots_of_unity.jazz
+	rm -f *.s montgomery.ec main *.eco write_twiddle_factors test_keygen twiddle_factors.jazz
