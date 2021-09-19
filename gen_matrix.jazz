@@ -5,9 +5,9 @@ require "params.jazz"
 //param int SHAKE256_RATE = 136;
 
 inline
-fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 * Li2_polydeg]
+fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
+	reg ptr u32[Li2_polydeg] result) -> reg ptr u32[Li2_polydeg]
 {
-	stack u8[3 * Li2_polydeg] result;
 	stack u8 term;
 	stack u8[3] vs;
 	reg u32 value v;
@@ -48,7 +48,7 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 		c &= 127;
 		vs[2] = c;
 
-		//assemble value
+		//assemble value in little endian
 		value = (32u) vs[2];
 		for i = 1 to 3 {
 			value <<= 8;
@@ -57,13 +57,7 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 		}
 
 		if(value < Li2_q) {
-			for i = 0 to 3 {
-				//result[3 * term + i] = vs[i]
-				addr = (64u) term;
-				addr *= 3;
-				addr += i;
-				result[(int) addr] = vs[i];
-			}
+			result[(int) term] = value;
 			term += 1;
 		}
 	}
@@ -73,19 +67,19 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j) -> stack u8[3 
 
 
 inline
-fn gen_matrix(stack u8[32] rho) -> stack u8[3 * Li2_polydeg * Li2_k * Li2_l]
+fn gen_matrix(stack u8[32] rho) -> stack u32[Li2_k * Li2_l * Li2_polydeg]
 {
-	stack u8[3 * Li2_polydeg] entry;
-	stack u8[3 * Li2_polydeg * Li2_k * Li2_l] matrix;
+	reg ptr u32[Li2_polydeg] entry;
+	stack u32[Li2_k * Li2_l * Li2_polydeg] matrix;
 
-	inline int i j k;
+	inline int i j;
 
+	//TODO double check indexing
 	for i = 0 to Li2_k {
 		for j = 0 to Li2_l {
-			entry = gen_matrix_entry(rho, i, j);
-			for k = 0 to 3 * Li2_polydeg {
-				matrix[3 * Li2_polydeg * (i * Li2_l + j)] = entry[k];
-			}
+			entry = matrix[(i * Li2_l + j) * Li2_polydeg : Li2_polydeg];
+			entry = gen_matrix_entry(rho, i, j, entry);
+			matrix[(i * Li2_l + j) * Li2_polydeg : Li2_polydeg] = entry;
 		}
 	}
 

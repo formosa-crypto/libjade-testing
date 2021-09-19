@@ -4,8 +4,16 @@ require "params.jazz"
 //really?
 //TODO Maybe just cast to reg u64 and back or something instead...
 inline
-fn do_shift_right(stack u8 value, stack u8 shifts) -> stack u8{
+fn do_shift_right(stack u8 value, inline int shifts) -> stack u8
+{
 	stack u8 result;
+	reg u32 v;
+	
+	v = (32u) value;
+	v >>= shifts;
+	result = (8u) v;
+
+	/*
 	reg u8 i;
 	result = value;
 	i = 0;
@@ -13,28 +21,30 @@ fn do_shift_right(stack u8 value, stack u8 shifts) -> stack u8{
 		result >>= 1;
 		i += 1;
 	}
+	*/
 	return result;
 }
 
 // consider precomputing
 inline
-fn bitreverse(stack u8 x, stack u8 numbits) -> stack u8
+fn bitreverse(stack u8 x, inline int numbits) -> stack u8
 {
 	stack u8 result;
-	stack u8 i;
 	stack u8 bit;
+	reg u8 temp;
+	inline int i;
 
 	result = 0;	
 	
-	i = 0;
-	while(i < numbits) {
+	for i = 0 to numbits {
 		bit = x;
 		bit = do_shift_right(bit, i);
 		bit &= 1;
 		bit <<= 7;
 		bit = do_shift_right(bit, i);
-		result |= bit;
-		i += 1;
+		temp = result;
+		temp |= bit;
+		result |= temp;
 	}
 
 	return result;
@@ -42,11 +52,12 @@ fn bitreverse(stack u8 x, stack u8 numbits) -> stack u8
 
 inline
 fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
-	-> stack u32[2]
+	-> stack u32, stack u32
 {
-	stack u32[2] result;
+	reg u32 temp;
+	stack u32 tf1 tf2;
 
-	stack u8 numbits;
+	inline int numbits;
 	stack u8 x;
 	stack u8 exp;
 	//TODO Check if casting to 64 bits is necessary
@@ -55,8 +66,7 @@ fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
 	reg ptr u32[256] ptr_roots_of_unity;
 	ptr_roots_of_unity = roots_of_unity;
 	
-	numbits = butterfly_level;
-	numbits += 1;
+	numbits = butterfly_level + 1;
 
 	x = butterfly_group;
 	x <<= 1;
@@ -68,7 +78,8 @@ fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
 	exp64 <<= 7;
 	exp64 >>= butterfly_level;
 
-	result[0] = ptr_roots_of_unity[(int) exp64];
+	temp = ptr_roots_of_unity[(int) exp64];
+	tf1 = temp;
 
 	x += 1;
 
@@ -77,75 +88,67 @@ fn compute_twiddle_factors(inline int butterfly_level, stack u8 butterfly_group)
 	exp64 <<= 7;
 	exp64 >>= butterfly_level;
 
-	result[1] = ptr_roots_of_unity[(int) exp64];
+	temp = ptr_roots_of_unity[(int) exp64];
+	tf2 = temp;
 
-	return result;
+	return tf1, tf2;
 }
 
 inline
-fn fft(stack u32[Li2_polydeg] f) -> stack u32[Li2_polydeg]
+fn fft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 {
 	inline int butterfly_level;
-	stack u8 num_butterfly_groups;
 	stack u8 butterfly_group;
 	//Number of butterflies. NOT number of elements.
-	stack u64 num_butterflies_per_group;
-	//Need u64 for arithmetics?
-	reg u64 butterfly_group_start;
+	inline int num_butterflies_per_group;
 	reg u64 butterfly_index;
 
 	//inputs of butterfly
-	reg u64 butterfly_left_val;
-	reg u64 butterfly_right_val;
+	reg u32 temp;
+	stack u32 butterfly_left_val;
+	stack u32 butterfly_right_val;
 
 	// results of butterfly
 	stack u32 temp1;
 	stack u32 temp2;
 
-	stack u32[2] twiddle_factors;
+	stack u32 tf1 tf2;
 
 	reg u64 butterfly_left_addr;
 	reg u64 butterfly_right_addr;
 
-
-	//Complaint: Can't unroll inner loop...
-	//Even though all bounds can be determined at compile time.
 	for butterfly_level = 0 to 8 {
-		num_butterfly_groups = 1;
-		num_butterfly_groups <<= butterfly_level;
-
-		num_butterflies_per_group = 128;
-		num_butterflies_per_group >>= butterfly_level;
+		num_butterflies_per_group = 128 >> butterfly_level;
 
 		butterfly_group = 0;
-		while(butterfly_group < num_butterfly_groups) {
-			twiddle_factors = compute_twiddle_factors(
+		while(butterfly_group < (1 << butterfly_level)) {
+			tf1, tf2 = compute_twiddle_factors(
 				butterfly_level, butterfly_group);
-
-			//group start was u8 but then this doesn't go?
-			butterfly_group_start = (64u) butterfly_group;
-			butterfly_group_start *= num_butterflies_per_group;
-			butterfly_group_start <<= 1;
 
 			butterfly_index = 0;
 			while(butterfly_index < num_butterflies_per_group) {
-				butterfly_left_addr = butterfly_group_start;
+				butterfly_left_addr = (64u) butterfly_group;
+				butterfly_left_addr *= 2 * num_butterflies_per_group;
 				butterfly_left_addr += butterfly_index;
 
 				butterfly_right_addr = butterfly_left_addr;
 				butterfly_right_addr += num_butterflies_per_group;
 
-				butterfly_left_val = (64u) f[(int) butterfly_left_addr];
-				butterfly_right_val = (64u) f[(int) butterfly_right_addr];
+				temp = f[(int) butterfly_left_addr];
+				butterfly_left_val = temp;
+				temp = f[(int) butterfly_right_addr];
+				butterfly_right_val = temp;
 
-				temp1 = montgomery_mult(butterfly_right_val, twiddle_factors[0]);
+				temp1 = montgomery_mult(butterfly_right_val, tf1);
 				temp1 = montgomery_add(temp1, butterfly_left_val);
 
-				temp2 = montgomery_mult(butterfly_right_val, twiddle_factors[1]);
+				temp2 = montgomery_mult(butterfly_right_val, tf2);
 				temp2 = montgomery_add(temp2, butterfly_left_val);
 
-				f[(int) butterfly_left_addr] = temp1;
-				f[(int) butterfly_right_addr] = temp2;
+				temp = temp1;
+				f[(int) butterfly_left_addr] = temp;
+				temp = temp2;
+				f[(int) butterfly_right_addr] = temp;
 
 				butterfly_index += 1;
 			}

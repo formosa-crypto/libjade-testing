@@ -23,9 +23,11 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u8[64] rho_prime;
 	stack u8[32] k;
 
-	stack u8[3 * Li2_polydeg * Li2_k * Li2_l] mat_A;
+	stack u32[Li2_k * Li2_l * Li2_polydeg] fft_matA;
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
+
+	stack u32[Li2_l * Li2_polydeg] fft_s1;
 
 	stack u32[Li2_k * Li2_polydeg] t t1 t0;
 
@@ -41,8 +43,7 @@ fn keygen(stack u8[PK_LEN] pk,
 	state = shake256_absorb32(random_zeta);
 	state, s256_out = shake256_squeezeblock(state, s256_out);
 
-	//TODO optimize
-	//Maybe can load 8 bytes at a time using u64
+	//TODO Maybe can load 8 bytes at a time using u64?
 	for i = 0 to 32 {
 		c = s256_out[i];
 		rho[i] = c;
@@ -56,13 +57,19 @@ fn keygen(stack u8[PK_LEN] pk,
 		k[i - 96] = c;
 	}
 
-	mat_A = gen_matrix(rho);
+	fft_matA = gen_matrix(rho);
+
 	s1, s2 = gen_noises(rho_prime);
+	//TODO uncomment all of these
+	fft_s1 = fft_vec(s1);
 
-	//TODO matrix and vector operations
-	//s1 = fft_vec(s1);
+	//t = mult_mat_vec(fft_matA, fft_s1);
+	//TODO
+	//t = ifft(t);
+	//TODO
+	//t = sum_vecs(t, s2);
 
-	t1, t0 = power2round_vec(t);
+	//t1, t0 = power2round_vec(t);
 
 	pk[0:32] = rho_pack(rho, pk[0:32]);
 

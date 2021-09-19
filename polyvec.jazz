@@ -1,43 +1,22 @@
 require "poly.jazz"
 require "high-low-order.jazz"
-//TODO uncomment once fft is fixed
-//require "fft.jazz"
+require "fft.jazz"
 
-/*
 inline
-fn fft_vec(stack u32[Li2_polydeg * Li2_l] vec)
-	-> stack u32[Li2_polydeg * Li2_l]
+fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
+	-> stack u32[Li2_l * Li2_polydeg]
 {
 	inline int i;
-
-	//TODO How do subarrays work...?
-	//Let's just do some brute forcing for now, will have to fix later.
-
-	stack u32[Li2_polydeg] entry;
-	reg u16 j;
+	reg ptr u32[Li2_polydeg] entry;
 
 	for i = 0 to Li2_l {
-		//TODO Brute force copying subarray
-		//Bad idea obviously
-		j = 0;
-		while(j < Li2_polydeg) {
-			entry[(int) j] = vec[i * Li2_polydeg + (int) j];
-			j += 1;
-		}
-
-		//Actual fft...
+		entry = vec[i * Li2_polydeg : Li2_polydeg];
 		entry = fft(entry);
-
-		//Copying back...
-		j = 0;
-		while(j < Li2_polydeg) {
-			vec[i * Li2_polydeg + (int) j] = entry[(int) j];
-		}
+		vec[i * Li2_polydeg : Li2_polydeg] = entry;
 	}
 
 	return vec;
 }
-*/
 
 inline
 fn power2round_vec(stack u32[Li2_k * Li2_polydeg] v)
@@ -78,10 +57,9 @@ fn sum_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
 }
 
 inline
-fn dot_prod_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
-	-> stack u32[Li2_polydeg]
+fn dot_prod_vecs(stack u32[Li2_l * Li2_polydeg] v1 v2, reg ptr u32[Li2_polydeg] dotprod)
+	-> reg ptr u32[Li2_polydeg]
 {	
-	stack u32[Li2_polydeg] dotprod;
 	stack u32[Li2_polydeg] term_prod;
 
 	reg ptr u32[Li2_polydeg] v1_term v2_term;
@@ -89,7 +67,7 @@ fn dot_prod_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
 	inline int i;
 	
 	dotprod = zero_poly(dotprod);
-	for i = 0 to Li2_k {
+	for i = 0 to Li2_l {
 		v1_term = v1[Li2_polydeg * i : Li2_polydeg];
 		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
 		term_prod = poly_mult(v1_term, v2_term, term_prod);
@@ -98,3 +76,24 @@ fn dot_prod_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
 
 	return dotprod;
 }
+
+inline
+fn mult_mat_vec(reg ptr u32[Li2_k * Li2_l * Li2_polydeg] mat,
+	reg ptr u32[Li2_l * Li2_polydeg] vec)
+	-> stack u32[Li2_k * Li2_polydeg]
+{
+	stack u32[Li2_k * Li2_polydeg] out;
+	reg ptr u32[Li2_polydeg] prod;
+	inline int i;
+
+	for i = 0 to Li2_k {
+		prod = out[Li2_polydeg * i : Li2_polydeg];
+		prod = dot_prod_vecs(
+			mat[Li2_l * Li2_polydeg * i : Li2_l * Li2_polydeg], 
+			vec, prod);
+		out[Li2_polydeg * i : Li2_polydeg] = prod;
+	}
+
+	return out;
+}
+

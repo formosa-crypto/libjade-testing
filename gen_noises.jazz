@@ -5,11 +5,10 @@ require "params.jazz"
 //param int SHAKE256_RATE = 136;
 
 inline
-fn gen_noises_entry(stack u8[64] rho_prime, inline int i)
-	-> stack u32[Li2_polydeg]
+fn gen_noises_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polydeg] buf)
+	-> reg ptr u32[Li2_polydeg]
 {
 	// Poly
-	stack u32[Li2_polydeg] result;
 	stack u8 term;
 
 	// For keccak
@@ -19,6 +18,7 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i)
 	// temps
 	inline int i;
 	reg u8 c1 c2;
+	reg u32 u32_c1;
 	reg u32 v;
 	reg u64 addr;
 
@@ -55,8 +55,10 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i)
 			} else {
 				v = Li2_q + 4;
 			}
-			v -= (32u) c1;
-			result[(int) term] = v;
+			u32_c1 = (32u) c1;
+			v -= u32_c1;
+			addr = (64u) term;
+			buf[(int) addr] = v;
 			term += 1;
 		}
 
@@ -67,14 +69,16 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i)
 				} else {
 					v = Li2_q + 4;
 				}
-				v -= (32u) c1;
-				result[(int) term] = v;
+				u32_c1 = (32u) c1;
+				v -= u32_c1;
+				addr = (64u) term;
+				buf[(int) addr] = v;
 				term += 1;
 			}
 		}
 	}
 
-	return result;
+	return buf;
 }
 
 
@@ -82,26 +86,23 @@ inline
 fn gen_noises(stack u8[64] rho_prime)
 	-> stack u32[Li2_l * Li2_polydeg], stack u32[Li2_k * Li2_polydeg]
 {
-	stack u32[Li2_polydeg] entry;
+	reg ptr u32[Li2_polydeg] entry;
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
+	reg u32 temp;
 
-	inline int i j;
+	inline int i;
 
 	for i = 0 to Li2_l {
-		entry = gen_noises_entry(rho_prime, i);
-
-		//TODO subarray maybe...?
-		for j = 0 to Li2_polydeg {
-			s1[Li2_polydeg * i + j] = entry[j];
-		}
+		entry = s1[Li2_polydeg * i : Li2_polydeg];
+		entry = gen_noises_entry(rho_prime, i, entry);
+		s1[Li2_polydeg * i : Li2_polydeg] = entry;
 	}
 
 	for i = 0 to Li2_k {
-		entry = gen_noises_entry(rho_prime, i + Li2_l);
-		for j = 0 to Li2_polydeg {
-			s2[Li2_polydeg * (i + Li2_l) + j] = entry[j];
-		}
+		entry = s2[Li2_polydeg * (i + Li2_l) : Li2_polydeg];
+		entry = gen_noises_entry(rho_prime, i, entry);
+		s2[Li2_polydeg * (i + Li2_l) : Li2_polydeg] = entry;
 	}
 
 	return s1, s2;

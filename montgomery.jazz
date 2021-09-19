@@ -12,7 +12,7 @@ param int m_1 = 4193792;
 param int m_root = 2091667;
 
 inline
-fn montgomery_REDC(stack u64 x) -> stack u32
+fn montgomery_REDC(reg u64 x) -> stack u32
 {
 	stack u32 result;
 	reg u64 m;
@@ -37,10 +37,14 @@ fn montgomery_REDC(stack u64 x) -> stack u32
 }
 
 inline
-fn montgomery_add(stack u32 x y) -> stack u32
+fn montgomery_add(stack u32 sx sy) -> stack u32
 {
-	stack u32 result;
+	reg u32 x y;
+	reg u32 result;
+	stack u32 sr;
 
+	x = sx;
+	y = sy;
 	result = x + y;
 
 	if(result >=s dilithium_modulo) {
@@ -51,17 +55,20 @@ fn montgomery_add(stack u32 x y) -> stack u32
 		result += dilithium_modulo;
 	}
 
-	return result;
+	sr = result;
+	return sr;
 }
 
 inline
 fn montgomery_mult(stack u32 x y) -> stack u32
 {
-	stack u64 xy;
+	reg u64 xy;
+	reg u64 temp;
 	stack u32 result;
 
 	xy = (64u) x;
-	xy *= (64u) y;
+	temp = (64u) y;
+	xy *= temp;
 	result = montgomery_REDC(xy);
 	return result;
 }
