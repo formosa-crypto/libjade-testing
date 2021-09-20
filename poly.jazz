@@ -7,7 +7,7 @@ fn poly_add(reg ptr u32[Li2_polydeg] f g sum)
 {
 	stack u32 x1 x2 y;
 
-	reg u32 i;
+	reg u64 i;
 	i = 0;
 	while(i < Li2_polydeg) {
 		x1 = f[(int) i];
@@ -20,18 +20,49 @@ fn poly_add(reg ptr u32[Li2_polydeg] f g sum)
 }
 
 inline
+fn poly_accumulate(reg ptr u32[Li2_polydeg] f sum)
+	-> reg ptr u32[Li2_polydeg]
+{
+	// Might need fix
+	// Probably too much movement between reg and stack
+	reg u32 temp;
+	stack u32 x1 x2 y;
+
+	reg u64 i;
+	i = 0;
+	while(i < Li2_polydeg) {
+		temp = f[(int) i];
+		x1 = temp;
+
+		temp = sum[(int) i];
+		x2 = temp;
+
+		y = montgomery_add(x1, x2);
+		temp = y;
+		sum[(int) i] = temp;
+		i += 1;
+	}
+	return sum;
+
+}
+
+inline
 fn poly_mult(reg ptr u32[Li2_polydeg] fft_f fft_g fft_prod)
 	-> reg ptr u32[Li2_polydeg]
 {
-	reg u32 i;
+	reg u64 i;
+	reg u32 temp;
 	stack u32 x1 x2 y;
 
 	i = 0;
 	while(i < Li2_polydeg) {
-		x1 = fft_f[(int) i];
-		x2 = fft_g[(int) i];
+		temp = fft_f[(int) i];
+		x1 = temp;
+		temp = fft_g[(int) i];
+		x2 = temp;
 		y = montgomery_mult(x1, x2);
-		fft_prod[(int) i] = y;
+		temp = y;
+		fft_prod[(int) i] = temp;
 		i += 1;
 	}
 	return fft_prod;
@@ -41,7 +72,7 @@ inline
 fn zero_poly(reg ptr u32[Li2_polydeg] f)
 	-> reg ptr u32[Li2_polydeg]
 {
-	reg u32 i;
+	reg u64 i;
 	i = 0;
 	while(i < Li2_polydeg) {
 		// Montgomery of 0 is 0

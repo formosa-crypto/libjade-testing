@@ -62,26 +62,23 @@ fn keygen(stack u8[PK_LEN] pk,
 		i += 1;
 	}
 
-	//fft_matA = gen_matrix(rho);
-
-	//s1, s2 = gen_noises(rho_prime);
+	fft_matA = gen_matrix(rho);
+	s1, s2 = gen_noises(rho_prime);
 	fft_s1 = fft_vec(s1);
 
-/*
+	t = mult_mat_vec(fft_matA, fft_s1);
 
-	//t = mult_mat_vec(fft_matA, fft_s1);
 	//TODO
 	//t = ifft(t);
 	//TODO
 	//t = sum_vecs(t, s2);
 
-	//t1, t0 = power2round_vec(t);
+	t1, t0 = power2round_vec(t);
 
 	pk[0:32] = rho_pack(rho, pk[0:32]);
 
 	pk[32:10 * Li2_polydeg * Li2_k / 8] = polyt1_pack(
 		t1, pk[32:10 * Li2_polydeg * Li2_k / 8]);
-*/
 
 	return pk, sk;
 }

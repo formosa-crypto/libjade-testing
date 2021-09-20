@@ -57,7 +57,8 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 		}
 
 		if(value < Li2_q) {
-			result[(int) term] = value;
+			addr = (64u) term;
+			result[(int) addr] = value;
 			term += 1;
 		}
 	}
