@@ -4,6 +4,6 @@ main
 *.eco
 *.japp
 montgomery.ec
-write_roots
-roots_of_unity.jazz
+write_twiddle_factors
+twiddle_factors.jazz
 test_keygen
