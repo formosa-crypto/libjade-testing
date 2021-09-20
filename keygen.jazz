@@ -35,6 +35,8 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	reg ptr u8[3 * Li2_polydeg * Li2_k * Li2_l] matrix_dest;
 
+	reg ptr u32[Li2_l * Li2_polydeg] s1ptr;
+
 	//temp variables
 	reg u8 c;
 	reg u64 i;
@@ -64,6 +66,9 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	fft_matA = gen_matrix(rho);
 	s1, s2 = gen_noises(rho_prime);
+	sk[96:Li2_l * Li2_polydeg / 2] = pack_s1(
+		s1, sk[96:Li2_l * Li2_polydeg / 2]);
+
 	fft_s1 = fft_vec(s1);
 
 	t = mult_mat_vec(fft_matA, fft_s1);
@@ -76,6 +81,18 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	pk[32:10 * Li2_polydeg * Li2_k / 8] = polyt1_pack(
 		t1, pk[32:10 * Li2_polydeg * Li2_k / 8]);
+
+	
+	sk[0:32] = rho_pack(rho, sk[0:32]);
+	sk[32:32] = rho_pack(k, sk[32:32]); 
+	//TODO
+	//sk[64:32] = rho_pack(tr, sk[64:32]);
+
+
+
+	
+
+	//= pack_s1(s1, sk[TODO]);
 
 	return pk, sk;
 }
