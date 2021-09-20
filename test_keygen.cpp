@@ -45,14 +45,6 @@ int main() {
 	pqcrystals_dilithium5_ref_seeded_keypair(pk_ref, sk_ref, randomness);
 	keygen_jazz(pk_jazz, sk_jazz, randomness);
 
-	PRINT(int(pk_ref[0]));
-	PRINT(int(pk_ref[1]));
-	PRINT(int(pk_ref[2]));
-
-	PRINT(int(pk_jazz[0]));
-	PRINT(int(pk_jazz[1]));
-	PRINT(int(pk_jazz[2]));
-	
 	PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium5_PUBLICKEYBYTES));
 
 	return 0;
