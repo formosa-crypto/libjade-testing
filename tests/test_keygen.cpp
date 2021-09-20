@@ -47,6 +47,7 @@ int main() {
 
 	//PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium5_PUBLICKEYBYTES));
 
+	/*
 	PRINT(int(sk_ref[96]));
 	PRINT(int(sk_ref[97]));
 	PRINT(int(sk_ref[98]));
@@ -58,8 +59,9 @@ int main() {
 	PRINT(int(sk_jazz[98]));
 	PRINT(int(sk_jazz[99]));
 	PRINT(int(sk_jazz[100]));
+	*/
 
-	PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2));
+	PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2 + K * N / 2));
 
 	return 0;
 }

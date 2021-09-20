@@ -1,5 +1,10 @@
 require "params.jazz"
 
+//packing related parameters
+param int Li2_pack_s1len = Li2_l * Li2_polydeg / 2;
+param int Li2_pack_s2len = Li2_k * Li2_polydeg / 2;
+param int Li2_pack_s2loc = 96 + Li2_pack_s1len;
+
 inline
 fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[10 * Li2_polydeg * Li2_k / 8] buf)
 	-> reg ptr u8[10 * Li2_polydeg * Li2_k / 8]
@@ -70,8 +75,8 @@ fn rho_pack(reg ptr u8[32] in out)
 	return out;
 }
 
-fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_l * Li2_polydeg / 2] dest)
-	-> reg ptr u8[Li2_l * Li2_polydeg / 2]
+fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_pack_s1len] dest)
+	-> reg ptr u8[Li2_pack_s1len]
 {
 	reg u8 value;
 
@@ -101,6 +106,40 @@ fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_l * Li2_polydeg /
 		value = (8u) higher;
 		*/
 
+		lower <<= 4;
+		lower += higher;
+		value = (8u) lower;
+		
+		dest[(int) addr] = value;
+	}
+	return dest;
+}
+
+fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
+	-> reg ptr u8[Li2_pack_s2len]
+{
+	reg u8 value;
+
+	reg u32 lower higher;
+	reg u32 temp;
+
+	reg u64 i;
+
+	reg u64 addr;
+
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		addr = i;
+		addr >>= 1;
+
+		temp = s1[(int) i];
+		i += 1;
+		higher = eta_minus_x(temp);
+
+		temp = s1[(int) i];
+		i += 1;
+		lower = eta_minus_x(temp);
+		
 		lower <<= 4;
 		lower += higher;
 		value = (8u) lower;

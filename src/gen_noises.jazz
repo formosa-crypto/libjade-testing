@@ -92,13 +92,11 @@ fn gen_noises(stack u8[64] rho_prime)
 		s1[Li2_polydeg * i : Li2_polydeg] = entry;
 	}
 
-/*
 	for i = 0 to Li2_k {
 		entry = s2[Li2_polydeg * i : Li2_polydeg];
 		entry = gen_noises_entry(rho_prime, Li2_l + i, entry);
 		s2[Li2_polydeg * i : Li2_polydeg] = entry;
 	}
-	*/
 
 	return s1, s2;
 }

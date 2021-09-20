@@ -67,8 +67,13 @@ fn keygen(stack u8[PK_LEN] pk,
 	//fft_matA = gen_matrix(rho);
 
 	s1, s2 = gen_noises(rho_prime);
-	sk[96:Li2_l * Li2_polydeg / 2] = pack_s1(
-		s1, sk[96:Li2_l * Li2_polydeg / 2]);
+
+	sk[96 : Li2_pack_s1len] = pack_s1(
+		s1, sk[96 : Li2_pack_s1len]);
+
+	sk[Li2_pack_s2loc : Li2_pack_s2len] = pack_s2(
+		s2, sk[Li2_pack_s2loc : Li2_pack_s2len]);
+
 /*
 
 	fft_s1 = fft_vec(s1);
