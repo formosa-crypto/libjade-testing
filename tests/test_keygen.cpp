@@ -3,8 +3,8 @@
 #include <cstring>
 
 extern "C" {
-#include "dilithium/ref/api.h"
-#include "dilithium/ref/params.h"
+#include "../dilithium/ref/api.h"
+#include "../dilithium/ref/params.h"
 }
 
 using std::cout;
