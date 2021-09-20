@@ -6,14 +6,18 @@ fn poly_add(reg ptr u32[Li2_polydeg] f g sum)
 	-> reg ptr u32[Li2_polydeg]
 {
 	stack u32 x1 x2 y;
+	reg u32 temp;
 
 	reg u64 i;
 	i = 0;
 	while(i < Li2_polydeg) {
-		x1 = f[(int) i];
-		x2 = g[(int) i];
+		temp = f[(int) i];
+		x1 = temp;
+		temp = g[(int) i];
+		x2 = temp;
 		y = montgomery_add(x1, x2);
-		sum[(int) i] = y;
+		temp = y;
+		sum[(int) i] = temp;
 		i += 1;
 	}
 	return sum;
@@ -43,7 +47,6 @@ fn poly_accumulate(reg ptr u32[Li2_polydeg] f sum)
 		i += 1;
 	}
 	return sum;
-
 }
 
 inline

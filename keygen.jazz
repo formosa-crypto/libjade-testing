@@ -67,11 +67,8 @@ fn keygen(stack u8[PK_LEN] pk,
 	fft_s1 = fft_vec(s1);
 
 	t = mult_mat_vec(fft_matA, fft_s1);
-
-	//TODO
-	//t = ifft(t);
-	//TODO
-	//t = sum_vecs(t, s2);
+	t = ifft_vec(t);
+	t = sum_vecs(t, s2);
 
 	t1, t0 = power2round_vec(t);
 

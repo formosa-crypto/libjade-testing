@@ -49,6 +49,7 @@ fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[10 * Li2_polydeg 
 		c = (8u) x;
 		buf[5 * i + 4] = c;
 		*/
+		i += 1;
 	}
 
 	return buf;

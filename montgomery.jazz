@@ -58,6 +58,20 @@ fn montgomery_add(stack u32 sx sy) -> stack u32
 }
 
 inline
+fn montgomery_negate(stack u32 x) -> stack u32
+{
+	reg u32 rx;
+	reg u32 temp;
+	stack u32 result;
+
+	rx = x;
+	temp = Li2_q;
+	temp -= rx;
+	result = temp;
+	return result;
+}
+
+inline
 fn montgomery_mult(stack u32 x y) -> stack u32
 {
 	reg u64 xy;

@@ -19,6 +19,22 @@ fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
 }
 
 inline
+fn ifft_vec(stack u32[Li2_k * Li2_polydeg] vec)
+	-> stack u32[Li2_k * Li2_polydeg]
+{
+	inline int i;
+	reg ptr u32[Li2_polydeg] entry;
+
+	for i = 0 to Li2_k {
+		entry = vec[i * Li2_polydeg : Li2_polydeg];
+		entry = ifft(entry);
+		vec[i * Li2_polydeg : Li2_polydeg] = entry;
+	}
+
+	return vec;
+}
+
+inline
 fn power2round_vec(stack u32[Li2_k * Li2_polydeg] v)
 	-> stack u32[Li2_k * Li2_polydeg], stack u32[Li2_k * Li2_polydeg]
 {
