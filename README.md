@@ -1,12 +1,12 @@
 # Jasmin Dilithium
 
-Trying to learn some formal verification.
+Learning formal verification by implementing [Crystals Dilithium](https://pq-crystals.org/dilithium/) in Jasmin.
 
 Work in progress.
 
 ## Notes
 
 * Currently hard-coded at level 3
-* `roots_of_unity.jazz` is auto-generated using write-roots.cpp.
+* `twiddle_factors.jazz` is auto-generated using `write_twiddle_factors.cpp`.
 * EasyCrypt proofs severely outdated
 * I don't know how to use CMake...
