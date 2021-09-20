@@ -9,30 +9,33 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polyde
 	-> reg ptr u32[Li2_polydeg]
 {
 	// Poly
-	stack u8 term;
+	stack u32 term;
 
 	// For keccak
 	stack u64[25] state;
 	reg u64 offset;
 
 	// temps
-	reg u64 i;
+	reg u64 j;
 	reg u8 c1 c2;
 	reg u32 u32_c1;
 	reg u32 v;
 	reg u64 addr;
+	
+	reg u8 c;
+	reg u32 c32;
 
 	stack u8[66] seed;
 
-	i = 0;
-	while(i < 64) {
-		c1 = rho_prime[(int) i];
-		seed[(int) i] = c1;
-		i += 1;
+	j = 0;
+	while(j < 64) {
+		c1 = rho_prime[(int) j];
+		seed[(int) j] = c1;
+		j += 1;
 	}
 	
-	seed[65] = i;
-	seed[66] = 0;
+	seed[64] = i & 255;
+	seed[65] = i >> 8;
 
 	state = shake256_absorb66(seed);
 	state = __keccakf1600_ref(state);
@@ -44,35 +47,24 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polyde
 			state = __keccakf1600_ref(state);
 			offset = 0;
 		}
-		
 
-		c1 = state[u8 (int) offset];
-		c2 = c1;
-		c1 >>= 2;
-		c2 &= 15;
+		c = state[u8 (int) offset];
+		offset += 1;
 
-		if(c1 <= 9) {
-			if(c1 <= 4) {
-				v = 4;
-			} else {
-				v = Li2_q + 4;
-			}
-			u32_c1 = (32u) c1;
-			v -= u32_c1;
+		c32 = (32u) c;
+		c32 &= 15;
+		if(c32 <= 2 * Li2_eta) {
+			v = eta_minus_x(c32);
 			addr = (64u) term;
 			buf[(int) addr] = v;
 			term += 1;
 		}
 
-		if(c2 <= 9) {
-			if(term < 256) {
-				if(c1 <= 4) {
-					v = 4;
-				} else {
-					v = Li2_q + 4;
-				}
-				u32_c1 = (32u) c1;
-				v -= u32_c1;
+		if(term < 256) {
+			c32 = (32u) c;
+			c32 >>= 4;
+			if(c32 <= 2 * Li2_eta) {
+				v = eta_minus_x(c32);
 				addr = (64u) term;
 				buf[(int) addr] = v;
 				term += 1;
@@ -100,11 +92,13 @@ fn gen_noises(stack u8[64] rho_prime)
 		s1[Li2_polydeg * i : Li2_polydeg] = entry;
 	}
 
+/*
 	for i = 0 to Li2_k {
 		entry = s2[Li2_polydeg * i : Li2_polydeg];
 		entry = gen_noises_entry(rho_prime, Li2_l + i, entry);
 		s2[Li2_polydeg * i : Li2_polydeg] = entry;
 	}
+	*/
 
 	return s1, s2;
 }

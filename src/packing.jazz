@@ -1,3 +1,5 @@
+require "params.jazz"
+
 inline
 fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[10 * Li2_polydeg * Li2_k / 8] buf)
 	-> reg ptr u8[10 * Li2_polydeg * Li2_k / 8]
@@ -68,22 +70,6 @@ fn rho_pack(reg ptr u8[32] in out)
 	return out;
 }
 
-inline
-fn eta_minus_x(reg u32 x) -> reg u32
-{
-	reg u32 result;
-	if(x <= Li2_eta) {
-		result = Li2_eta;
-		result -= x;
-	} else {
-		result = Li2_q;
-		result -= x;
-		result += Li2_eta;
-
-	}
-	return result;
-}
-
 fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_l * Li2_polydeg / 2] dest)
 	-> reg ptr u8[Li2_l * Li2_polydeg / 2]
 {
@@ -108,10 +94,16 @@ fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_l * Li2_polydeg /
 		temp = s1[(int) i];
 		i += 1;
 		lower = eta_minus_x(temp);
-
+		
+		/* Why is this not correct?
 		higher <<= 4;
 		higher += lower;
 		value = (8u) higher;
+		*/
+
+		lower <<= 4;
+		lower += higher;
+		value = (8u) lower;
 		
 		dest[(int) addr] = value;
 	}

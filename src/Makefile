@@ -1,5 +1,7 @@
 CXXFLAGS = -Wall -Wextra -Wpedantic -std=c++17
 
+main: keygen.s
+
 %.s: %.jazz *.jazz twiddle_factors.jazz
 	jasminc -pasm $< > $@
 

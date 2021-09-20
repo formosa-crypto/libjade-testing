@@ -23,3 +23,18 @@ param int Li2_beta = 196;
 param int Li2_omega = 55;
 // poly degrees
 param int Li2_polydeg = 256;
+
+// not sure where to put this, so here it goes for now
+
+inline
+fn eta_minus_x(reg u32 x) -> reg u32
+{
+	reg u32 result;
+	if(x <= Li2_eta) {
+		result = Li2_eta;
+	} else {
+		result = Li2_q + Li2_eta;
+	}
+	result -= x;
+	return result;
+}

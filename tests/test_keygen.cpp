@@ -42,12 +42,24 @@ int main() {
 	}
 	*/
 
-	pqcrystals_dilithium5_ref_seeded_keypair(pk_ref, sk_ref, randomness);
+	pqcrystals_dilithium3_ref_seeded_keypair(pk_ref, sk_ref, randomness);
 	keygen_jazz(pk_jazz, sk_jazz, randomness);
 
 	//PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium5_PUBLICKEYBYTES));
 
-	//PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2));
+	PRINT(int(sk_ref[96]));
+	PRINT(int(sk_ref[97]));
+	PRINT(int(sk_ref[98]));
+	PRINT(int(sk_ref[99]));
+	PRINT(int(sk_ref[100]));
+
+	PRINT(int(sk_jazz[96]));
+	PRINT(int(sk_jazz[97]));
+	PRINT(int(sk_jazz[98]));
+	PRINT(int(sk_jazz[99]));
+	PRINT(int(sk_jazz[100]));
+
+	PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2));
 
 	return 0;
 }
