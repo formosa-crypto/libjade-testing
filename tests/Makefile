@@ -1,9 +1,7 @@
 CXXFLAGS = -Wall -Wextra -Wpedantic -std=c++17
 LDFLAGS = -I ../dilithium/ref -L../dilithium/ref -lpqcrystals_dilithium3_ref -lpqcrystals_fips202_ref
 
-main: test_gen_matrix
-
-tests: test_keygen test_noises test_fft test_gen_matrix
+tests: test_keygen test_noises test_fft test_gen_matrix test_packing
 
 test_keygen: test_keygen.cpp ../src/keygen.s ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ../src/keygen.s test_keygen.cpp -o $@ $(LDFLAGS)
@@ -13,6 +11,8 @@ test_noises: test_noises.cpp test_gen_noises.s ../src/keygen.s
 test_fft: test_fft.cpp fft_export.s
 
 test_gen_matrix: test_gen_matrix.cpp gen_matrix_export.s
+
+test_packing: test_packing.cpp packing_export.s
 
 %.s: %.jazz
 	jasminc -pasm $< > $@
