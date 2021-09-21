@@ -15,25 +15,27 @@ using std::memcmp;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void gen_noises_entry_test();
-	void gen_noises_test(uint32_t s1[L * N]);
+	void gen_matrix_entry_test(uint32_t poly[N]);
 }
 
-/*
-uint8_t sampleByte() {
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
-	static std::uniform_int_distribution<> distrib(0,  255);
-	return distrib(gen);
+template<typename T> void print_poly(T f[N]) {
+	for(int i = 0; i < 16; ++i) {
+		cout << f[16 * i];
+		for(int j = 1; j < 16; ++j) {
+			cout << ' ' << f[16 * i + j];
+		}
+		cout << endl;
+	}
 }
-*/
 
 int main() {
-	uint32_t s1[L * N] = { 0 };
-	gen_noises_test(s1);
-	for(int i = 0; i < 20; ++i) {
-		PRINT(s1[i]);
-	}
+	uint32_t poly[N];
+	gen_matrix_entry_test(poly);
+
+	print_poly(poly);
+
+	// TODO hand-calculated values below...
+	
 
 	return 0;
 }
