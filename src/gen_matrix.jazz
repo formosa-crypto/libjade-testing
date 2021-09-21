@@ -8,10 +8,10 @@ inline
 fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 	reg ptr u32[Li2_polydeg] result) -> reg ptr u32[Li2_polydeg]
 {
-	stack u8 term;
+	stack u32 term;
 	stack u8[3] vs;
 	reg u32 value v;
-	reg u16 offset;
+	reg u64 offset;
 	stack u64[25] state;
 	inline int k;
 	reg u8 c;
@@ -36,8 +36,7 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 				state = __keccakf1600_ref(state);
 				offset = 0;
 			}
-			addr = (64u) offset;
-			c = state[u8 (int) addr];
+			c = state[u8 (int) offset];
 			vs[k] = c;
 			offset += 1;
 		}
