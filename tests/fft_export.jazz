@@ -1,4 +1,15 @@
 require "../src/fft.jazz"
+require "../src/montgomery.jazz"
+
+export
+fn montgomery_REDC_jazz(reg u64 x) -> reg u32
+{
+	stack u32 redc_x;
+	reg u32 result;
+	redc_x = montgomery_REDC(x);
+	result = redc_x;
+	return result;
+}
 
 export
 fn fft_jazz(reg u64 vec)
