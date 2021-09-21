@@ -74,18 +74,22 @@ fn keygen(stack u8[PK_LEN] pk,
 	sk[Li2_pack_s2loc : Li2_pack_s2len] = pack_s2(
 		s2, sk[Li2_pack_s2loc : Li2_pack_s2len]);
 
+/*
 	fft_s1 = fft_vec(s1);
 
 	t = mult_mat_vec(fft_matA, fft_s1);
 	t = ifft_vec(t);
 	t = sum_vecs(t, s2);
+	*/
 
 	t1, t0 = power2round_vec(t);
 
 	pk[0:32] = rho_pack(rho, pk[0:32]);
 
+/*
 	pk[32 : Li2_pack_t1len] = polyt1_pack(
 		t1, pk[32 : Li2_pack_t1len]);
+		*/
 
 	
 	sk[0:32] = rho_pack(rho, sk[0:32]);

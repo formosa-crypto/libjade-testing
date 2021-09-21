@@ -47,23 +47,10 @@ int main() {
 
 	//PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_PUBLICKEYBYTES));
 
-	/*
-	PRINT(int(sk_ref[96]));
-	PRINT(int(sk_ref[97]));
-	PRINT(int(sk_ref[98]));
-	PRINT(int(sk_ref[99]));
-	PRINT(int(sk_ref[100]));
-
-	PRINT(int(sk_jazz[96]));
-	PRINT(int(sk_jazz[97]));
-	PRINT(int(sk_jazz[98]));
-	PRINT(int(sk_jazz[99]));
-	PRINT(int(sk_jazz[100]));
-	*/
-
+	PRINT(memcmp(sk_ref, sk_jazz, 64));
 	PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2 + K * N / 2));
 	PRINT(memcmp(pk_ref, pk_jazz, 32));
-	PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_SECRETKEYBYTES));
+	//PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_PUBLICKEYBYTES));
 
 	return 0;
 }
