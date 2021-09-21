@@ -100,12 +100,12 @@ pair<uint32_t, uint32_t> compute_tfs(int butterfly_level, int butterfly_group, v
 
 int compute_itf(int butterfly_level, int butterfly_group, vector<uint32_t>& mroots) {
 	int tf_exp = bitreverse(2 * butterfly_group, butterfly_level + 1)
-			<< (7 - butterfly_level);
+			<< (8 - butterfly_level);
 	//PRINT(tf_exp);
-	int inv_tf_exp = tf_exp == 0 ? 0 : 256 - tf_exp;
+	int inv_tf_exp = tf_exp == 0 ? 0 : 512 - tf_exp;
 	//PRINT(inv_tf_exp);
 	//PRINT(mroots[inv_tf_exp]);
-	return montgomery_REDC(mroots[inv_tf_exp] * inv_of_2);
+	return montgomery_REDC(mroots[inv_tf_exp] * montgomery(inv_of_2));
 }
 
 pair<vector<uint32_t>, vector<uint32_t>> compute_all_tfs()

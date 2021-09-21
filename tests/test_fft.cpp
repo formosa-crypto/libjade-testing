@@ -77,8 +77,9 @@ void multiply_polys(uint32_t f[N], uint32_t g[N], uint32_t product[N]) {
 			for(int gdeg : gdegs) {
 				if(gdeg >= 0 && gdeg < N) {
 					uint64_t prod = uint64_t(f[fdeg]) * g[gdeg];
-					prod %= N;
+					prod %= Q;
 					product[i] += prod;
+					product[i] %= Q;
 				}
 			}
 		}
@@ -137,7 +138,7 @@ void test_poly_product() {
 
 void test_ifft() {
 	auto mroots = precomputeMRoots();
-	uint32_t mf[N], f[N];
+	uint32_t f[N], mf[N];
 
 	zero_poly(f);
 	f[0] = 1;
@@ -180,6 +181,7 @@ void test_ifft() {
 	uint32_t mfg[N];
 	fft_poly_mult_jazz(mf, mg, mfg);
 
+	/*
 	PRINT(mf[0]);
 	PRINT(mg[0]);
 	PRINT(mf[1]);
@@ -188,11 +190,22 @@ void test_ifft() {
 	PRINT(mfg[0]);
 	PRINT(montgomery_REDC_jazz(uint64_t(mf[1]) * mg[1]));
 	PRINT(mfg[1]);
+	*/
 
 	ifft_jazz(mfg);
 
+	/*
+	cout << "mfg = " << endl;
+	print_poly(mfg);
+	*/
+
 	uint32_t fg[N];
 	multiply_polys(f, g, fg);
+
+	/*
+	cout << "fg = " << endl;
+	print_poly(fg);
+	*/
 
 	for(int i = 0; i < N; ++i)
 		if(montgomery(fg[i]) != mfg[i])
@@ -219,6 +232,12 @@ void test_fft() {
 		if(mRoots[bitreverse(i, 9)] != g[i])
 			throw runtime_error("test failed at " + to_string(__LINE__));
 	}
+
+	if(mRoots[bitreverse(N - 1, 9)] != g[N - 1])
+		throw runtime_error("test failed at " + to_string(__LINE__));
+
+	if(mRoots[bitreverse(N - 2, 9)] != g[N - 2])
+		throw runtime_error("test failed at " + to_string(__LINE__));
 	
 	uint32_t h[N];
 
@@ -232,6 +251,13 @@ void test_fft() {
 		if((f[i] + g[i]) % Q != h[i])
 			throw runtime_error("test failed at " + to_string(__LINE__));
 	}
+
+	/*
+	uint32_t p[N] = { 0 };
+	p[N - 1] = montgomery(1);
+	fft_jazz(p);
+	*/
+
 }
 
 void test_roots_of_unity() {
@@ -243,6 +269,6 @@ int main() {
 	test_poly_product();
 	test_roots_of_unity();
 	test_fft();
-	//test_ifft();
+	test_ifft();
 	return 0;
 }

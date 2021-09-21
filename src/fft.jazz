@@ -132,12 +132,12 @@ fn ifft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 	reg u64 butterfly_left_addr;
 	reg u64 butterfly_right_addr;
 
-	for butterfly_level = 0 to 8 {
+	for butterfly_level = 7 downto -1 {
 		num_butterflies_per_group = 128 >> butterfly_level;
 
 		butterfly_group = 0;
 		while(butterfly_group < (1 << butterfly_level)) {
-			tf1 = (Li2_q + 1) / 2; //mult. inverse of 2
+			tf1 = 2096896; // montgomery(1/2)
 			tf2 = get_ifft_twiddle_factor(butterfly_group);
 
 			butterfly_index = 0;
@@ -159,7 +159,7 @@ fn ifft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 
 				temp2 = montgomery_negate(butterfly_right_val);
 				temp2 = montgomery_add(temp2, butterfly_left_val);
-				temp1 = montgomery_mult(temp2, tf2);
+				temp2 = montgomery_mult(temp2, tf2);
 
 				temp = temp1;
 				f[(int) butterfly_left_addr] = temp;

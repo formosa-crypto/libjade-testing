@@ -49,8 +49,8 @@ fn ifft_jazz(reg u64 vec)
 	f = ifft(f);
 	
 	for i = 0 to Li2_polydeg {
-		f[i] = term;
-		term = (u32) [vec + 4 * i];
+		term = f[i];
+		(u32) [vec + 4 * i] = term;
 	}
 }
 
