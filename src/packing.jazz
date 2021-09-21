@@ -5,57 +5,111 @@ param int Li2_pack_s1len = Li2_l * Li2_polydeg / 2;
 param int Li2_pack_s2len = Li2_k * Li2_polydeg / 2;
 param int Li2_pack_s2loc = 96 + Li2_pack_s1len;
 
+param int Li2_pack_t1len = 10 * Li2_polydeg * Li2_k / 8;
+
 inline
-fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[10 * Li2_polydeg * Li2_k / 8] buf)
-	-> reg ptr u8[10 * Li2_polydeg * Li2_k / 8]
+fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
+	-> reg ptr u8[Li2_pack_t1len]
 {
 	reg u64 i;
 	reg u64 addr;
-	reg u32 x;
+	reg u32 x x1;
 	reg u8 c;
 	
 	i = 0;
 	while(i < Li2_polydeg / 4) {
-		//TODO
-		/*
+		// I already know I'm gonna typo this somewhere...
+		// There's an argument to just use for-loop here...
+		// Having i be inline int will greatly simplify the code
+		// But compile time will probably be no good?
+
 		//buf[5*i+0] = t1[4*i+0] >> 0;
-		x = t1[(int) (4 * i)];
+
+		addr = 4;
+		addr *= i;
+		x = t1[(int) addr];
 		c = (8u) x;
-		buf[(int) (5 * i)] = c;
+
+		addr = 5;
+		addr *= i;
+		buf[(int) addr] = c;
 
 		//buf[5*i+1] = (t1[4*i+0] >> 8) | (t1[4*i+1] << 2);
-		x = t1[(int) (4 * i)];
+
+		addr = 4;
+		addr *= i;
+		x = t1[(int) addr];
 		x >>= 8;
+
+		addr = 4;
+		addr *= i;
+		addr += 1;
+		x1 = t1[(int) addr];
+		x1 <<= 2;
+		x |= x1;
+
+		addr = 5;
+		addr *= i;
+		addr += 1;
 		c = (8u) x;
-		x = t1[(int) (4 * i + 1)];
-		x <<= 2;
-		c |= x;
-		buf[(int) (5 * i + 1)] = c;
+		buf[(int) addr] = c;
 		
 		//buf[5*i+2] = (t1[4*i+1] >> 6) | (t1[4*i+2] << 4);
-		x = t1[4 * i + 1];
+
+		addr = 4;
+		addr *= i;
+		addr += 1;
+		x = t1[(int) addr];
 		x >>= 6;
+
+		addr = 4;
+		addr *= i;
+		addr += 2;
+		x1 = t1[(int) addr];
+		x1 <<= 4;
+		x |= x1;
+
+		addr = 5;
+		addr *= i;
+		addr += 2;
 		c = (8u) x;
-		x = t1[4 * i + 2];
-		x <<= 4;
-		c |= (8u) x;
-		buf[5 * i + 2] = c;
+		buf[(int) addr] = c;
 
 		//buf[5*i+3] = (t1[4*i+2] >> 4) | (t1[4*i+3] << 6);
-		x = t1[4 * i + 2];
+
+		addr = 4;
+		addr *= i;
+		addr += 2;
+		x = t1[(int) addr];
 		x >>= 4;
+
+		addr = 4;
+		addr *= i;
+		addr += 3;
+		x1 = t1[(int) addr];
+		x1 <<= 6;
+		x |= x1;
+
+		addr = 5;
+		addr *= i;
+		addr += 3;
 		c = (8u) x;
-		x = t1[4 * i + 3];
-		x <<= 6;
-		c |= (8u) x;
-		buf[5 * i + 3] = c;
+		buf[(int) addr] = c;
 
 		//buf[5*i+4] = (t1[4*i+3] >> 2);
-		x = t1[4 * i + 3];
+
+		addr = 4;
+		addr *= i;
+		addr += 3;
+		x = t1[(int) addr];
 		x >>= 2;
+
+		addr = 5;
+		addr *= i;
+		addr += 4;
 		c = (8u) x;
-		buf[5 * i + 4] = c;
-		*/
+		buf[(int) addr] = c;
+
 		i += 1;
 	}
 

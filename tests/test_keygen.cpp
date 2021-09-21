@@ -15,8 +15,8 @@ using std::memcmp;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void keygen_jazz(uint8_t pk[pqcrystals_dilithium5_PUBLICKEYBYTES],
-			uint8_t sk[pqcrystals_dilithium5_SECRETKEYBYTES],
+	void keygen_jazz(uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES],
+			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES],
 			uint8_t randomness[SEEDBYTES]);
 }
 
@@ -30,10 +30,10 @@ uint8_t sampleByte() {
 */
 
 int main() {
-	uint8_t pk_ref[pqcrystals_dilithium5_PUBLICKEYBYTES];
-	uint8_t sk_ref[pqcrystals_dilithium5_SECRETKEYBYTES];
-	uint8_t pk_jazz[pqcrystals_dilithium5_PUBLICKEYBYTES];
-	uint8_t sk_jazz[pqcrystals_dilithium5_SECRETKEYBYTES];
+	uint8_t pk_ref[pqcrystals_dilithium3_PUBLICKEYBYTES];
+	uint8_t sk_ref[pqcrystals_dilithium3_SECRETKEYBYTES];
+	uint8_t pk_jazz[pqcrystals_dilithium3_PUBLICKEYBYTES];
+	uint8_t sk_jazz[pqcrystals_dilithium3_SECRETKEYBYTES];
 
 	uint8_t randomness[32] = { 0 };
 	/*
@@ -45,7 +45,7 @@ int main() {
 	pqcrystals_dilithium3_ref_seeded_keypair(pk_ref, sk_ref, randomness);
 	keygen_jazz(pk_jazz, sk_jazz, randomness);
 
-	//PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium5_PUBLICKEYBYTES));
+	//PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_PUBLICKEYBYTES));
 
 	/*
 	PRINT(int(sk_ref[96]));
@@ -62,6 +62,8 @@ int main() {
 	*/
 
 	PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2 + K * N / 2));
+	PRINT(memcmp(pk_ref, pk_jazz, 32));
+	PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_SECRETKEYBYTES));
 
 	return 0;
 }
