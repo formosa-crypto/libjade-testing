@@ -1,6 +1,7 @@
 #include <iostream>
 #include <random>
 #include <cstring>
+#include <string>
 
 extern "C" {
 #include "../dilithium/ref/api.h"
@@ -11,6 +12,8 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::memcmp;
+using std::runtime_error;
+using std::to_string;
 
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
@@ -22,13 +25,13 @@ extern "C" {
 }
 
 uint64_t montgomery(uint32_t x) {
-	return (uint64_t(x) << 32) % N;
+	return (uint64_t(x) << 32) % Q;
 }
 
 uint32_t sampleInt() {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
-	static std::uniform_int_distribution<> distrib(0,  N - 1);
+	static std::uniform_int_distribution<> distrib(0,  Q - 1);
 	return distrib(gen);
 }
 
@@ -92,9 +95,11 @@ void multiply_polys(uint32_t f[N], uint32_t g[N], uint32_t product[N]) {
 
 void test_montgomery() {
 	uint64_t z = 823719;
-	PRINT(z);
 	uint64_t mZ = montgomery(z);
-	PRINT(montgomery_REDC_jazz(mZ));
+
+	if(z != montgomery_REDC_jazz(mZ)) {
+		throw runtime_error("test failed at " + to_string(__LINE__));
+	}
 
 	uint32_t x = 374824;
 	uint32_t y = 8047392;
@@ -102,10 +107,10 @@ void test_montgomery() {
 	uint64_t mY = montgomery(y);
 	uint64_t mProd = montgomery_REDC_jazz(mX * mY);
 	uint64_t prod = montgomery_REDC_jazz(mProd);
-	PRINT(prod);
+	uint64_t answer = (uint64_t(x) * y) % Q;
 
-	uint64_t answer = (uint64_t(x) * y) % N;
-	PRINT(answer);
+	if(prod != answer)
+		throw runtime_error("test failed at " + to_string(__LINE__));
 }
 
 void test_poly_product() {
@@ -173,6 +178,6 @@ void test_fft() {
 }
 
 int main() {
-
+	test_montgomery();
 	return 0;
 }
