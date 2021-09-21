@@ -13,18 +13,17 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 	reg u32 value v;
 	reg u16 offset;
 	stack u64[25] state;
-	inline int i;
+	inline int k;
 	reg u8 c;
 	reg u64 addr;
 
 	stack u8[34] seed;
-	for i = 0 to 32 {
-		c = rho[i];
-		seed[i] = c;
+	for k = 0 to 32 {
+		c = rho[k];
+		seed[k] = c;
 	}
-	//TODO is this the correct order?
-	seed[32] = i;
-	seed[33] = j;
+	seed[32] = j;
+	seed[33] = i;
 
 	state = shake256_absorb34(seed);
 	state = __keccakf1600_ref(state);
@@ -32,14 +31,14 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 	offset = 0;
 	term = 0;
 	while(term < Li2_polydeg) {
-		for i = 0 to 3 {
+		for k = 0 to 3 {
 			if(offset >= SHAKE256_RATE) {
 				state = __keccakf1600_ref(state);
 				offset = 0;
 			}
 			addr = (64u) offset;
 			c = state[u8 (int) addr];
-			vs[i] = c;
+			vs[k] = c;
 			offset += 1;
 		}
 
@@ -50,9 +49,9 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 
 		//assemble value in little endian
 		value = (32u) vs[2];
-		for i = 1 to 3 {
+		for k = 1 to 3 {
 			value <<= 8;
-			v = (32u) vs[2 - i];
+			v = (32u) vs[2 - k];
 			value += v;
 		}
 
@@ -75,7 +74,6 @@ fn gen_matrix(stack u8[32] rho) -> stack u32[Li2_k * Li2_l * Li2_polydeg]
 
 	inline int i j;
 
-	//TODO double check indexing
 	for i = 0 to Li2_k {
 		for j = 0 to Li2_l {
 			entry = matrix[(i * Li2_l + j) * Li2_polydeg : Li2_polydeg];
