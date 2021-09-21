@@ -1,3 +1,5 @@
+require "params.jazz"
+
 //Maybe combine into params.jazz?
 param int twoTo32 = 4294967296;
 param int twoTo32Minus1 = 4294967295;

@@ -1,0 +1,13 @@
+require "../src/fft.jazz"
+
+export
+fn fft_jazz(reg u64 vec)
+{	
+
+}
+
+export
+fn ifft_jazz(reg u64 vec)
+{
+
+}
