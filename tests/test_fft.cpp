@@ -24,7 +24,7 @@ extern "C" {
 
 }
 
-uint64_t montgomery(uint32_t x) {
+uint32_t montgomery(uint32_t x) {
 	return (uint64_t(x) << 32) % Q;
 }
 
@@ -97,9 +97,8 @@ void test_montgomery() {
 	uint64_t z = 823719;
 	uint64_t mZ = montgomery(z);
 
-	if(z != montgomery_REDC_jazz(mZ)) {
+	if(z != montgomery_REDC_jazz(mZ))
 		throw runtime_error("test failed at " + to_string(__LINE__));
-	}
 
 	uint32_t x = 374824;
 	uint32_t y = 8047392;
@@ -114,9 +113,13 @@ void test_montgomery() {
 }
 
 void test_poly_product() {
-	uint32_t f[N];
+	uint32_t f[N] = { 15 };
 	uint32_t g[N];
 	zero_poly(f);
+
+	if(vector<uint32_t>(f, f + N) != vector<uint32_t>(N, 0))
+		throw runtime_error("test failed at " + to_string(__LINE__));
+
 	zero_poly(g);
 	f[0] = 1;
 	f[1] = 1;
@@ -126,37 +129,49 @@ void test_poly_product() {
 	uint32_t prod[N];
 	multiply_polys(f, g, prod);
 
-	cout << "Expect: 1 2 1 0 0" << endl;
-	cout << prod[0];
-	for(int i = 1; i < 5; ++i) {
-		cout << ' ' << prod[i];
-	}
-	cout << endl;
+	if(vector<uint32_t>(prod, prod + 5) != vector<uint32_t> {1, 2, 1, 0, 0})
+		throw runtime_error("test failed at " + to_string(__LINE__));
 
 	g[0] = 2;
 	multiply_polys(f, g, prod);
-	cout << "Expect: 2 3 1 0 0" << endl;
-	cout << prod[0];
-	for(int i = 1; i < 5; ++i) {
-		cout << ' ' << prod[i];
-	}
-	cout << endl;
+	if(vector<uint32_t>(prod, prod + 5) != vector<uint32_t> {2, 3, 1, 0, 0})
+		throw runtime_error("test failed at " + to_string(__LINE__));
 
 	f[2] = 3;
 	multiply_polys(f, g, prod);
-	cout << "Expect: 2 3 7 3 0" << endl;
-	cout << prod[0];
-	for(int i = 1; i < 5; ++i) {
-		cout << ' ' << prod[i];
-	}
-	cout << endl;
+	if(vector<uint32_t>(prod, prod + 5) != vector<uint32_t> {2, 3, 7, 3, 0})
+		throw runtime_error("test failed at " + to_string(__LINE__));
 }
 
 void test_fft() {
 	auto mroots = precomputeMRoots();
 	uint32_t f[N];
 
+	zero_poly(f);
+	f[0] = montgomery(1);
+	f[1] = montgomery(1);
+	f[2] = montgomery(5);
+	f[3] = montgomery(200);
 
+	fft_jazz(f);
+	ifft_jazz(f);
+
+	vector<uint32_t> answer {
+		montgomery(1),
+		montgomery(1),
+		montgomery(5),
+		montgomery(200),
+		0,
+		0,
+		0
+	};
+
+
+	if(vector<uint32_t>(f, f + 7) != answer)
+		throw runtime_error("test failed at " + to_string(__LINE__));
+
+
+	/*
 	cout << "fft of 1:" << endl;
 	zero_poly(f);
 	f[0] = montgomery(1);
@@ -175,9 +190,12 @@ void test_fft() {
 	f[1] = montgomery(1);
 	fft_jazz(f);
 	print_poly(f);
+	*/
 }
 
 int main() {
 	test_montgomery();
+	test_poly_product();
+	test_fft();
 	return 0;
 }
