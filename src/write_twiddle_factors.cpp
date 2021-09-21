@@ -45,7 +45,7 @@ vector<uint32_t> precomputeMRoots() {
 	uint32_t r = 1;
 	uint64_t mr = montgomery(r);
 	
-	for(int i = 0; i < 256; ++i) {
+	for(int i = 0; i < 512; ++i) {
 		m_roots.push_back(uint32_t(mr));
 		mr = montgomery_REDC(mr * m_prim_root);
 	}
@@ -69,8 +69,31 @@ int montgomery_sub(int mx, int my) {
 }
 
 pair<uint32_t, uint32_t> compute_tfs(int butterfly_level, int butterfly_group, vector<uint32_t>& mroots) {
+	//PRINT(butterfly_group);
+	//butterfly_level = 0 .. 8
+	//butterfly_group = 0 .. (1 << butterfly_level)
 	int exp1 = bitreverse(2 * butterfly_group, butterfly_level + 1);
-	uint32_t tf1 = mroots[exp1 << (7 - butterfly_level)];
+	//exp1 = bitreverse( 0 .. (1 << (butterfly_level + 1)) )
+
+	//PRINT(exp1);
+
+	int scaled_exp = exp1 << (8 - butterfly_level);
+
+	//PRINT(scaled_exp);
+	
+	uint32_t tf1 = mroots.at(scaled_exp);
+
+	//PRINT(tf1);
+
+	/*
+	if(butterfly_level == 2) {
+		PRINT(exp1);
+		PRINT(9 - butterfly_level);
+		PRINT(tf1);
+	}
+	*/
+	//cout << endl;
+
 	uint32_t tf2 = dilithium_N - tf1;
 	return make_pair(tf1, tf2);
 }
@@ -112,7 +135,9 @@ pair<vector<uint32_t>, vector<uint32_t>> compute_all_tfs()
 vector<uint32_t> compute_all_itfs() {
 	auto mRoots = precomputeMRoots();
 	vector<uint32_t> itfs;
+
 	int butterfly_level = 7;
+
 	//for(int butterfly_level = 0; butterfly_level < 8; ++butterfly_level) {
 		for(int butterfly_group = 0; butterfly_group < 128; ++butterfly_group) {
 			if(butterfly_group < (1 << butterfly_level)) {
@@ -136,7 +161,7 @@ void printrow(vector<uint32_t> const& v, int r, ofstream& fout) {
 void print_tfs(vector<uint32_t> const& factors, string name, ofstream& fout) {
 	fout << "u32[128] " << name << " = {" << endl;
 	printrow(factors, 0, fout);
-	for(int i = 1; i < 8; ++i) {
+	for(int i = 1; i < 128 / 16; ++i) {
 		fout << "," << endl;
 		if(i % 8 == 0)
 			fout << endl;

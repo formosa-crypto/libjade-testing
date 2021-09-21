@@ -21,18 +21,11 @@ extern "C" {
 	void fft_jazz(uint32_t f[N]);
 	void ifft_jazz(uint32_t f[N]);
 	uint32_t montgomery_REDC_jazz(uint64_t mx);
-
+	void fft_poly_mult_jazz(uint32_t f[N], uint32_t g[N], uint32_t fg[N]);
 }
 
 uint32_t montgomery(uint32_t x) {
 	return (uint64_t(x) << 32) % Q;
-}
-
-uint32_t sampleInt() {
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
-	static std::uniform_int_distribution<> distrib(0,  Q - 1);
-	return distrib(gen);
 }
 
 // Precompute roots of unity
@@ -42,24 +35,22 @@ vector<uint64_t> precomputeMRoots() {
 	uint32_t prim_root = 1753;
 	uint64_t m_prim_root = montgomery(prim_root);
 	
-	uint32_t r = 1;
-	uint64_t mr = montgomery(r);
+	uint64_t mr = montgomery(1);
 	
-	for(int i = 0; i < 256; ++i) {
+	for(int i = 0; i < 512; ++i) {
 		m_roots.push_back(mr);
 		mr = montgomery_REDC_jazz(mr * m_prim_root);
 	}
 	return m_roots;
 }
 
-void samplePoly(uint32_t f[N]) {
-	for(int i = 0; i < N; ++i)
-		f[i] = sampleInt();
-}
-
-void montgomery_of_poly(uint32_t f[N], uint64_t mf[N]) {
-	for(int i = 0; i < N; ++i)
-		mf[i] = montgomery(f[i]);
+int bitreverse(int x, int numbits) {
+	int result = 0;
+	for(int i = 0; i < numbits; ++i) {
+		int bit = (x >> i) & 1;
+		result |= bit << (numbits - 1 - i);
+	}
+	return result;
 }
 
 template<typename T> void zero_poly(T f[N]) {
@@ -77,6 +68,7 @@ template<typename T> void print_poly(T f[N]) {
 	}
 }
 
+/* Not Montgomery */
 void multiply_polys(uint32_t f[N], uint32_t g[N], uint32_t product[N]) {
 	zero_poly(product);
 	for(int i = 0; i < N; ++i) {
@@ -143,22 +135,25 @@ void test_poly_product() {
 		throw runtime_error("test failed at " + to_string(__LINE__));
 }
 
-void test_fft() {
+void test_ifft() {
 	auto mroots = precomputeMRoots();
-	uint32_t f[N];
+	uint32_t mf[N], f[N];
 
 	zero_poly(f);
-	f[0] = montgomery(1);
-	f[1] = montgomery(1);
-	f[2] = montgomery(5);
-	f[3] = montgomery(200);
+	f[0] = 1;
+	f[1] = 31;
+	f[2] = 5;
+	f[3] = 200;
 
-	fft_jazz(f);
-	ifft_jazz(f);
+	for(int i = 0; i < N; ++i)
+		mf[i] = montgomery(f[i]);
+
+	fft_jazz(mf);
+	ifft_jazz(mf);
 
 	vector<uint32_t> answer {
 		montgomery(1),
-		montgomery(1),
+		montgomery(31),
 		montgomery(5),
 		montgomery(200),
 		0,
@@ -166,36 +161,88 @@ void test_fft() {
 		0
 	};
 
-
-	if(vector<uint32_t>(f, f + 7) != answer)
+	if(vector<uint32_t>(mf, mf + 7) != answer)
 		throw runtime_error("test failed at " + to_string(__LINE__));
 
+	uint32_t g[N], mg[N];
 
-	/*
-	cout << "fft of 1:" << endl;
+	zero_poly(g);
+	g[0] = 82;
+	g[1] = 50;
+	g[2] = 5;
+	g[3] = 591;
+	for(int i = 0; i < N; ++i)
+		mg[i] = montgomery(g[i]);
+
+	fft_jazz(mf);
+	fft_jazz(mg);
+
+	uint32_t mfg[N];
+	fft_poly_mult_jazz(mf, mg, mfg);
+
+	PRINT(mf[0]);
+	PRINT(mg[0]);
+	PRINT(mf[1]);
+	PRINT(mg[1]);
+	PRINT(montgomery_REDC_jazz(uint64_t(mf[0]) * mg[0]));
+	PRINT(mfg[0]);
+	PRINT(montgomery_REDC_jazz(uint64_t(mf[1]) * mg[1]));
+	PRINT(mfg[1]);
+
+	ifft_jazz(mfg);
+
+	uint32_t fg[N];
+	multiply_polys(f, g, fg);
+
+	for(int i = 0; i < N; ++i)
+		if(montgomery(fg[i]) != mfg[i])
+			throw runtime_error("test failed at " + to_string(__LINE__));
+
+}
+
+void test_fft() {
+	uint32_t f[N];
 	zero_poly(f);
 	f[0] = montgomery(1);
 	fft_jazz(f);
-	print_poly(f);
 
-	cout << "fft of x:" << endl;
-	zero_poly(f);
-	f[1] = montgomery(1);
-	fft_jazz(f);
-	print_poly(f);
+	if(vector<uint32_t>(f, f + N) != vector<uint32_t>(N, montgomery(1)))
+		throw runtime_error("test failed at " + to_string(__LINE__));
+
+	uint32_t g[N];
+	zero_poly(g);
+	g[1] = montgomery(1);
+	fft_jazz(g);
+
+	auto mRoots = precomputeMRoots();
+	for(int i = 0; i < 10; ++i) {
+		if(mRoots[bitreverse(i, 9)] != g[i])
+			throw runtime_error("test failed at " + to_string(__LINE__));
+	}
 	
-	cout << "fft of 1+x:" << endl;
-	zero_poly(f);
-	f[0] = montgomery(1);
-	f[1] = montgomery(1);
-	fft_jazz(f);
-	print_poly(f);
-	*/
+	uint32_t h[N];
+
+	zero_poly(h);
+	h[0] = montgomery(1);
+	h[1] = montgomery(1);
+
+	fft_jazz(h);
+
+	for(int i = 0; i < 10; ++i) {
+		if((f[i] + g[i]) % Q != h[i])
+			throw runtime_error("test failed at " + to_string(__LINE__));
+	}
+}
+
+void test_roots_of_unity() {
+	auto v = precomputeMRoots();
 }
 
 int main() {
 	test_montgomery();
 	test_poly_product();
+	test_roots_of_unity();
 	test_fft();
+	//test_ifft();
 	return 0;
 }

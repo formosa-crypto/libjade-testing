@@ -59,6 +59,9 @@ fn poly_mult(reg ptr u32[Li2_polydeg] fft_f fft_g fft_prod)
 
 	i = 0;
 	while(i < Li2_polydeg) {
+		// Probably too much movement between reg and stack
+		// Might need fix
+
 		temp = fft_f[(int) i];
 		x1 = temp;
 		temp = fft_g[(int) i];

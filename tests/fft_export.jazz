@@ -1,5 +1,6 @@
 require "../src/fft.jazz"
 require "../src/montgomery.jazz"
+require "../src/poly.jazz"
 
 export
 fn montgomery_REDC_jazz(reg u64 x) -> reg u32
@@ -27,8 +28,8 @@ fn fft_jazz(reg u64 vec)
 	f = fft(f);
 	
 	for i = 0 to Li2_polydeg {
-		f[i] = term;
-		term = (u32) [vec + 4 * i];
+		term = f[i];
+		(u32) [vec + 4 * i] = term;
 	}
 }
 
@@ -53,14 +54,24 @@ fn ifft_jazz(reg u64 vec)
 	}
 }
 
-/*
 export
-fn fft_poly_mult_jazz(reg u64 ptr_fft_f ptr_fft_g ptr_fft_prod)
+fn fft_poly_mult_jazz(reg u64 ptr_fft_f ptr_fft_g ptr_fft_fg)
 {
-	stack u32[Li2_polydeg] 
-//fn poly_mult(reg ptr u32[Li2_polydeg] fft_f fft_g fft_prod)
-	
+	stack u32[Li2_polydeg] fft_f fft_g fft_fg;
+	inline int i;
+	reg u32 v;
 
+	for i = 0 to Li2_polydeg {
+		v = (u32) [ptr_fft_f + 4 * i];
+		fft_f[i] = v;
+		v = (u32) [ptr_fft_g + 4 * i];
+		fft_g[i] = v;
+	}
+
+	fft_fg = poly_mult(fft_f, fft_g, fft_fg);
+
+	for i = 0 to Li2_polydeg {
+		v = fft_fg[i];
+		(u32) [ptr_fft_fg + 4 * i] = v;
+	}
 }
-
-*/
