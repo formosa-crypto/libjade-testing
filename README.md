@@ -1,6 +1,6 @@
 # Jasmin Dilithium
 
-Learning formal verification by implementing [Crystals Dilithium](https://pq-crystals.org/dilithium/) in Jasmin.
+Learning formal verification by implementing [Crystals Dilithium](https://pq-crystals.org/dilithium/) in [Jasmin](https://github.com/jasmin-lang/jasmin).
 
 Work in progress.
 
