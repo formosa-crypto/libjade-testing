@@ -27,6 +27,9 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
 
+	stack u32[Li2_l * Li2_polydeg] m_s1;
+	stack u32[Li2_k * Li2_polydeg] m_s2;
+
 	stack u32[Li2_l * Li2_polydeg] fft_s1;
 
 	stack u32[Li2_k * Li2_polydeg] t t1 t0;
@@ -64,44 +67,41 @@ fn keygen(stack u8[PK_LEN] pk,
 		i += 1;
 	}
 
-	//fft_matA = gen_matrix(rho);
+	fft_matA = gen_matrix(rho);
 
 	s1, s2 = gen_noises(rho_prime);
+
+	// montgomery forms
+	m_s1 = make_montgomery_of_s1(s1);
+	m_s2 = make_montgomery_of_s2(s2);
+
+	fft_s1 = fft_vec(m_s1);
+
+	t = mult_mat_vec(fft_matA, fft_s1);
+	t = ifft_vec(t);
+	t = sum_vecs(t, m_s2);
+
+	// montgomery reduce
+	t = redc_t(t);
+
+	t1, t0 = power2round_vec(t);
+
+	pk[0:32] = rho_pack(rho, pk[0:32]);
+
+	pk[32 : Li2_pack_t1len] = polyt1_pack(
+		t1, pk[32 : Li2_pack_t1len]);
+	
+	sk[0:32] = rho_pack(rho, sk[0:32]);
+	sk[32:32] = rho_pack(k, sk[32:32]); 
+
+	//TODO
+	//sk[64:32] = rho_pack(tr, sk[64:32]);
 
 	sk[96 : Li2_pack_s1len] = pack_s1(
 		s1, sk[96 : Li2_pack_s1len]);
 
 	sk[Li2_pack_s2loc : Li2_pack_s2len] = pack_s2(
 		s2, sk[Li2_pack_s2loc : Li2_pack_s2len]);
-
-/*
-	fft_s1 = fft_vec(s1);
-
-	t = mult_mat_vec(fft_matA, fft_s1);
-	t = ifft_vec(t);
-	t = sum_vecs(t, s2);
-	*/
-
-	t1, t0 = power2round_vec(t);
-
-	pk[0:32] = rho_pack(rho, pk[0:32]);
-
-/*
-	pk[32 : Li2_pack_t1len] = polyt1_pack(
-		t1, pk[32 : Li2_pack_t1len]);
-		*/
-
-	
-	sk[0:32] = rho_pack(rho, sk[0:32]);
-	sk[32:32] = rho_pack(k, sk[32:32]); 
-	//TODO
-	//sk[64:32] = rho_pack(tr, sk[64:32]);
-
-
-
-	
-
-	//= pack_s1(s1, sk[TODO]);
 
 	return pk, sk;
 }

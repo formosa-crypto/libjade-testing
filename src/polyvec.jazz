@@ -1,6 +1,7 @@
 require "poly.jazz"
 require "high-low-order.jazz"
 require "fft.jazz"
+require "montgomery_of_noise.jazz"
 
 inline
 fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
@@ -113,3 +114,70 @@ fn mult_mat_vec(reg ptr u32[Li2_k * Li2_l * Li2_polydeg] mat,
 	return out;
 }
 
+inline
+fn make_montgomery_of_s1(reg ptr u32[Li2_l * Li2_polydeg] s1)
+	-> stack u32[Li2_l * Li2_polydeg]
+{
+	stack u32[Li2_l * Li2_polydeg] mont_s1;
+	reg ptr u32[9] montgomery_table;
+	reg u64 i;
+	reg u32 val;
+	reg u32 eta_minus_x;
+	reg u64 table_entry;
+
+	montgomery_table = montgomery_from_eta_minus_x;
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		eta_minus_x = s1[(int) i];
+		table_entry = (64u) eta_minus_x;
+		val = montgomery_table[(int) table_entry];
+		mont_s1[(int) i] = val;
+		i += 1;
+	}
+	return mont_s1;
+}
+
+inline
+fn make_montgomery_of_s2(reg ptr u32[Li2_k * Li2_polydeg] s2)
+	-> stack u32[Li2_k * Li2_polydeg]
+{
+	stack u32[Li2_k * Li2_polydeg] mont_s2;
+	reg ptr u32[9] montgomery_table;
+	reg u64 i;
+	reg u32 val;
+	reg u32 eta_minus_x;
+	reg u64 table_entry;
+
+	montgomery_table = montgomery_from_eta_minus_x;
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		eta_minus_x = s2[(int) i];
+		table_entry = (64u) eta_minus_x;
+		val = montgomery_table[(int) table_entry];
+		mont_s2[(int) i] = val;
+		i += 1;
+	}
+	return mont_s2;
+}
+
+inline
+fn redc_t(reg ptr u32[Li2_k * Li2_polydeg] t)
+	-> reg ptr u32[Li2_k * Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 element;
+	reg u64 redc_in;
+	stack u32 redc_out;
+
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		element = t[(int) i];
+		redc_in = (64u) element;
+		redc_out = montgomery_REDC(redc_in);
+		element = redc_out;
+		t[(int) i] = element;
+		i += 1;
+	}
+
+	return t;
+}
