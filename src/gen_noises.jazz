@@ -54,7 +54,8 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polyde
 		c32 = (32u) c;
 		c32 &= 15;
 		if(c32 <= 2 * Li2_eta) {
-			v = eta_minus_x(c32);
+			//v = eta_minus_x(c32);
+			v = c32;
 			addr = (64u) term;
 			buf[(int) addr] = v;
 			term += 1;
@@ -64,7 +65,8 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polyde
 			c32 = (32u) c;
 			c32 >>= 4;
 			if(c32 <= 2 * Li2_eta) {
-				v = eta_minus_x(c32);
+				//v = eta_minus_x(c32);
+				v = c32;
 				addr = (64u) term;
 				buf[(int) addr] = v;
 				term += 1;

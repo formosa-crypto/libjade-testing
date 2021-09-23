@@ -148,11 +148,13 @@ fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_pack_s1len] dest)
 
 		temp = s1[(int) i];
 		i += 1;
-		higher = eta_minus_x(temp);
+		//higher = eta_minus_x(temp);
+		higher = temp;
 
 		temp = s1[(int) i];
 		i += 1;
-		lower = eta_minus_x(temp);
+		//lower = eta_minus_x(temp);
+		lower = temp;
 		
 		/* Why is this not correct?
 		higher <<= 4;
@@ -188,11 +190,13 @@ fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 
 		temp = s1[(int) i];
 		i += 1;
-		higher = eta_minus_x(temp);
+		//higher = eta_minus_x(temp);
+		higher = temp;
 
 		temp = s1[(int) i];
 		i += 1;
-		lower = eta_minus_x(temp);
+		//lower = eta_minus_x(temp);
+		lower = temp;
 		
 		lower <<= 4;
 		lower += higher;
