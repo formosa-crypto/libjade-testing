@@ -1,5 +1,6 @@
 require "../src/gen_matrix.jazz"
 
+/*
 export
 fn gen_matrix_entry_test(reg u64 out) {
 	stack u8[32] rho;
@@ -17,5 +18,30 @@ fn gen_matrix_entry_test(reg u64 out) {
 	for i = 0 to Li2_polydeg {
 		y = buf[i];
 		(u32) [out + 4 * i] = y;
+	}
+}
+*/
+
+export
+fn gen_matrix_jazz(reg u64 ptr_rho, reg u64 ptr_poly)
+{
+	stack u8[32] rho;
+	stack u32[Li2_k * Li2_l * Li2_polydeg] poly;
+	reg u64 i;
+	reg u8 c;
+	reg u32 v;
+
+	i = 0;
+	while(i < 32) {
+		c = (u8) [ptr_rho + i];
+		rho[(int) i] = c;
+		i += 1;
+	}
+
+	i = 0;
+	while(i < Li2_k * Li2_l * Li2_polydeg) {
+		v = poly[(int) i];
+		(u32) [ptr_poly + 4 * i] = v;
+		i += 1;
 	}
 }
