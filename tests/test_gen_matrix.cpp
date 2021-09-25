@@ -20,27 +20,41 @@ using std::array;
 
 extern "C" {
 	void gen_matrix_jazz(uint8_t rho[SEEDBYTES], uint32_t p[K * L * N]);
+	void gen_matrix_entry_jazz(uint32_t out[N]);
 }
 
-/*
-template<typename T> void print_poly(T f[N]) {
-	for(int i = 0; i < 16; ++i) {
-		cout << f[16 * i];
-		for(int j = 1; j < 16; ++j) {
-			cout << ' ' << f[16 * i + j];
-		}
-		cout << endl;
+array<uint32_t, N> poly_to_array(poly p) {
+	array<uint32_t, N> arr;
+	for(int i = 0; i < N; ++i) {
+		arr[i] = p.coeffs[i];
 	}
+	return arr;
 }
 
-typedef struct {
-  poly vec[L];
-} polyvecl;
+void test_gen_entry() {
+	uint8_t rho[SEEDBYTES] = { 0 };
+	int i = 3;
+	int j = 4;
+	poly p;
+	poly_uniform(&p, rho, (i << 8) + j);
 
-typedef struct {
-  int32_t coeffs[N];
-} poly;
-*/
+	uint32_t poly_jazz[N];
+	gen_matrix_entry_jazz(poly_jazz);
+
+	auto poly_ref_arr = poly_to_array(p);
+	auto poly_ref = poly_ref_arr.data();
+
+	for(int k = 0; k < N; ++k) {
+		if(poly_ref[k] != poly_jazz[k]) {
+			PRINT(k);
+			PRINT(poly_ref[k]);
+			PRINT(poly_jazz[k]);
+			return;
+		}
+	}
+	
+	PRINT(memcmp(poly_ref, poly_jazz, 4 * N));
+}
 
 array<uint32_t, K * L * N> mat_to_array(polyvecl mat[K]) {
 	array<uint32_t, K * L * N> arr;
@@ -55,8 +69,10 @@ array<uint32_t, K * L * N> mat_to_array(polyvecl mat[K]) {
 }
 
 int main() {
-	uint8_t rho[SEEDBYTES] = { 0 };
+	test_gen_entry();
+	//uint8_t rho[SEEDBYTES] = { 0 };
 
+	/*
 	// ref impl.
 	polyvecl mat[K];
 	pqcrystals_dilithium3_ref_polyvec_matrix_expand(mat, rho);
@@ -69,6 +85,7 @@ int main() {
 	auto arr = mat_to_array(mat);
 	
 	PRINT(memcmp(arr.data(), mat_jazz, 4 * K * L * N));
+	*/
 
 	return 0;
 }

@@ -1,8 +1,7 @@
 require "../src/gen_matrix.jazz"
 
-/*
 export
-fn gen_matrix_entry_test(reg u64 out) {
+fn gen_matrix_entry_jazz(reg u64 out) {
 	stack u8[32] rho;
 
 	stack u32[Li2_polydeg] buf;
@@ -20,7 +19,6 @@ fn gen_matrix_entry_test(reg u64 out) {
 		(u32) [out + 4 * i] = y;
 	}
 }
-*/
 
 export
 fn gen_matrix_jazz(reg u64 ptr_rho, reg u64 ptr_poly)
