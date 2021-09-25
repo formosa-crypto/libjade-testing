@@ -12,7 +12,8 @@ test_fft: test_fft.cpp fft_export.s
 
 test_gen_matrix: test_gen_matrix.cpp gen_matrix_export.s
 
-test_packing: test_packing.cpp packing_export.s
+test_packing: test_packing.cpp packing_export.s ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) -DDILITHIUM_MODE=3 ../dilithium/ref/randombytes.o ../src/keygen.s test_packing.cpp -o $@ $(LDFLAGS)
 
 %.s: %.jazz
 	jasminc -pasm $< > $@
