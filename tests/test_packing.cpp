@@ -15,6 +15,10 @@ using std::memcmp;
 
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
+extern "C" {
+	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
+}
+
 uint32_t sample_t1_component() {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
@@ -23,37 +27,29 @@ uint32_t sample_t1_component() {
 }
 
 int main() {
-	uint8_t pk_ref[pqcrystals_dilithium3_PUBLICKEYBYTES];
-	uint8_t sk_ref[pqcrystals_dilithium3_SECRETKEYBYTES];
-
-	uint8_t randomness[32] = { 0 };
-	/*
-	for(int i = 0; i < 32; ++i) {
-		randomness[i] = sampleByte();
-	}
-	*/
-
-	pqcrystals_dilithium3_ref_seeded_keypair(pk_ref, sk_ref, randomness);
-
-
-	/*
-	PRINT(memcmp(sk_ref, sk_jazz, 64));
-	PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2 + K * N / 2));
-	PRINT(memcmp(pk_ref, pk_jazz, 32));
-	PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_PUBLICKEYBYTES));
-	*/
-
 	poly p;
+	uint32_t uint_p[N];
 	for(int i = 0; i < N; ++i) {
-		p.coeffs[i] = sample_t1_component();
+		uint32_t val = sample_t1_component(); 
+		p.coeffs[i] = val;
+		uint_p[i] = val;
 	}
 
-	uint8_t buf[POLYT1_PACKEDBYTES];
+	uint8_t buf_ref[POLYT1_PACKEDBYTES];
 
-	pqcrystals_dilithium3_ref_polyt1_pack(buf, &p);
+	for(int i = 0; i < K; ++i) {
+		pqcrystals_dilithium3_ref_polyt1_pack(buf_ref, &p);
+	}
 
-	PRINT(int(buf[0]));
-	PRINT(int(buf[1]));
+	uint8_t buf_jazz[POLYT1_PACKEDBYTES];
+	pack_t1_jazz(uint_p, buf_jazz);
+
+	PRINT(memcmp(buf_ref, buf_jazz, POLYT1_PACKEDBYTES));
+	/*
+	PRINT(int(buf_ref[0]));
+	PRINT(int(buf_ref[1]));
+	PRINT(int(buf_ref[2]));
+	*/
 	
 	return 0;
 }

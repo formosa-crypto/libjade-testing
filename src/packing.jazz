@@ -5,10 +5,13 @@ param int Li2_pack_s1len = Li2_l * Li2_polydeg / 2;
 param int Li2_pack_s2len = Li2_k * Li2_polydeg / 2;
 param int Li2_pack_s2loc = 96 + Li2_pack_s1len;
 
-param int Li2_pack_t1len = 10 * Li2_polydeg * Li2_k / 8;
+// length of only one poly
+// naming taken from C ref
+param int Li2_pack_t1len = 10 * Li2_polydeg / 8;
+// actual length is K times the above...
 
 inline
-fn polyt1_pack(reg ptr u32[Li2_k * Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
+fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 	-> reg ptr u8[Li2_pack_t1len]
 {
 	reg u64 i;

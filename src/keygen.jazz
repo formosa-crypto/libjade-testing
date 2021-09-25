@@ -88,8 +88,13 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	pk[0:32] = rho_pack(rho, pk[0:32]);
 
+/*
+	//TODO loop...
+	//Each call only does one poly?
+
 	pk[32 : Li2_pack_t1len] = polyt1_pack(
 		t1, pk[32 : Li2_pack_t1len]);
+*/
 	
 	sk[0:32] = rho_pack(rho, sk[0:32]);
 	sk[32:32] = rho_pack(k, sk[32:32]); 
