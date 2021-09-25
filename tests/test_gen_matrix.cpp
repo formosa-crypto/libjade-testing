@@ -2,6 +2,8 @@
 #include <random>
 #include <cstring>
 #include <array>
+#include <string>
+#include <stdexcept>
 
 extern "C" {
 #include "../dilithium/ref/api.h"
@@ -15,6 +17,8 @@ using std::endl;
 using std::vector;
 using std::memcmp;
 using std::array;
+using std::to_string;
+using std::runtime_error;
 
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
@@ -53,7 +57,8 @@ void test_gen_entry() {
 		}
 	}
 	
-	PRINT(memcmp(poly_ref, poly_jazz, 4 * N));
+	if(memcmp(poly_ref, poly_jazz, 4 * N) != 0)
+		throw runtime_error("test failed at " + to_string(__LINE__));
 }
 
 array<uint32_t, K * L * N> mat_to_array(polyvecl mat[K]) {
@@ -68,11 +73,9 @@ array<uint32_t, K * L * N> mat_to_array(polyvecl mat[K]) {
 	return arr;
 }
 
-int main() {
-	test_gen_entry();
-	//uint8_t rho[SEEDBYTES] = { 0 };
+void test_gen_matrix() {
+	uint8_t rho[SEEDBYTES] = { 0 };
 
-	/*
 	// ref impl.
 	polyvecl mat[K];
 	pqcrystals_dilithium3_ref_polyvec_matrix_expand(mat, rho);
@@ -85,7 +88,11 @@ int main() {
 	auto arr = mat_to_array(mat);
 	
 	PRINT(memcmp(arr.data(), mat_jazz, 4 * K * L * N));
-	*/
+}
+
+int main() {
+	test_gen_entry();
+	test_gen_matrix();
 
 	return 0;
 }

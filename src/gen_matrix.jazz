@@ -1,9 +1,6 @@
 require "fips202.jazz"
 require "params.jazz"
 
-//reminder to self
-//param int SHAKE256_RATE = 136;
-
 inline
 fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 	reg ptr u32[Li2_polydeg] result) -> reg ptr u32[Li2_polydeg]
@@ -25,14 +22,14 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 	seed[32] = j;
 	seed[33] = i;
 
-	state = shake256_absorb34(seed);
+	state = shake128_absorb34(state, seed);
 	state = __keccakf1600_ref(state);
 
 	offset = 0;
 	term = 0;
 	while(term < Li2_polydeg) {
 		for k = 0 to 3 {
-			if(offset >= SHAKE256_RATE) {
+			if(offset >= SHAKE128_RATE) {
 				state = __keccakf1600_ref(state);
 				offset = 0;
 			}

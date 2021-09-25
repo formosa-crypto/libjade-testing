@@ -516,37 +516,7 @@ fn shake256_absorb32(stack u8[32] in) -> stack u64[25]
   return state;
 }
 
-// And sometimes 34.
-inline
-fn shake256_absorb34(stack u8[34] in) -> stack u64[25]
-{
-  //param int SHAKE256_RATE = 136;
-  reg u8 c;
-  inline int i;
-  stack u64[25] state;
-
-  //TODO... Why does this work? This is on the stack.
-  state = st0(state);
-
-  // Inefficient to load one byte at a time...
-  // TODO optimize me...
-  // assuming little endian though?
-  for i = 0 to 34 {
-    c = in[i];
-    state[u8 i] ^= c;
-  }
-
-  // I don't understand the following 2 lines
-  // What are trail bytes?
-  state[u8 34] ^= 0x1f;
-  // Is this the marker for SHAKE256?
-  state[u8 SHAKE256_RATE - 1] ^= 0x80;
-
-  return state;
-}
-
 // And sometimes 66...
-// At this point it might make more sense to not hard-code input length
 inline
 fn shake256_absorb66(stack u8[66] in) -> stack u64[25]
 {
