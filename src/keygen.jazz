@@ -28,17 +28,8 @@ fn keygen(stack u8[PK_LEN] pk,
 	stack u32[Li2_k * Li2_polydeg] s2;
 
 	stack u32[Li2_l * Li2_polydeg] m_s1;
-	stack u32[Li2_k * Li2_polydeg] m_s2;
-
-	stack u32[Li2_l * Li2_polydeg] fft_s1;
 
 	stack u32[Li2_k * Li2_polydeg] t t1 t0;
-
-	stack u8[10 *  Li2_polydeg * Li2_k / 8] t1_packed;
-
-	reg ptr u8[3 * Li2_polydeg * Li2_k * Li2_l] matrix_dest;
-
-	reg ptr u32[Li2_l * Li2_polydeg] s1ptr;
 
 	reg ptr u8[Li2_pack_t1len] t1ptr_in_pk;
 	reg ptr u32[Li2_polydeg] t1_to_pack;
@@ -46,7 +37,7 @@ fn keygen(stack u8[PK_LEN] pk,
 	//temp variables
 	reg u8 c;
 	reg u64 i;
-	inline int t1_i;
+	inline int j;
 
 	// code here
 	state = shake256_absorb32(random_zeta);
@@ -80,9 +71,9 @@ fn keygen(stack u8[PK_LEN] pk,
 	// which multiplies in this mont. factor at the end of IFFT.
 	m_s1 = make_montgomery_of_s1(s1);
 
-	fft_s1 = fft_vec(m_s1);
+	m_s1 = fft_vec(m_s1);
 
-	t = mult_mat_vec(fft_matA, fft_s1);
+	t = mult_mat_vec(fft_matA, m_s1);
 	t = ifft_vec(t);
 	t = sum_vecs(t, s2);
 
@@ -90,14 +81,11 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	pk[0:32] = rho_pack(rho, pk[0:32]);
 
-	// loop...
-	// Each call only does one poly
-	// TODO check me again
-	for t1_i = 0 to Li2_k {
-		t1_to_pack = t1[Li2_polydeg * t1_i : Li2_polydeg];
-		t1ptr_in_pk = pk[32 + t1_i * Li2_pack_t1len : Li2_pack_t1len];
+	for j = 0 to Li2_k {
+		t1_to_pack = t1[Li2_polydeg * j : Li2_polydeg];
+		t1ptr_in_pk = pk[32 + j * Li2_pack_t1len : Li2_pack_t1len];
 		t1ptr_in_pk = polyt1_pack(t1_to_pack , t1ptr_in_pk);
-		pk[32 + t1_i * Li2_pack_t1len : Li2_pack_t1len] = t1ptr_in_pk;
+		pk[32 + j * Li2_pack_t1len : Li2_pack_t1len] = t1ptr_in_pk;
 	}
 	
 	sk[0:32] = rho_pack(rho, sk[0:32]);
