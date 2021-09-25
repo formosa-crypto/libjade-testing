@@ -84,10 +84,11 @@ void test_gen_matrix() {
 	uint32_t mat_jazz[K * L * N];
 	gen_matrix_jazz(rho, mat_jazz);
 
-	//comp.
+	//memcmp test
 	auto arr = mat_to_array(mat);
-	
-	PRINT(memcmp(arr.data(), mat_jazz, 4 * K * L * N));
+	if(memcmp(arr.data(), mat_jazz, 4 * K * L * N) != 0)
+		throw runtime_error("test failed at " + to_string(__LINE__));
+	//PRINT(memcmp(arr.data(), mat_jazz, 4 * K * L * N));
 }
 
 int main() {

@@ -36,6 +36,8 @@ fn gen_matrix_jazz(reg u64 ptr_rho, reg u64 ptr_poly)
 		i += 1;
 	}
 
+	poly = gen_matrix(rho);
+
 	i = 0;
 	while(i < Li2_k * Li2_l * Li2_polydeg) {
 		v = poly[(int) i];
