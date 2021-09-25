@@ -75,3 +75,24 @@ fn fft_poly_mult_jazz(reg u64 ptr_fft_f ptr_fft_g ptr_fft_fg)
 		(u32) [ptr_fft_fg + 4 * i] = v;
 	}
 }
+
+export
+fn ifft_to_mont_jazz(reg u64 vec)
+{
+	stack u32[Li2_polydeg] f;
+	reg u32 term;
+
+	inline int i;
+
+	for i = 0 to Li2_polydeg {
+		term = (u32) [vec + 4 * i];
+		f[i] = term;
+	}
+
+	f = ifft_to_mont(f);
+	
+	for i = 0 to Li2_polydeg {
+		term = f[i];
+		(u32) [vec + 4 * i] = term;
+	}
+}

@@ -20,6 +20,7 @@ using std::to_string;
 extern "C" {
 	void fft_jazz(uint32_t f[N]);
 	void ifft_jazz(uint32_t f[N]);
+	void ifft_to_mont_jazz(uint32_t f[N]);
 	uint32_t montgomery_REDC_jazz(uint64_t mx);
 	void fft_poly_mult_jazz(uint32_t f[N], uint32_t g[N], uint32_t fg[N]);
 }
@@ -251,13 +252,38 @@ void test_fft() {
 		if((f[i] + g[i]) % Q != h[i])
 			throw runtime_error("test failed at " + to_string(__LINE__));
 	}
+}
+
+void test_ifft_to_mont() {
+	uint32_t f[N] = { 1, 31, 5, 200 };
+
+
+	uint32_t g[N] = { 82, 50, 5, 591 };
+
+	uint32_t fg[N] = { 0 };
+
+	multiply_polys(f, g, fg);
+
+	//cout << endl << "fg:" << endl;
+	//print_poly(fg);
+
+	fft_jazz(f);
+	fft_jazz(g);
+
+	uint32_t fg_jazz[N];
+	
+	fft_poly_mult_jazz(f, g, fg_jazz);
+
+	ifft_to_mont_jazz(fg_jazz);
 
 	/*
-	uint32_t p[N] = { 0 };
-	p[N - 1] = montgomery(1);
-	fft_jazz(p);
+	cout << "fg_jazz:" << endl;
+	print_poly(fg_jazz);
 	*/
 
+	for(int i = 0; i < N; ++i)
+		if(fg[i] != fg_jazz[i])
+			throw runtime_error("test failed at " + to_string(__LINE__));
 }
 
 void test_roots_of_unity() {
@@ -270,5 +296,6 @@ int main() {
 	test_roots_of_unity();
 	test_fft();
 	test_ifft();
+	test_ifft_to_mont();
 	return 0;
 }
