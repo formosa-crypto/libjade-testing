@@ -20,7 +20,7 @@ fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
 }
 
 inline
-fn ifft_vec(stack u32[Li2_k * Li2_polydeg] vec)
+fn ifft_to_mont_vec(stack u32[Li2_k * Li2_polydeg] vec)
 	-> stack u32[Li2_k * Li2_polydeg]
 {
 	inline int i;
@@ -28,7 +28,7 @@ fn ifft_vec(stack u32[Li2_k * Li2_polydeg] vec)
 
 	for i = 0 to Li2_k {
 		entry = vec[i * Li2_polydeg : Li2_polydeg];
-		entry = ifft(entry);
+		entry = ifft_to_mont(entry);
 		vec[i * Li2_polydeg : Li2_polydeg] = entry;
 	}
 
