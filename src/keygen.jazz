@@ -40,6 +40,9 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	reg ptr u32[Li2_l * Li2_polydeg] s1ptr;
 
+	reg ptr u32[Li2_pack_t1len] t1ptr_in_pk;
+	reg ptr u32[Li2_polydeg] t1_to_pack;
+
 	//temp variables
 	reg u8 c;
 	reg u64 i;
@@ -88,13 +91,15 @@ fn keygen(stack u8[PK_LEN] pk,
 
 	pk[0:32] = rho_pack(rho, pk[0:32]);
 
-/*
-	//TODO loop...
-	//Each call only does one poly?
-
-	pk[32 : Li2_pack_t1len] = polyt1_pack(
-		t1, pk[32 : Li2_pack_t1len]);
-*/
+	// loop...
+	// Each call only does one poly
+	// TODO check me again
+	for i = 0 to Li2_k {
+		t1_to_pack = t1[Li2_polydeg * i : Li2_polydeg];
+		t1ptr_in_pk = pk[32 + i * Li2_pack_t1len : Li2_pack_t1len];
+		t1ptr_in_pk = polyt1_pack(t1_to_pack , t1ptr_in_pk);
+		pk[32 + i * Li2_pack_t1len : Li2_pack_t1len] = t1ptr_in_pk;
+	}
 	
 	sk[0:32] = rho_pack(rho, sk[0:32]);
 	sk[32:32] = rho_pack(k, sk[32:32]); 
