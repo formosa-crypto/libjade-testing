@@ -10,40 +10,40 @@ param int SK_LEN = 4000;
 //reminder to self
 //param int SHAKE256_RATE = 136;
 
+// Cutting keygen in half so I can test...
+// Duct tape engineering at its finest.
 inline
-fn keygen(stack u8[PK_LEN] pk,
-		stack u8[SK_LEN] sk,
-		stack u8[32] random_zeta)
-		-> stack u8[PK_LEN], stack u8[SK_LEN]
+fn keygen_upto_As1(reg ptr u8[32] random_zeta)
+	-> stack u8[PK_LEN], //pk
+	stack u8[SK_LEN], //sk
+	stack u8[32], //rho
+	stack u32[Li2_k * Li2_polydeg], //s2
+	stack u32[Li2_k * Li2_polydeg] //t
 {
+	// keys
+	stack u8[PK_LEN] pk;
+	stack u8[SK_LEN] sk;
+	// PRF
 	stack u64[25] state;
 	stack u8[SHAKE256_RATE] s256_out;
-
+	// PRF outputs
 	stack u8[32] rho;
 	stack u8[64] rho_prime;
 	stack u8[32] k;
-
+	// FFTs
 	stack u32[Li2_k * Li2_l * Li2_polydeg] fft_matA;
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
-
-	stack u32[Li2_k * Li2_polydeg] t t1 t0;
-
-	reg ptr u8[Li2_pack_t1len] t1ptr_in_pk;
-	reg ptr u32[Li2_polydeg] t1_to_pack;
-
-	//temp variables
-	reg u8 c;
+	stack u32[Li2_k * Li2_polydeg] t;
+	// temp. vars
 	reg u64 i;
-	inline int j;
+	reg u8 c;
 	reg u32 noise_val;
 
-	// code here
 	state = shake256_absorb32(random_zeta);
 	state, s256_out = shake256_squeezeblock(state, s256_out);
 
 	//TODO Maybe can load 8 bytes at a time using u64?
-
 	i = 0;
 	while(i < 32) {
 		c = s256_out[(int) i];
@@ -61,14 +61,14 @@ fn keygen(stack u8[PK_LEN] pk,
 		i += 1;
 	}
 
-	fft_matA = gen_matrix(rho);
+	sk[0:32] = rho_pack(rho, sk[0:32]);
+	sk[32:32] = rho_pack(k, sk[32:32]); 
 
 	s1, s2 = gen_noises(rho_prime);
 
 	//saving these before they get modified in-place
 	sk[96 : Li2_pack_s1len] = pack_s1(
 		s1, sk[96 : Li2_pack_s1len]);
-
 	sk[Li2_pack_s2loc : Li2_pack_s2len] = pack_s2(
 		s2, sk[Li2_pack_s2loc : Li2_pack_s2len]);
 
@@ -80,8 +80,41 @@ fn keygen(stack u8[PK_LEN] pk,
 		s1[(int) i] = noise_val;
 		i += 1;
 	}
+	s1 = fft_vec(s1);
 
-	// write s2 in eta-x form
+	fft_matA = gen_matrix(rho);
+	t = mult_mat_vec(fft_matA, s1);
+	t = ifft_to_mont_vec(t);
+
+	return pk, sk, rho, t, s2;
+}
+
+inline
+fn keygen(reg ptr u8[32] random_zeta)
+	-> stack u8[PK_LEN], stack u8[SK_LEN]
+{
+	stack u8[PK_LEN] pk;
+	stack u8[SK_LEN] sk;
+	
+	stack u64[25] state;
+	stack u8[SHAKE256_RATE] s256_out;
+
+	stack u8[32] rho;
+
+	stack u32[Li2_k * Li2_polydeg] s2;
+	stack u32[Li2_k * Li2_polydeg] t t1 t0;
+
+	reg ptr u8[Li2_pack_t1len] t1ptr_in_pk;
+	reg ptr u32[Li2_polydeg] t1_to_pack;
+
+	//temp variables
+	reg u64 i;
+	inline int j;
+	reg u32 noise_val;
+
+	// code here
+	pk, sk, rho, s2, t = keygen_upto_As1(random_zeta);
+
 	i = 0;
 	while(i < Li2_k * Li2_polydeg) {
 		noise_val = s2[(int) i];
@@ -89,12 +122,6 @@ fn keygen(stack u8[PK_LEN] pk,
 		s2[(int) i] = noise_val;
 		i += 1;
 	}
-
-	s1 = fft_vec(s1);
-	t = mult_mat_vec(fft_matA, s1);
-	t = ifft_to_mont_vec(t);
-
-	// TODO test above before moving on?
 
 	t = sum_vecs(t, s2);
 
@@ -109,12 +136,8 @@ fn keygen(stack u8[PK_LEN] pk,
 		pk[32 + j * Li2_pack_t1len : Li2_pack_t1len] = t1ptr_in_pk;
 	}
 	
-	sk[0:32] = rho_pack(rho, sk[0:32]);
-	sk[32:32] = rho_pack(k, sk[32:32]); 
-
 	//TODO
 	//sk[64:32] = rho_pack(tr, sk[64:32]);
-
 
 	return pk, sk;
 }
@@ -136,7 +159,7 @@ fn keygen_jazz(reg u64 pk_ptr, reg u64 sk_ptr, reg u64 randomness)
 		i += 1;
 	}
 
-	pk, sk = keygen(pk, sk, random_zeta);
+	pk, sk = keygen(random_zeta);
 
 	i = 0;
 	while(i < PK_LEN) {
