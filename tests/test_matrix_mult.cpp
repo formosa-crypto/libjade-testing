@@ -25,6 +25,8 @@ using std::runtime_error;
 extern "C" {
 	void mult_mat_vec_jazz(uint32_t m[K * L * N], uint32_t v[L * N], uint32_t prod[K * N]);
 	void dot_prod_jazz(uint32_t v1[L * N], uint32_t v2[L * N], uint32_t prod[N]);
+	void fft_poly_mult_jazz(uint32_t f[N], uint32_t g[N], uint32_t fg[N]);
+	void poly_accumulate_jazz(uint32_t f[N], uint32_t s[N]);
 }
 
 template<typename T> void print_poly(T f[N]) {
@@ -43,15 +45,49 @@ void test_dot_prod() {
 	for(int i = 0; i < L; ++i) {
 		v1[i * N] = i;
 	}
+	cout << "v1 =";
+	for(int i = 0; i < L; ++i) {
+		cout << endl;
+		print_poly(v1 + i * N);
+	}
+
 	//[1, x, x^2, ...]
 	uint32_t v2[L * N] = { 0 };
 	for(int i = 0; i < L; ++i) {
 		v2[i * N + i] = 1;
 	}
+	cout << "v2 =";
+	for(int i = 0; i < L; ++i) {
+		cout << endl;
+		print_poly(v2 + i * N);
+	}
 
-	uint32_t prod[N];
-	dot_prod_jazz(v1, v2, prod);
-	print_poly(prod);
+	//expecting all 0s
+	uint32_t prod12[N];
+	dot_prod_jazz(v1, v2, prod12);
+	cout << "prod12 =" << endl;
+	print_poly(prod12);
+
+	for(int i = 0; i < N; ++i)
+		if(prod12[i] != 0)
+			throw runtime_error("test failed at " + to_string(__LINE__));
+
+	//[1, 2, 4, 8, ...]
+	uint32_t v3[L * N] = { 0 };
+	for(int i = 0; i < L; ++i) {
+		v2[i * N] = (1 << i);
+	}
+
+	uint32_t prod13[N];
+	dot_prod_jazz(v1, v3, prod13);
+
+	//Expecting answer to be REDC(34)
+	if((uint64_t(prod13[0]) << 32) % 8380417 != 34)
+		throw runtime_error("test failed at " + to_string(__LINE__));
+
+	for(int i = 1; i < N; ++i)
+		if(prod13[i] != 0)
+			throw runtime_error("test failed at " + to_string(__LINE__));
 }
 
 void test_mat_vec_mult() {
@@ -81,8 +117,53 @@ void test_mat_vec_mult() {
 	}
 }
 
+void test_poly_mult() {
+	uint32_t zeros[N] = { 0 };
+	uint32_t fg[N];
+	//0 * 1 = 0
+	uint32_t f1[N] = { 0 };
+	uint32_t g1[N] = { 1 };
+	fft_poly_mult_jazz(f1, g1, fg);
+	if(memcmp(zeros, fg, 4 * N) != 0)
+		throw runtime_error("test failed at " + to_string(__LINE__));
+
+	//1 * x = 0;
+	uint32_t f2[N] = { 1 };
+	uint32_t g2[N] = { 0, 1 };
+	fft_poly_mult_jazz(f2, g2, fg);
+	if(memcmp(zeros, fg, 4 * N) != 0)
+		throw runtime_error("test failed at " + to_string(__LINE__));
+	
+	//2 * x^2 = 0
+	uint32_t f3[N] = { 2 };
+	uint32_t g3[N] = { 0, 0, 1 };
+	fft_poly_mult_jazz(f3, g3, fg);
+	if(memcmp(zeros, fg, 4 * N) != 0)
+		throw runtime_error("test failed at " + to_string(__LINE__));
+
+	//3 * x^3 = 0
+	uint32_t f4[N] = { 3 };
+	uint32_t g4[N] = { 0, 0, 0, 1 };
+	fft_poly_mult_jazz(f4, g4, fg);
+	if(memcmp(zeros, fg, 4 * N) != 0)
+		throw runtime_error("test failed at " + to_string(__LINE__));
+}
+
+void test_poly_accumulate() {
+	uint32_t zero[N] = { 0 };
+	uint32_t f[N] = { 0 };
+	poly_accumulate_jazz(f, f);
+	poly_accumulate_jazz(f, f);
+	poly_accumulate_jazz(f, f);
+	poly_accumulate_jazz(f, f);
+	if(memcmp(zero, f, 4 * N) != 0)
+		throw runtime_error("test failed at " + to_string(__LINE__));
+}
+
 int main() {
-	test_dot_prod();
+	test_poly_accumulate();
+	test_poly_mult();
+	//test_dot_prod();
 	//test_mat_vec_mult();
 	return 0;
 }

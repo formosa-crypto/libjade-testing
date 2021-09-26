@@ -1,4 +1,6 @@
 require "../src/polyvec.jazz"
+require "../src/poly.jazz"
+require "fft_export.jazz"
 
 export
 fn mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
@@ -56,6 +58,33 @@ fn dot_prod_jazz(reg u64 ptr_v1 ptr_v2 ptr_prod) {
 	while(i < Li2_polydeg) {
 		value = prod[(int) i];
 		(u32) [ptr_prod + 4 * i] = value;
+		i += 1;
+	}
+}
+
+export
+fn poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
+{
+	stack u32[Li2_polydeg] f sum;
+
+	reg u64 i;
+	reg u32 value;
+
+	i = 0;
+	while(i < Li2_polydeg) {
+		value = (u32)[ptr_f + 4 * i];
+		f[(int) i] = value;
+		value = (u32)[ptr_sum + 4 * i];
+		sum[(int) i] = value;
+		i += 1;
+	}
+
+	sum = poly_accumulate(f, sum);
+
+	i = 0;
+	while(i < Li2_polydeg) {
+		value = sum[(int) i];
+		(u32)[ptr_sum + 4 * i] = value;
 		i += 1;
 	}
 }
