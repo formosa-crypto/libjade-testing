@@ -1,0 +1,35 @@
+require "../src/keygen.jazz"
+
+export
+fn keygen_upto_As1_jazz(reg u64 ptr_randomness, reg u64 ptr_As1)
+{
+	stack u8[32] random_zeta;
+
+	stack u8[PK_LEN] pk;
+	stack u8[SK_LEN] sk;
+	stack u8[32] rho;
+	stack u32[Li2_k * Li2_polydeg] s2;
+	stack u32[Li2_k * Li2_polydeg] t;
+
+	reg u64 i;
+	reg u8 c;
+	reg u32 as1_entry;
+
+	//copy ptr_randomness onto random_zeta
+	i = 0;
+	while(i < 32) {
+		c = (u8) [ptr_randomness + i];
+		random_zeta[(int) i] = c;
+		i += 1;
+	}
+
+	pk, sk, rho, s2, t = keygen_upto_As1(random_zeta);
+
+	//copy t over to As1
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		as1_entry = t[(int) i];
+		(u32) [ptr_As1 + 4 * i] = as1_entry;
+		i += 1;
+	}
+}
