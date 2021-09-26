@@ -27,6 +27,8 @@ extern "C" {
 	void dot_prod_jazz(uint32_t v1[L * N], uint32_t v2[L * N], uint32_t prod[N]);
 	void fft_poly_mult_jazz(uint32_t f[N], uint32_t g[N], uint32_t fg[N]);
 	void poly_accumulate_jazz(uint32_t f[N], uint32_t s[N]);
+
+	void probe_mult_mat_vec_jazz(uint32_t m[K * L * N], uint32_t v[L * N], uint32_t prod[K * N]);
 }
 
 template<typename T> void print_poly(T f[N]) {
@@ -108,6 +110,14 @@ void test_dot_prod() {
 	for(int i = 1; i < N; ++i)
 		if(prod13[i] != 0)
 			throw runtime_error("test failed at " + to_string(__LINE__));
+
+	/*
+	// This works as expected too
+	uint32_t prod11[N];
+	dot_prod_jazz(v1, v1, prod11);
+	cout << "prod11 =" << endl;
+	print_poly(prod11);
+	*/
 }
 
 void test_mat_vec_mult() {
@@ -120,20 +130,55 @@ void test_mat_vec_mult() {
 		}
 	}
 
+	/*
+	cout << "m =";
+	for(int k = 0; k < K * L; ++k) {
+		cout << endl;
+		print_poly(m + k * N);
+	}
+
+	cout << endl;
+	*/
+
 	// {1, x, x^2, ...};
 	uint32_t v[L * N] = { 0 };
 	for(int p = 0; p < L; ++p) {
-		v[N * p + p] = p;
+		v[N * p + p] = 1;
 	}
 
 	uint32_t prod[K * N] = { 0 };
 	mult_mat_vec_jazz(m, v, prod);
 
-	cout << "prod =";
+	for(int i = 0; i < K * N; ++i) {
+		if(i % N == 0) {
+			int k = i / N;
+			unsigned int val = L * k;
+			if((uint64_t(prod[i]) << 32) % 8380417 != val)
+				throw runtime_error("test failed at " + to_string(__LINE__));
+		} else {
+			if(prod[i] != 0)
+				throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
 
-	for(int k = 0; k < K; ++k) {
-		cout << endl;
-		print_poly(prod + k * N);
+	// {0, 1, 2, 3, ...};
+	uint32_t v2[L * N] = { 0 };
+	for(int p = 0; p < L; ++p) {
+		v2[N * p] = p;
+	}
+	mult_mat_vec_jazz(m, v2, prod);
+
+
+	for(int i = 0; i < K * N; ++i) {
+		if(i % N == 0) {
+			int k = i / N;
+			unsigned int val = 30 + 50 * k;
+			if((uint64_t(prod[i]) << 32) % 8380417 != val)
+				throw runtime_error("test failed at " + to_string(__LINE__));
+		} else {
+			if(prod[i] != 0)
+				throw runtime_error("test failed at " + to_string(__LINE__));
+		}
 	}
 }
 
@@ -184,6 +229,6 @@ int main() {
 	test_poly_accumulate();
 	test_poly_mult();
 	test_dot_prod();
-	//test_mat_vec_mult();
+	test_mat_vec_mult();
 	return 0;
 }

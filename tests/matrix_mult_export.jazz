@@ -88,3 +88,53 @@ fn poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
 		i += 1;
 	}
 }
+
+export
+fn probe_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
+	stack u32[Li2_k * Li2_l * Li2_polydeg] mat;
+	stack u32[Li2_l * Li2_polydeg] vec;
+	stack u32[Li2_k * Li2_polydeg] prod;
+
+	reg ptr u32[Li2_polydeg] p;
+
+	reg u32 v;
+	reg u64 i;
+
+	inline int ii;
+
+	i = 0;
+	while(i < Li2_k * Li2_l * Li2_polydeg) {
+		v = (u32) [ptr_mat + 4 * i];
+		mat[(int) i] = v;
+		i += 1;
+	}
+
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		v = (u32) [ptr_vec + 4 * i];
+		vec[(int) i] = v;
+		i += 1;
+	}
+
+	//prod = mult_mat_vec(mat, vec);
+	for ii = 0 to Li2_k {
+	/*
+		p = prod[Li2_polydeg * ii : Li2_polydeg];
+		p = dot_prod_vecs(
+			mat[Li2_l * Li2_polydeg * ii : Li2_l * Li2_polydeg], 
+			vec, p);
+		prod[Li2_polydeg * ii : Li2_polydeg] = p;
+		*/
+		prod[Li2_polydeg * ii : Li2_polydeg] = dot_prod_vecs(
+			mat[Li2_l * Li2_polydeg * ii : Li2_l * Li2_polydeg], 
+			vec,
+			prod[Li2_polydeg * ii : Li2_polydeg]);
+	}
+
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		v = prod[(int) i];
+		(u32) [ptr_prod + 4 * i] = v;
+		i += 1;
+	}
+}
