@@ -45,28 +45,36 @@ void test_dot_prod() {
 	for(int i = 0; i < L; ++i) {
 		v1[i * N] = i;
 	}
+	/*
 	cout << "v1 =";
 	for(int i = 0; i < L; ++i) {
 		cout << endl;
 		print_poly(v1 + i * N);
 	}
+	*/
+
 
 	//[1, x, x^2, ...]
 	uint32_t v2[L * N] = { 0 };
 	for(int i = 0; i < L; ++i) {
 		v2[i * N + i] = 1;
 	}
+	/*
 	cout << "v2 =";
 	for(int i = 0; i < L; ++i) {
 		cout << endl;
 		print_poly(v2 + i * N);
 	}
+	*/
 
 	//expecting all 0s
 	uint32_t prod12[N];
 	dot_prod_jazz(v1, v2, prod12);
+
+	/*
 	cout << "prod12 =" << endl;
 	print_poly(prod12);
+	*/
 
 	for(int i = 0; i < N; ++i)
 		if(prod12[i] != 0)
@@ -75,14 +83,26 @@ void test_dot_prod() {
 	//[1, 2, 4, 8, ...]
 	uint32_t v3[L * N] = { 0 };
 	for(int i = 0; i < L; ++i) {
-		v2[i * N] = (1 << i);
+		v3[i * N] = (1 << i);
 	}
+
+	/*
+	cout << "v3 =";
+	for(int i = 0; i < L; ++i) {
+		cout << endl;
+		print_poly(v3 + i * N);
+	}
+	*/
 
 	uint32_t prod13[N];
 	dot_prod_jazz(v1, v3, prod13);
 
+	/*
+	cout << "prod13 =" << endl;
+	print_poly(prod13);
+	*/
 	//Expecting answer to be REDC(34)
-	if((uint64_t(prod13[0]) << 32) % 8380417 != 34)
+	if((uint64_t(prod13[0]) << 32) % 8380417 != 98)
 		throw runtime_error("test failed at " + to_string(__LINE__));
 
 	for(int i = 1; i < N; ++i)
@@ -163,7 +183,7 @@ void test_poly_accumulate() {
 int main() {
 	test_poly_accumulate();
 	test_poly_mult();
-	//test_dot_prod();
+	test_dot_prod();
 	//test_mat_vec_mult();
 	return 0;
 }
