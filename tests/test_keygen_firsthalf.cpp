@@ -75,6 +75,12 @@ int main() {
 	auto as1_ref_arr = polyveck_to_arr(as1_ref);
 
 	PRINT(memcmp(as1_jazz, as1_ref_arr.data(), 4 * K * N));	
+	PRINT(as1_jazz[0]);
+	PRINT(as1_ref_arr[0]);
+	PRINT(as1_jazz[1]);
+	PRINT(as1_ref_arr[1]);
+	PRINT(as1_jazz[2]);
+	PRINT(as1_ref_arr[2]);
 
 	return 0;
 }
