@@ -1,0 +1,14 @@
+require "../src/polyvec.jazz"
+
+/*
+inline
+fn mult_mat_vec(reg ptr u32[Li2_k * Li2_l * Li2_polydeg] mat,
+	reg ptr u32[Li2_l * Li2_polydeg] vec)
+	-> stack u32[Li2_k * Li2_polydeg]
+	*/
+
+export
+fn mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
+	//TODO
+
+}

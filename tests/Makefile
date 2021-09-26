@@ -13,6 +13,8 @@ test_noises: test_noises.cpp test_gen_noises.s ../src/keygen.s
 
 test_fft: test_fft.cpp fft_export.s
 
+test_matrix_mult: test_matrix_mult.cpp matrix_mult_export.s
+
 test_gen_matrix: test_gen_matrix.cpp gen_matrix_export.s ../src/gen_matrix.jazz
 	$(CXX) $(CXXFLAGS) -DDILITHIUM_MODE=3 ../dilithium/ref/randombytes.o gen_matrix_export.s test_gen_matrix.cpp -o $@ $(LDFLAGS)
 
