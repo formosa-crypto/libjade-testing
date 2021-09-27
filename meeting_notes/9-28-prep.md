@@ -4,8 +4,9 @@
 
 ### Progress Report
 
+* Done implementing keygen in Jasmin!
 * Apologize for haven't done enough.
-* Quick demo for [keygen](../tests/test_keygen.cpp).
+* Quick [demo](../tests/test_keygen.cpp).
 * Duct tape engineering at its finest.
 
 ### Current Workflow
