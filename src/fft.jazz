@@ -69,25 +69,82 @@ fn fft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 inline
 fn ifft_to_mont(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 {
-/*
-	reg u64 i;
-	reg u32 val32;
-	reg u64 val;
-	stack u32 redc;
+	inline int exp_len;
+	inline int len;
+	stack u64 start j k;
+	stack u32 zeta t;
 
-	f = ifft(f);
+	//inner loop bound
+	reg u64 bound;
+	stack u32 mont_sq_over_256;
 
-	i = 0;
-	while(i < Li2_polydeg)
-	{
-		val32 = f[(int) i];
-		val = (64u) val32;
-		val *= 2365951; // 2 ^ 64 % Q
-		redc = montgomery_REDC(val);
-		val32 = redc;
-		f[(int) i] = val32;
-		i += 1;
+	//temps
+	reg u32 v32;
+	stack u32 s32;
+	reg u64 v64 addr;
+	reg ptr u32[256] tfs;
+
+	stack u32 left right;
+
+	k = 256;
+	for exp_len = 0 to 8 {
+		len = 1 << exp_len;
+		start = 0;
+		while(start < Li2_polydeg) {
+			k -= 1;
+
+			tfs = twiddle_factors;
+			addr = k;
+			v32 = tfs[(int) addr];
+			zeta = v32;
+			zeta = montgomery_negate(zeta);
+
+			j = start;
+			bound = start;
+			bound += len;
+			while(j < bound) {
+				addr = j;
+				v32 = f[(int) addr];
+				left = v32;
+				addr += len;
+				v32 = f[(int) addr];
+				right = v32;
+				
+				v32 = left;
+				t = v32;
+
+				left = montgomery_add(t, right);
+				right = montgomery_subtract(t, right);
+				right = montgomery_mult(zeta, right);
+
+				addr = j;
+				v32 = left;
+				f[(int) addr] = v32;
+				addr += len;
+				v32 = right;
+				f[(int) addr] = v32;
+
+				j += 1;
+			}
+
+			v64 = j;
+			v64 += len;
+			start = v64;
+		}
 	}
-	*/
+
+	mont_sq_over_256 = 41978;
+	j = 0;
+	while(j < Li2_polydeg) {
+		addr = j;
+		// TODO optimize me?
+		v32 = f[(int) addr];
+		s32 = v32;
+		s32 = montgomery_mult(mont_sq_over_256, s32);
+		v32 = s32;
+		f[(int) addr] = v32;
+		j += 1;
+	}
+	
 	return f;
 }
