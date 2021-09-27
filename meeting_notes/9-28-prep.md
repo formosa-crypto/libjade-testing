@@ -10,29 +10,29 @@
 
 ### Current Workflow
 
-For all function F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
+For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 * Example: fft
 	* [fft.jazz](../src/fft.jazz)
 	* [fft\_export.jazz](../tests/fft_export.jazz)
 	* [test\_fft.cpp](../tests/test_fft.cpp)
 * Doesn't work very well for [keygen](../src/keygen.jazz).
 
-### Summarize of the Challenges
+### Summarization of the Challenges
 
-* Originally went mainly by [spec](https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf).
-	* was slower and more bug-prone
+* Originally went mainly by the [spec](https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf).
+	* took more efforts
+	* was more bug-prone
 	* Harder to write tests
-	* Follow ref impl now
-* Long build time?
-	* Long iteration time - `time make keygen.s` gives 1m24s.
-	* Shapes the current workflow above
-* Register allocation
-	* calling `fips202.jazz` still runs out of register
-	* pushing things onto the stack and making things inline kinda helps
-* Deviation from reference impl.
-	* FFT is the worst offender - now fixed
+* Deviations from the [reference C implementation]((../dilithium)
+	* FFT was the worst offender - now fixed
 	* Bad handling of negative quantities (or lack thereof)
 	* Still not constant time
+* Long build time
+	* Long iteration time - `time make keygen.s` says 1m24s.
+	* Shapes the workflow above.
+* Register allocation
+	* calling `fips202.jazz` still runs out of register
+	* pushing things onto the stack and helps to some extent. Forces `inline` though.
 
 ### Follow up on wish list
 
@@ -45,5 +45,5 @@ For all function F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 ### Licensing
 * Preferred licenses?
 	* CC0: We lose copyright completely and irrevocably.
-	* LGPL: Seems more friendly than GPL after having worked in startups.
+	* LGPL: Seems more friendly than GPL, after having worked in startups.
 * What about `fips202.jazz` from the Kyber repo?
