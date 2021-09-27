@@ -45,11 +45,12 @@ int main() {
 	pqcrystals_dilithium3_ref_seeded_keypair(pk_ref, sk_ref, randomness);
 	keygen_jazz(pk_jazz, sk_jazz, randomness);
 
-
 	PRINT(memcmp(sk_ref, sk_jazz, 64));
 	PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2 + K * N / 2));
-	PRINT(memcmp(pk_ref, pk_jazz, 32));
 	PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_PUBLICKEYBYTES));
+
+	//tr added
+	PRINT(memcmp(sk_ref, sk_jazz, 96));
 
 	return 0;
 }

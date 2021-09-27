@@ -3,6 +3,7 @@ require "gen_matrix.jazz"
 require "gen_noises.jazz"
 require "polyvec.jazz"
 require "packing.jazz"
+require "hashing.jazz"
 
 param int PK_LEN = 1952;
 param int SK_LEN = 4000;
@@ -112,7 +113,6 @@ fn keygen(reg ptr u8[32] random_zeta)
 	inline int j;
 	reg u32 noise_val;
 
-	// code here
 	pk, sk, rho, s2, t = keygen_upto_As1(random_zeta);
 
 	i = 0;
@@ -135,9 +135,8 @@ fn keygen(reg ptr u8[32] random_zeta)
 		t1ptr_in_pk = polyt1_pack(t1_to_pack , t1ptr_in_pk);
 		pk[32 + j * Li2_pack_t1len : Li2_pack_t1len] = t1ptr_in_pk;
 	}
-	
-	//TODO
-	//sk[64:32] = rho_pack(tr, sk[64:32]);
+
+	sk[64:32] = shake256_32_320_32(rho, pk[32:320], sk[64:32]);
 
 	return pk, sk;
 }
