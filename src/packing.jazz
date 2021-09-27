@@ -7,8 +7,12 @@ param int Li2_pack_s2loc = 96 + Li2_pack_s1len;
 
 // length of only one poly
 // naming taken from C ref
+// actual lengths are K times the above...
+
 param int Li2_pack_t1len = 10 * Li2_polydeg / 8;
-// actual length is K times the above...
+param int Li2_pack_t0len = 416;
+
+param int Li2_pack_t0loc = Li2_SK_LEN - Li2_k * Li2_pack_t0len;
 
 inline
 fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
@@ -18,7 +22,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 	reg u64 addr;
 	reg u32 x x1;
 	reg u8 c;
-	
+
 	i = 0;
 	while(i < Li2_polydeg / 4) {
 		// I already know I'm gonna typo this somewhere...
@@ -56,7 +60,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 		addr += 1;
 		c = (8u) x;
 		buf[(int) addr] = c;
-		
+
 		//buf[5*i+2] = (t1[4*i+1] >> 6) | (t1[4*i+2] << 4);
 
 		addr = 4;
@@ -119,7 +123,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 	return buf;
 }
 
-inline
+	inline
 fn rho_pack(reg ptr u8[32] in out)
 	-> reg ptr u8[32]
 {
@@ -158,17 +162,17 @@ fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_pack_s1len] dest)
 		i += 1;
 		//lower = eta_minus_x(temp);
 		lower = temp;
-		
+
 		/* Why is this not correct?
-		higher <<= 4;
-		higher += lower;
-		value = (8u) higher;
-		*/
+		   higher <<= 4;
+		   higher += lower;
+		   value = (8u) higher;
+		 */
 
 		lower <<= 4;
 		lower += higher;
 		value = (8u) lower;
-		
+
 		dest[(int) addr] = value;
 	}
 	return dest;
@@ -200,12 +204,219 @@ fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 		i += 1;
 		//lower = eta_minus_x(temp);
 		lower = temp;
-		
+
 		lower <<= 4;
 		lower += higher;
 		value = (8u) lower;
-		
+
 		dest[(int) addr] = value;
 	}
 	return dest;
 }
+
+inline
+fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
+	-> reg ptr u8[Li2_pack_t0len]
+{
+	stack u32 t0_term;
+	stack u32[8] t;
+	stack u32 max_t0;
+	stack u64 i;
+
+	reg u64 addr;
+
+	reg u32 v32;
+	stack u32 v32s;
+
+	inline int ii;
+
+	reg u8 c c1;
+
+	max_t0 = Li2_expd >> 1;
+
+	i = 0;
+	while(i < Li2_polydeg / 8) {
+		for ii = 0 to 8 {
+			addr = i;
+			addr *= 8;
+			addr += ii;
+
+			v32 = t0[(int) addr];
+			t0_term = v32;
+
+			v32s = montgomery_subtract(max_t0, t0_term);
+			v32 = v32s;
+			t[ii] = v32;
+		}
+		i += 1;
+	}
+
+	// Get ready.
+	// Here be typos.
+
+	//r[13*i+ 0]  =  t[0];
+
+	v32 = t[0];
+	c = (8u) v32;
+	addr = i;
+	addr *= 13;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 1]  =  t[0] >>  8;
+	//r[13*i+ 1] |=  t[1] <<  5;
+
+	v32 = t[0];
+	v32 >>= 8;
+	c = (8u) v32;
+	v32 = t[1];
+	v32 <<= 5;
+	c1 = (8u) v32;
+	c |= c1;
+	addr = i;
+	addr *= 13;
+	addr += 1;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 2]  =  t[1] >>  3;
+
+	v32 = t[1];
+	v32 >>= 3;
+	c = (8u) v32;
+	addr = i;
+	addr *= 13;
+	addr += 2;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 3]  =  t[1] >> 11;
+	//r[13*i+ 3] |=  t[2] <<  2;
+
+	v32 = t[1];
+	v32 >>= 11;
+	c = (8u) v32;
+	v32 = t[2];
+	v32 <<= 2;
+	c1 = (8u) v32;
+	c |= c1;
+	addr = i;
+	addr *= 13;
+	addr += 3;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 4]  =  t[2] >>  6;
+	//r[13*i+ 4] |=  t[3] <<  7;
+
+	v32 = t[2];
+	v32 >>= 6;
+	c = (8u) v32;
+	v32 = t[3];
+	v32 <<= 7;
+	c1 = (8u) v32;
+	c |= c1;
+	addr = i;
+	addr *= 13;
+	addr += 4;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 5]  =  t[3] >>  1;
+
+	v32 = t[3];
+	v32 >>= 1;
+	c = (8u) v32;
+	addr = i;
+	addr *= 13;
+	addr += 5;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 6]  =  t[3] >>  9;
+	//r[13*i+ 6] |=  t[4] <<  4;
+
+	v32 = t[3];
+	v32 >>= 9;
+	c = (8u) v32;
+	v32 = t[4];
+	v32 <<= 4;
+	c1 = (8u) v32;
+	c |= c1;
+	addr = i;
+	addr *= 13;
+	addr += 6;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 7]  =  t[4] >>  4;
+
+	v32 = t[4];
+	v32 >>= 4;
+	c = (8u) v32;
+	addr = i;
+	addr *= 13;
+	addr += 7;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 8]  =  t[4] >> 12;
+	//r[13*i+ 8] |=  t[5] <<  1;
+
+	v32 = t[4];
+	v32 >>= 12;
+	c = (8u) v32;
+	v32 = t[5];
+	v32 <<= 1;
+	c1 = (8u) v32;
+	c |= c1;
+	addr = i;
+	addr *= 13;
+	addr += 8;
+	dest[(int) addr] = c;
+
+	//r[13*i+ 9]  =  t[5] >>  7;
+	//r[13*i+ 9] |=  t[6] <<  6;
+
+	v32 = t[5];
+	v32 >>= 7;
+	c = (8u) v32;
+	v32 = t[6];
+	v32 <<= 6;
+	c1 = (8u) v32;
+	c |= c1;
+	addr = i;
+	addr *= 13;
+	addr += 9;
+	dest[(int) addr] = c;
+
+	//r[13*i+10]  =  t[6] >>  2;
+
+	v32 = t[6];
+	v32 >>= 2;
+	c = (8u) v32;
+	addr = i;
+	addr *= 13;
+	addr += 10;
+	dest[(int) addr] = c;
+
+	//r[13*i+11]  =  t[6] >> 10;
+	//r[13*i+11] |=  t[7] <<  3;
+
+	v32 = t[6];
+	v32 >>= 10;
+	c = (8u) v32;
+	v32 = t[7];
+	v32 <<= 3;
+	c1 = (8u) v32;
+	c |= c1;
+	addr = i;
+	addr *= 13;
+	addr += 11;
+	dest[(int) addr] = c;
+
+	//r[13*i+12]  =  t[7] >>  5;
+
+	v32 = t[7];
+	v32 >>= 5;
+	c = (8u) v32;
+	addr = i;
+	addr *= 13;
+	addr += 12;
+	dest[(int) addr] = c;
+
+	return dest;
+}
+

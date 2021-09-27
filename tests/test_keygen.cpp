@@ -49,15 +49,9 @@ int main() {
 	PRINT(memcmp(sk_ref + 96, sk_jazz + 96, L * N / 2 + K * N / 2));
 	PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_PUBLICKEYBYTES));
 
-	//tr added
 	PRINT(memcmp(sk_ref, sk_jazz, 96));
+	PRINT(memcmp(sk_ref, sk_jazz, pqcrystals_dilithium3_SECRETKEYBYTES));
 
-	for(int i = 0; i < 96; ++i) {
-		if(sk_ref[i] != sk_jazz[i]) {
-			PRINT(i);
-			return 0;
-		}
-	}
 
 	return 0;
 }

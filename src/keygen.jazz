@@ -136,6 +136,13 @@ fn keygen(reg ptr u8[32] random_zeta)
 
 	sk[64:32] = shake256_of_pk(pk, sk[64:32]);
 
+	for j = 0 to Li2_k {
+		sk[Li2_pack_t0loc + j * Li2_pack_t0len : Li2_pack_t0len] =
+			polyt0_pack(
+				t0[Li2_polydeg * j : Li2_polydeg],
+				sk[Li2_pack_t0loc + j * Li2_pack_t0len : Li2_pack_t0len]);
+	}
+
 	return pk, sk;
 }
 
