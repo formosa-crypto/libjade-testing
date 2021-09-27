@@ -74,6 +74,18 @@ fn montgomery_negate(stack u32 x) -> stack u32
 }
 
 inline
+fn montgomery_subtract(stack u32 x y) -> stack u32
+{
+	stack u32 minus_y;
+	stack u32 result;
+
+	minus_y = montgomery_negate(y);
+	result = montgomery_add(x, minus_y);
+	
+	return result;
+}
+
+inline
 fn montgomery_mult(stack u32 x y) -> stack u32
 {
 	reg u64 xy;

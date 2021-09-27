@@ -3,180 +3,73 @@ require "params.jazz"
 require "twiddle_factors.jazz"
 
 inline
-fn get_twiddle_factors(stack u8 butterfly_group)
-	-> stack u32, stack u32
-{
-	reg ptr u32[128] p;
-	reg u32 temp;
-	reg u64 r_grp;
-	stack u32 fst snd;
-
-	r_grp = (64u) butterfly_group;
-
-	p = first_twiddle_factors;
-	temp = p[(int) r_grp];
-	fst = temp;
-
-	p = second_twiddle_factors;
-	temp = p[(int) r_grp];
-	snd = temp;
-	
-	return fst, snd;
-}
-
-
-inline
 fn fft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 {
-	inline int butterfly_level;
-	stack u8 butterfly_group;
-	//Number of butterflies. NOT number of elements.
-	inline int num_butterflies_per_group;
-	reg u64 butterfly_index;
+	inline int exp_len;
+	inline int len;
+	stack u64 start j k;
+	stack u32 zeta t;
 
-	//inputs of butterfly
-	reg u32 temp;
-	stack u32 butterfly_left_val;
-	stack u32 butterfly_right_val;
+	//inner loop bound
+	reg u64 bound;
 
-	// results of butterfly
-	stack u32 temp1;
-	stack u32 temp2;
+	//temps
+	reg u32 v32;
+	reg u64 v64 addr;
+	reg ptr u32[256] tfs;
 
-	stack u32 tf1 tf2;
+	stack u32 left right;
 
-	reg u64 butterfly_left_addr;
-	reg u64 butterfly_right_addr;
+	k = 0;
+	for exp_len = 7 downto -1 {
+		len = 1 << exp_len;
+		start = 0;
+		while(start < Li2_polydeg) {
+			k += 1;
 
-	for butterfly_level = 0 to 8 {
-		num_butterflies_per_group = 128 >> butterfly_level;
+			tfs = twiddle_factors;
+			addr = k;
+			v32 = tfs[(int) addr];
+			zeta = v32;
 
-		butterfly_group = 0;
-		while(butterfly_group < (1 << butterfly_level)) {
-			tf1, tf2 = get_twiddle_factors(butterfly_group);
+			j = start;
+			bound = start;
+			bound += len;
+			while(j < bound) {
+				addr = j;
+				v32 = f[(int) addr];
+				left = v32;
+				addr += len;
+				v32 = f[(int) addr];
+				right = v32;
+				t = montgomery_mult(zeta, right);
 
-			butterfly_index = 0;
-			while(butterfly_index < num_butterflies_per_group) {
-				butterfly_left_addr = (64u) butterfly_group;
-				butterfly_left_addr *= 2 * num_butterflies_per_group;
-				butterfly_left_addr += butterfly_index;
+				right = montgomery_subtract(left, t);
+				left = montgomery_add(left, t);
 
-				butterfly_right_addr = butterfly_left_addr;
-				butterfly_right_addr += num_butterflies_per_group;
+				addr = j;
+				v32 = left;
+				f[(int) addr] = v32;
+				addr += len;
+				v32 = right;
+				f[(int) addr] = v32;
 
-				temp = f[(int) butterfly_left_addr];
-				butterfly_left_val = temp;
-				temp = f[(int) butterfly_right_addr];
-				butterfly_right_val = temp;
-
-				temp1 = montgomery_mult(butterfly_right_val, tf1);
-				temp1 = montgomery_add(temp1, butterfly_left_val);
-
-				temp2 = montgomery_mult(butterfly_right_val, tf2);
-				temp2 = montgomery_add(temp2, butterfly_left_val);
-
-				temp = temp1;
-				f[(int) butterfly_left_addr] = temp;
-				temp = temp2;
-				f[(int) butterfly_right_addr] = temp;
-
-				butterfly_index += 1;
+				j += 1;
 			}
-			butterfly_group += 1;
+
+			v64 = j;
+			v64 += len;
+			start = v64;
 		}
 	}
-	return f;
-}
 
-inline
-fn get_ifft_twiddle_factor(stack u8 butterfly_group)
-	-> stack u32
-{
-	reg ptr u32[128] p;
-	reg u32 temp;
-	reg u64 r_grp;
-	stack u32 result;
-
-	r_grp = (64u) butterfly_group;
-
-	p = ifft_twiddle_factors;
-	temp = p[(int) r_grp];
-	result = temp;
-	
-	return result;
-}
-
-// Might not be a good idea to copy and paste code like this
-// Only to make very small changes
-
-inline
-fn ifft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
-{
-	inline int butterfly_level;
-	stack u8 butterfly_group;
-	//Number of butterflies. NOT number of elements.
-	inline int num_butterflies_per_group;
-	reg u64 butterfly_index;
-
-	//inputs of butterfly
-	reg u32 temp;
-	stack u32 butterfly_left_val;
-	stack u32 butterfly_right_val;
-
-	// results of butterfly
-	stack u32 temp1;
-	stack u32 temp2;
-
-	stack u32 tf1 tf2;
-
-	reg u64 butterfly_left_addr;
-	reg u64 butterfly_right_addr;
-
-	for butterfly_level = 7 downto -1 {
-		num_butterflies_per_group = 128 >> butterfly_level;
-
-		butterfly_group = 0;
-		while(butterfly_group < (1 << butterfly_level)) {
-			tf1 = 2096896; // montgomery(1/2)
-			tf2 = get_ifft_twiddle_factor(butterfly_group);
-
-			butterfly_index = 0;
-			while(butterfly_index < num_butterflies_per_group) {
-				butterfly_left_addr = (64u) butterfly_group;
-				butterfly_left_addr *= 2 * num_butterflies_per_group;
-				butterfly_left_addr += butterfly_index;
-
-				butterfly_right_addr = butterfly_left_addr;
-				butterfly_right_addr += num_butterflies_per_group;
-
-				temp = f[(int) butterfly_left_addr];
-				butterfly_left_val = temp;
-				temp = f[(int) butterfly_right_addr];
-				butterfly_right_val = temp;
-				
-				temp1 = montgomery_add(butterfly_right_val, butterfly_left_val);
-				temp1 = montgomery_mult(temp1, tf1);
-
-				temp2 = montgomery_negate(butterfly_right_val);
-				temp2 = montgomery_add(temp2, butterfly_left_val);
-				temp2 = montgomery_mult(temp2, tf2);
-
-				temp = temp1;
-				f[(int) butterfly_left_addr] = temp;
-				temp = temp2;
-				f[(int) butterfly_right_addr] = temp;
-
-				butterfly_index += 1;
-			}
-			butterfly_group += 1;
-		}
-	}
 	return f;
 }
 
 inline
 fn ifft_to_mont(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 {
+/*
 	reg u64 i;
 	reg u32 val32;
 	reg u64 val;
@@ -195,5 +88,6 @@ fn ifft_to_mont(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 		f[(int) i] = val32;
 		i += 1;
 	}
+	*/
 	return f;
 }
