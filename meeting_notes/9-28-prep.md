@@ -20,30 +20,37 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 
 ### Summary of Challenges
 
-* Originally went mainly by the [spec](https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf).
-	* Took more efforts
-	* Was more bug-prone
-	* Harder to write tests
+* Unfamiliarity with assembly
+	* `error in “one-varmap” checker: modified expression`
+	* `asmgen: not able to assemble address`
+* Register allocations
+	* Automatic variables live on the stack.
+	* Adding `inline` on functions seems to help.
+	* Calling `fips202.jazz` still easily runs out of register.
+* Long build time
+	* Long iteration time - `time make keygen.s` says 1m24s.
+	* Shapes workflow above.
+* Originally went by the [specification](https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf)
+	* Took more effort
+	* More bug-prone
+	* Writing tests is hard!
 * Deviations from the [reference C implementation](https://github.com/ethanlee515/dilithium)
 	* FFT was the worst offender - now fixed
 	* Bad handling of negative quantities (or lack thereof)
 	* Still not constant time
-* Register allocation
-	* Calling `fips202.jazz` still easily runs out of register
-	* Pushing things onto the stack and helps to some extent. Forces `inline` though.
-* Long build time
-	* Long iteration time - `time make keygen.s` says 1m24s.
-	* Shapes the workflow above.
 
-### Follow up on Wish List Last Meeting
+### Follow ups from Previous Discussions
 
-* Now using subarrays!
-* Now using `require`!
-* Still spaghetti code though.
+* From [wishlist](./9-14-prep.md#wishlist) last meeting:
+	* Now using subarrays!
+	* Now using `require`!
+	* Still spaghetti code though.
+* How's the Jasmin memory safety checker?
 
 ## Administrative Items
 
 ### Licensing
+
 * Preferred licenses?
 	* CC0: We lose copyright completely and irrevocably.
 	* LGPL: Seems more friendly than GPL, after having worked in startups.
