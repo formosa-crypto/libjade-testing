@@ -48,10 +48,11 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 
 ### Follow ups from Previous Discussions
 
-* From [wishlist](./9-14-prep.md#wishlist) last meeting:
+* From [last meeting](./9-14-prep.md):
 	* Now using subarrays!
 	* Now using `require`!
 	* Still spaghetti code though.
+	* Still hard-coded at level 3.
 * How's the Jasmin memory safety checker?
 
 ## Administrative Items
