@@ -49,7 +49,7 @@ albeit with some minor lingering issues.
 	* Bad handling of negative quantities (or lack thereof).
 	* Still not constant time.
 
-### Follow ups from Previous Discussions
+### Following up Previous Discussions
 
 * From [last meeting](./9-14-prep.md):
 	* Now using subarrays!
