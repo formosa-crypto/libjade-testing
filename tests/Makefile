@@ -6,7 +6,7 @@ tests: test_keygen test_noises test_fft test_gen_matrix test_packing test_keygen
 test_keygen: test_keygen.cpp ../src/keygen.s ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ../src/keygen.s test_keygen.cpp -o $@ $(LDFLAGS)
 
-test_keygen_firsthalf: test_keygen_firsthalf.cpp ../src/keygen.s keygen_firsthalf_export.s ../dilithium/ref/randombytes.o
+test_keygen_firsthalf: test_keygen_firsthalf.cpp keygen_firsthalf_export.s ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o keygen_firsthalf_export.s test_keygen_firsthalf.cpp -o $@ $(LDFLAGS)
 
 test_noises: test_noises.cpp test_gen_noises.s ../src/keygen.s

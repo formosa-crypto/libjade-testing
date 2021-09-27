@@ -6,6 +6,7 @@
 extern "C" {
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
+#include "../dilithium/ref/ntt.h"
 }
 
 using std::cout;
@@ -286,16 +287,18 @@ void test_ifft_to_mont() {
 			throw runtime_error("test failed at " + to_string(__LINE__));
 }
 
-void test_roots_of_unity() {
-	auto v = precomputeMRoots();
+void test_problematic_poly() {
+//void ntt(int32_t a[N]) {
+
+
 }
 
 int main() {
 	test_montgomery();
 	test_poly_product();
-	test_roots_of_unity();
 	test_fft();
 	test_ifft();
 	test_ifft_to_mont();
+	test_problematic_poly();
 	return 0;
 }

@@ -33,3 +33,70 @@ fn keygen_upto_As1_jazz(reg u64 ptr_randomness, reg u64 ptr_As1)
 		i += 1;
 	}
 }
+
+export
+fn probe_keygen_jazz(reg u64 ptr_s1)
+{
+	stack u8[32] random_zeta;
+
+	stack u8[PK_LEN] pk;
+	stack u8[SK_LEN] sk;
+	stack u8[32] rho;
+	stack u8[64] rho_prime;
+	stack u32[Li2_l * Li2_polydeg] s1;
+	stack u32[Li2_k * Li2_polydeg] s2;
+	//stack u32[Li2_k * Li2_polydeg] t;
+
+	//PRF
+	stack u64[25] state;
+	stack u8[SHAKE256_RATE] s256_out;
+
+	//temps
+	reg u64 i;
+	reg u32 v32;
+	reg u8 c;
+
+	i = 0;
+	while(i < 32) {
+		random_zeta[(int) i] = 0;
+		i += 1;
+	}
+
+	state = shake256_absorb32(random_zeta);
+	state, s256_out = shake256_squeezeblock(state, s256_out);
+
+	//TODO Maybe can load 8 bytes at a time using u64?
+	i = 0;
+	while(i < 32) {
+		c = s256_out[(int) i];
+		rho[(int) i] = c;
+		i += 1;
+	}
+	while(i < 96) {
+		c = s256_out[(int) i];
+		rho_prime[(int) (i - 32)] = c;
+		i += 1;
+	}
+
+	s1, s2 = gen_noises(rho_prime);
+
+	//eta-minus-x
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		v32 = s1[(int) i];
+		v32 = eta_minus_x(v32);
+		s1[(int) i] = v32;
+		i += 1;
+	}
+
+	//fft
+	//s1 = fft_vec(s1);
+
+	// set up return val
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		v32 = s1[(int) i];
+		(u32) [ptr_s1 + 4 * i] = v32;
+		i += 1;
+	}
+}
