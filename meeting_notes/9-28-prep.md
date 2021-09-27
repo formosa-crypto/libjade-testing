@@ -1,4 +1,4 @@
-# Meeting prep for September 28, 2021
+# Meeting Preparation for September 28, 2021
 
 ## Technical items
 
@@ -18,7 +18,7 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 	* [test\_fft.cpp](../tests/test_fft.cpp)
 * Doesn't work very well for [keygen](../src/keygen.jazz).
 
-### Summarization of the Challenges
+### Summary of Challenges
 
 * Originally went mainly by the [spec](https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf).
 	* Took more efforts
