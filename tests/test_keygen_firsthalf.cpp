@@ -2,6 +2,7 @@
 #include <random>
 #include <cstring>
 #include <array>
+#include <string>
 #include "print_poly.h"
 
 extern "C" {
@@ -17,6 +18,8 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::memcmp;
+using std::runtime_error;
+using std::to_string;
 
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
@@ -27,7 +30,7 @@ extern "C" {
 }
 
 // Copied from reference impl.
-polyvecl keygen_firsthalf_ref(uint8_t seed[SEEDBYTES]) {
+polyveck keygen_firsthalf_ref(uint8_t seed[SEEDBYTES]) {
 	uint8_t seedbuf[2*SEEDBYTES + CRHBYTES];
 	const uint8_t *rho, *rhoprime;
 	polyvecl mat[K];
@@ -50,19 +53,19 @@ polyvecl keygen_firsthalf_ref(uint8_t seed[SEEDBYTES]) {
 	/* Matrix-vector multiplication */
 
 	s1hat = s1;
-	//polyvecl_ntt(&s1hat);
-	return s1hat;
-	/*
+	polyvecl_ntt(&s1hat);
+
 	polyvec_matrix_pointwise_montgomery(&t1, mat, &s1hat);
+
 	polyveck_reduce(&t1);
+
 	polyveck_invntt_tomont(&t1);
 
 	return t1;
-	*/
 }
 
-array<uint32_t, K * N> polyveck_to_arr(polyveck v) {
-	array<uint32_t, K * N> arr;
+array<int32_t, K * N> polyveck_to_arr(polyveck v) {
+	array<int32_t, K * N> arr;
 	for(int k = 0; k < K; ++k) {
 		for(int i = 0; i < N; ++i) {
 			arr[k * N + i] = v.vec[k].coeffs[i];
@@ -82,24 +85,41 @@ array<int32_t, L * N> polyvecl_to_arr(polyvecl v) {
 }
 
 int main() {
-	uint32_t s1_jazz[K * N];
-	probe_keygen_jazz(s1_jazz);
-
 	uint8_t randomness[32] = { 0 };
-	polyvecl s1_ref = keygen_firsthalf_ref(randomness);
-	auto s1_ref_arr = polyvecl_to_arr(s1_ref);
+	uint32_t t_jazz[K * N];
+//	probe_keygen_jazz(t_jazz);
+	keygen_upto_As1_jazz(randomness, t_jazz);
 
-	for(int i = 0; i < L * N; ++i) {
-		uint32_t ref_i = (s1_ref_arr[i] + Q) % Q;
-		if(s1_jazz[i] % Q != ref_i) {
+	polyveck t_ref = keygen_firsthalf_ref(randomness);
+	auto t_ref_arr = polyveck_to_arr(t_ref);
+
+	/*
+	for(int i = 0; i < K * N; ++i) {
+		int32_t v = t_ref_arr[i];
+		v = (v % Q + Q) % Q;
+		t_ref_arr[i] = v;
+	}
+
+	for(int i = 0; i < K; ++i) {
+		PRINT(i);
+		print_poly(t_jazz + i * N);
+		cout << endl;
+		print_poly(t_ref_arr.data() + i * N);
+		cout << endl << endl;
+	}
+	*/
+
+	for(int i = 0; i < K * N; ++i) {
+		uint32_t ref_i = ((t_ref_arr[i] % Q) + Q) % Q;
+		if(t_jazz[i] % Q != ref_i) {
 			PRINT(i);
-			PRINT(s1_jazz[i]);
-			PRINT(s1_ref_arr[i]);
-			return 0;
+			PRINT(t_jazz[i]);
+			PRINT(ref_i);
+			throw runtime_error("test failed at " + to_string(__LINE__));
 		}
 	}
 
-	print_poly(s1_jazz);
+
 
 	return 0;
 }

@@ -130,6 +130,8 @@ void test_mat_vec_mult() {
 		}
 	}
 
+//void polyvec_matrix_pointwise_montgomery(polyveck *t, const polyvecl mat[K], const polyvecl *v);
+
 	/*
 	cout << "m =";
 	for(int k = 0; k < K * L; ++k) {

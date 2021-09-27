@@ -45,7 +45,9 @@ fn probe_keygen_jazz(reg u64 ptr_s1)
 	stack u8[64] rho_prime;
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
-	//stack u32[Li2_k * Li2_polydeg] t;
+	stack u32[Li2_k * Li2_polydeg] t;
+
+	stack u32[Li2_k * Li2_l * Li2_polydeg] fft_matA;
 
 	//PRF
 	stack u64[25] state;
@@ -90,12 +92,17 @@ fn probe_keygen_jazz(reg u64 ptr_s1)
 	}
 
 	//fft
-	//s1 = fft_vec(s1);
+	s1 = fft_vec(s1);
+
+	fft_matA = gen_matrix(rho);
+	t = mult_mat_vec(fft_matA, s1);
+
+	t = ifft_to_mont_vec(t);
 
 	// set up return val
 	i = 0;
 	while(i < Li2_k * Li2_polydeg) {
-		v32 = s1[(int) i];
+		v32 = t[(int) i];
 		(u32) [ptr_s1 + 4 * i] = v32;
 		i += 1;
 	}

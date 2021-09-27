@@ -86,7 +86,7 @@ fn keygen_upto_As1(reg ptr u8[32] random_zeta)
 	t = mult_mat_vec(fft_matA, s1);
 	t = ifft_to_mont_vec(t);
 
-	return pk, sk, rho, t, s2;
+	return pk, sk, rho, s2, t;
 }
 
 inline
