@@ -12,7 +12,7 @@
 ### Current Workflow
 
 For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
-* Example: fft
+* Example: fast Fourier transform
 	* [fft.jazz](../src/fft.jazz)
 	* [fft\_export.jazz](../tests/fft_export.jazz)
 	* [test\_fft.cpp](../tests/test_fft.cpp)
