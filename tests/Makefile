@@ -12,6 +12,7 @@ test_keygen_firsthalf: test_keygen_firsthalf.cpp keygen_firsthalf_export.s ../di
 test_noises: test_noises.cpp test_gen_noises.s ../src/keygen.s
 
 test_fft: test_fft.cpp fft_export.s
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o fft_export.s test_fft.cpp -o $@ $(LDFLAGS)
 
 test_matrix_mult: test_matrix_mult.cpp matrix_mult_export.s
 
