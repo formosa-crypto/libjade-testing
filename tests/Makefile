@@ -22,6 +22,8 @@ test_gen_matrix: test_gen_matrix.cpp gen_matrix_export.s ../src/gen_matrix.jazz
 test_packing: test_packing.cpp packing_export.s ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o packing_export.s test_packing.cpp -o $@ $(LDFLAGS)
 
+test_hashing: test_hashing.cpp hashing_export.s
+
 %.s: %.jazz ../src/*.jazz
 	jasminc -pasm $< > $@
 

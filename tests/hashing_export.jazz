@@ -1,0 +1,35 @@
+require "../src/hashing.jazz"
+
+export
+fn shake256_32_320_32_jazz(reg u64 ptr_rho,
+		reg u64 ptr_t1,
+		reg u64 ptr_out) {
+	reg u64 i;
+	reg u8 c;
+
+	stack u8[32] rho;
+	stack u8[320] t1;
+	stack u8[32] out;
+
+	i = 0;
+	while(i < 32) {
+		c = (u8) [ptr_rho + i];
+		rho[(int) i] = c;
+		i += 1;
+	}
+
+	i = 0;
+	while(i < 320) {
+		c = (u8) [ptr_t1 + i];
+		t1[(int) i] = c;
+		i += 1;
+	}
+	out = shake256_32_320_32(rho, t1, out);
+
+	i = 0;
+	while(i < 32) {
+		c = out[(int) i];
+		(u8) [ptr_out + i] = c;
+		i += 1;
+	}
+}
