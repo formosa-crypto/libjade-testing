@@ -23,7 +23,7 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 	* took more efforts
 	* was more bug-prone
 	* Harder to write tests
-* Deviations from the [reference C implementation](../dilithium)
+* Deviations from the [reference C implementation](https://github.com/ethanlee515/dilithium)
 	* FFT was the worst offender - now fixed
 	* Bad handling of negative quantities (or lack thereof)
 	* Still not constant time
