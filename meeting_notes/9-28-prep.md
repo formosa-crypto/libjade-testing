@@ -23,6 +23,7 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 * Unfamiliarity with assembly
 	* `error in “one-varmap” checker: modified expression`
 	* `asmgen: not able to assemble address`
+	* Unsure what I can and cannot do.
 * Register allocations
 	* Automatic variables live on the stack.
 	* Adding `inline` on functions seems to help.
@@ -31,13 +32,13 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 	* Long iteration time - `time make keygen.s` says 1m24s.
 	* Shapes workflow above.
 * Originally went by the [specification](https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf)
-	* Took more effort
-	* More bug-prone
+	* Took more effort.
+	* More bug-prone.
 	* Writing tests is hard!
 * Deviations from the [reference C implementation](https://github.com/ethanlee515/dilithium)
-	* FFT was the worst offender - now fixed
-	* Bad handling of negative quantities (or lack thereof)
-	* Still not constant time
+	* FFT was the worst offender - now fixed.
+	* Bad handling of negative quantities (or lack thereof).
+	* Still not constant time.
 
 ### Follow ups from Previous Discussions
 
@@ -52,6 +53,6 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 ### Licensing
 
 * Preferred licenses?
-	* CC0: We lose copyright completely and irrevocably.
-	* LGPL: Seems more friendly than GPL, after having worked in startups.
+	* CC0: We lose copyright completely and irrevocably. What if we regret it one day?
+	* LGPL: Seems more friendly than GPL, after having worked at startups.
 * What about `fips202.jazz` from the Kyber repo?
