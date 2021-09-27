@@ -20,6 +20,9 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 
 ### Summary of Challenges
 
+Here is a short list of software engineering challenges that I've mostly overcome,
+albeit with some minor lingering issues.
+
 * Unfamiliarity with assembly
 	* `asmgen: not able to assemble address`
 	* `asmgen: invalid instruction, check do not pass : MOV_32`
