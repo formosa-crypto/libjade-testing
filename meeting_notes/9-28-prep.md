@@ -26,7 +26,7 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 * Register allocations
 	* Automatic variables live on the stack.
 	* Adding `inline` on functions seems to help.
-	* Calling `fips202.jazz` still easily runs out of register.
+	* Using `fips202.jazz` still easily runs out of register.
 * Long build time
 	* Long iteration time - `time make keygen.s` says 1m24s.
 	* Shapes workflow above.
