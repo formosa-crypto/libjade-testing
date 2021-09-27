@@ -1,3 +1,5 @@
+param int Li2_PK_LEN = 1952;
+param int Li2_SK_LEN = 4000;
 // Modulus
 param int Li2_q = 8380417;
 // Dropped bits from t

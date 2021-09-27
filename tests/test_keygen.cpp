@@ -52,5 +52,12 @@ int main() {
 	//tr added
 	PRINT(memcmp(sk_ref, sk_jazz, 96));
 
+	for(int i = 0; i < 96; ++i) {
+		if(sk_ref[i] != sk_jazz[i]) {
+			PRINT(i);
+			return 0;
+		}
+	}
+
 	return 0;
 }

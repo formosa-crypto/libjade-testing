@@ -1,6 +1,67 @@
 require "fips202.jazz"
+require "params.jazz"
 
 //param int SHAKE256_RATE = 136;
+
+inline
+fn shake256_of_pk(reg ptr u8[Li2_PK_LEN] pk, reg ptr u8[32] out)
+	-> reg ptr u8[32]
+{
+	stack u64[25] state;
+
+	stack u64 ptr_pk;
+	stack u64 ptr_state;
+
+	reg u64 addr;
+	reg u8 c;
+
+	state = st0(state);
+
+	ptr_pk = 0;
+
+	while(ptr_pk < Li2_PK_LEN - SHAKE256_RATE) {
+		ptr_state = 0;
+		while(ptr_state < SHAKE256_RATE) {
+			addr = ptr_pk;
+			c = pk[(int) addr];
+
+			addr = ptr_state;
+			state[u8 (int) addr] ^= c;
+
+			ptr_pk += 1;
+			ptr_state += 1;
+		}
+		state = __keccakf1600_ref(state);
+	}
+
+	ptr_state = 0;
+	while(ptr_pk < Li2_PK_LEN) {
+		addr = ptr_pk;
+		c = pk[(int) addr];
+
+		addr = ptr_state;
+		state[u8 (int) addr] ^= c;
+
+		ptr_pk += 1;
+		ptr_state += 1;
+	}
+
+	addr = ptr_state;
+	state[u8 (int) addr] ^= 0x1f;
+	state[u8 SHAKE256_RATE-1] ^= 0x80;
+
+	state = __keccakf1600_ref(state);
+
+	// Extract...
+
+	addr = 0;
+	while(addr < 32) {
+		c = state[u8 (int) addr];
+		out[(int) addr] = c;
+		addr += 1;
+	}
+	return out;
+}
 
 inline
 fn shake256_32_320_32(reg ptr u8[32] rho, reg ptr u8[320] t1, reg ptr u8[32] out)
