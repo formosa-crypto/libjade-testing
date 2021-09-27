@@ -21,27 +21,27 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 ### Summarization of the Challenges
 
 * Originally went mainly by the [spec](https://pq-crystals.org/dilithium/data/dilithium-specification-round3-20210208.pdf).
-	* took more efforts
-	* was more bug-prone
+	* Took more efforts
+	* Was more bug-prone
 	* Harder to write tests
 * Deviations from the [reference C implementation](https://github.com/ethanlee515/dilithium)
 	* FFT was the worst offender - now fixed
 	* Bad handling of negative quantities (or lack thereof)
 	* Still not constant time
+* Register allocation
+	* Calling `fips202.jazz` still easily runs out of register
+	* Pushing things onto the stack and helps to some extent. Forces `inline` though.
 * Long build time
 	* Long iteration time - `time make keygen.s` says 1m24s.
 	* Shapes the workflow above.
-* Register allocation
-	* calling `fips202.jazz` still runs out of register
-	* pushing things onto the stack and helps to some extent. Forces `inline` though.
 
-### Follow up on wish list
+### Follow up on Wish List Last Meeting
 
 * Now using subarrays!
 * Now using `require`!
 * Still spaghetti code though.
 
-## Administrative items
+## Administrative Items
 
 ### Licensing
 * Preferred licenses?
