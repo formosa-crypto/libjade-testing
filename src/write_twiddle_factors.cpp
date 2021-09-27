@@ -12,143 +12,45 @@ using std::make_pair;
 using std::pair;
 using std::string;
 
+constexpr const int N = 256;
+constexpr const int Q = 8380417;
+
+static const int32_t zetas[N] = {
+         0,    25847, -2608894,  -518909,   237124,  -777960,  -876248,   466468,
+   1826347,  2353451,  -359251, -2091905,  3119733, -2884855,  3111497,  2680103,
+   2725464,  1024112, -1079900,  3585928,  -549488, -1119584,  2619752, -2108549,
+  -2118186, -3859737, -1399561, -3277672,  1757237,   -19422,  4010497,   280005,
+   2706023,    95776,  3077325,  3530437, -1661693, -3592148, -2537516,  3915439,
+  -3861115, -3043716,  3574422, -2867647,  3539968,  -300467,  2348700,  -539299,
+  -1699267, -1643818,  3505694, -3821735,  3507263, -2140649, -1600420,  3699596,
+    811944,   531354,   954230,  3881043,  3900724, -2556880,  2071892, -2797779,
+  -3930395, -1528703, -3677745, -3041255, -1452451,  3475950,  2176455, -1585221,
+  -1257611,  1939314, -4083598, -1000202, -3190144, -3157330, -3632928,   126922,
+   3412210,  -983419,  2147896,  2715295, -2967645, -3693493,  -411027, -2477047,
+   -671102, -1228525,   -22981, -1308169,  -381987,  1349076,  1852771, -1430430,
+  -3343383,   264944,   508951,  3097992,    44288, -1100098,   904516,  3958618,
+  -3724342,    -8578,  1653064, -3249728,  2389356,  -210977,   759969, -1316856,
+    189548, -3553272,  3159746, -1851402, -2409325,  -177440,  1315589,  1341330,
+   1285669, -1584928,  -812732, -1439742, -3019102, -3881060, -3628969,  3839961,
+   2091667,  3407706,  2316500,  3817976, -3342478,  2244091, -2446433, -3562462,
+    266997,  2434439, -1235728,  3513181, -3520352, -3759364, -1197226, -3193378,
+    900702,  1859098,   909542,   819034,   495491, -1613174,   -43260,  -522500,
+   -655327, -3122442,  2031748,  3207046, -3556995,  -525098,  -768622, -3595838,
+    342297,   286988, -2437823,  4108315,  3437287, -3342277,  1735879,   203044,
+   2842341,  2691481, -2590150,  1265009,  4055324,  1247620,  2486353,  1595974,
+  -3767016,  1250494,  2635921, -3548272, -2994039,  1869119,  1903435, -1050970,
+  -1333058,  1237275, -3318210, -1430225,  -451100,  1312455,  3306115, -1962642,
+  -1279661,  1917081, -2546312, -1374803,  1500165,   777191,  2235880,  3406031,
+   -542412, -2831860, -1671176, -1846953, -2584293, -3724270,   594136, -3776993,
+  -2013608,  2432395,  2454455,  -164721,  1957272,  3369112,   185531, -1207385,
+  -3183426,   162844,  1616392,  3014001,   810149,  1652634, -3694233, -1799107,
+  -3038916,  3523897,  3866901,   269760,  2213111,  -975884,  1717735,   472078,
+   -426683,  1723600, -1803090,  1910376, -1667432, -1104333,  -260646, -3833893,
+  -2939036, -2235985,  -420899, -2286327,   183443,  -976891,  1612842, -3545687,
+   -554416,  3919660,   -48306, -1362209,  3937738,  1400424,  -846154,  1976782
+};
+
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
-
-constexpr const int poly_deg = 256;
-const uint64_t dilithium_N = (1 << 23) - (1 << 13) + 1;
-const uint64_t inv_of_2 = (dilithium_N + 1) / 2;
-
-uint64_t montgomery(uint32_t x) {
-	return (uint64_t(x) << 32) % dilithium_N;
-}
-
-uint64_t montgomery_REDC(uint64_t x) {
-	uint64_t twoTo32Minus1 = 4294967295;
-	uint64_t dilithium_N_inv_neg = 4236238847;
-	uint64_t m = ((x & twoTo32Minus1) * dilithium_N_inv_neg) & twoTo32Minus1;
-
-	uint64_t t = (x + m * dilithium_N) >> 32;
-
-	if(t >= dilithium_N) {
-		t -= dilithium_N;
-	}
-	return t;
-}
-
-// Precompute roots of unity
-// Results are in Montgomery form
-vector<uint32_t> precomputeMRoots() {
-	vector<uint32_t> m_roots;
-	uint32_t prim_root = 1753;
-	uint64_t m_prim_root = montgomery(prim_root);
-	
-	uint32_t r = 1;
-	uint64_t mr = montgomery(r);
-	
-	for(int i = 0; i < 512; ++i) {
-		m_roots.push_back(uint32_t(mr));
-		mr = montgomery_REDC(mr * m_prim_root);
-	}
-	return m_roots;
-}
-
-int bitreverse(int x, int numbits) {
-	int result = 0;
-	for(int i = 0; i < numbits; ++i) {
-		int bit = (x >> i) & 1;
-		result |= bit << (numbits - 1 - i);
-	}
-	return result;
-}
-
-int montgomery_sub(int mx, int my) {
-	int diff = mx - my;
-	if(diff < 0)
-		diff += dilithium_N;
-	return diff;
-}
-
-pair<uint32_t, uint32_t> compute_tfs(int butterfly_level, int butterfly_group, vector<uint32_t>& mroots) {
-	//PRINT(butterfly_group);
-	//butterfly_level = 0 .. 8
-	//butterfly_group = 0 .. (1 << butterfly_level)
-	int exp1 = bitreverse(2 * butterfly_group, butterfly_level + 1);
-	//exp1 = bitreverse( 0 .. (1 << (butterfly_level + 1)) )
-
-	//PRINT(exp1);
-
-	int scaled_exp = exp1 << (8 - butterfly_level);
-
-	//PRINT(scaled_exp);
-	
-	uint32_t tf1 = mroots.at(scaled_exp);
-
-	//PRINT(tf1);
-
-	/*
-	if(butterfly_level == 2) {
-		PRINT(exp1);
-		PRINT(9 - butterfly_level);
-		PRINT(tf1);
-	}
-	*/
-	//cout << endl;
-
-	uint32_t tf2 = dilithium_N - tf1;
-	return make_pair(tf1, tf2);
-}
-
-int compute_itf(int butterfly_level, int butterfly_group, vector<uint32_t>& mroots) {
-	int tf_exp = bitreverse(2 * butterfly_group, butterfly_level + 1)
-			<< (8 - butterfly_level);
-	//PRINT(tf_exp);
-	int inv_tf_exp = tf_exp == 0 ? 0 : 512 - tf_exp;
-	//PRINT(inv_tf_exp);
-	//PRINT(mroots[inv_tf_exp]);
-	return montgomery_REDC(mroots[inv_tf_exp] * montgomery(inv_of_2));
-}
-
-pair<vector<uint32_t>, vector<uint32_t>> compute_all_tfs()
-{
-	auto mRoots = precomputeMRoots();
-	vector<uint32_t> tf1s;
-	vector<uint32_t> tf2s;
-
-	int butterfly_level = 7;
-
-	//for(int butterfly_level = 0; butterfly_level < 8; ++butterfly_level) {
-		for(int butterfly_group = 0; butterfly_group < 128; ++butterfly_group) {
-			if(butterfly_group < (1 << butterfly_level)) {
-				auto tfs = compute_tfs(butterfly_level, butterfly_group, mRoots);
-				tf1s.push_back(tfs.first);
-				tf2s.push_back(tfs.second);
-			} else {
-				tf1s.push_back(0);
-				tf2s.push_back(0);
-			}
-		}
-	//}
-
-	return make_pair(tf1s, tf2s);
-}
-
-vector<uint32_t> compute_all_itfs() {
-	auto mRoots = precomputeMRoots();
-	vector<uint32_t> itfs;
-
-	int butterfly_level = 7;
-
-	//for(int butterfly_level = 0; butterfly_level < 8; ++butterfly_level) {
-		for(int butterfly_group = 0; butterfly_group < 128; ++butterfly_group) {
-			if(butterfly_group < (1 << butterfly_level)) {
-				itfs.push_back(compute_itf(butterfly_level, butterfly_group, mRoots));
-			} else {
-				itfs.push_back(0);
-			}
-		}
-	//}
-	return itfs;
-}
 
 void printrow(vector<uint32_t> const& v, int r, ofstream& fout) {
 
@@ -158,10 +60,10 @@ void printrow(vector<uint32_t> const& v, int r, ofstream& fout) {
 	}
 }
 
-void print_tfs(vector<uint32_t> const& factors, string name, ofstream& fout) {
-	fout << "u32[128] " << name << " = {" << endl;
+void print_tfs(vector<uint32_t> const& factors, ofstream& fout) {
+	fout << "u32[256] twiddle_factors = {" << endl;
 	printrow(factors, 0, fout);
-	for(int i = 1; i < 128 / 16; ++i) {
+	for(int i = 1; i < N / 16; ++i) {
 		fout << "," << endl;
 		if(i % 8 == 0)
 			fout << endl;
@@ -170,17 +72,20 @@ void print_tfs(vector<uint32_t> const& factors, string name, ofstream& fout) {
 	fout << endl << "};" << endl;
 }
 
+vector<uint32_t> compute_twiddle_factors() {
+	vector<uint32_t> tfs;
+	for(int i = 0; i < N; ++i) {
+		tfs.push_back((zetas[i] + Q) % Q);
+	}
+	return tfs;
+}
+
 int main() {
 	ofstream fout("twiddle_factors.jazz");
 
-	auto tfs = compute_all_tfs();
-	auto itfs = compute_all_itfs();
+	auto tfs = compute_twiddle_factors();
 
-	print_tfs(tfs.first, "first_twiddle_factors", fout);
-	fout << endl << endl;
-	print_tfs(tfs.second, "second_twiddle_factors", fout);
-	fout << endl << endl;
-	print_tfs(itfs, "ifft_twiddle_factors", fout);
+	print_tfs(tfs, fout);
 
 	return 0;
 }
