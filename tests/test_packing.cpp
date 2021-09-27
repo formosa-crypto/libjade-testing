@@ -17,6 +17,7 @@ using std::memcmp;
 
 extern "C" {
 	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
+	void pack_t0_jazz(uint32_t p[N], uint8_t buf[POLYT0_PACKEDBYTES]);
 }
 
 uint32_t sample_t1_component() {

@@ -29,3 +29,12 @@ fn pack_t1_jazz(reg u64 poly_ptr, reg u64 buf_ptr)
 		i += 1;
 	}
 }
+
+//fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
+
+export
+fn pack_t0_jazz(reg u64 poly_ptr, reg u64 buf_ptr)
+{
+	//TODO
+
+}
