@@ -21,10 +21,16 @@ For all functions F, implement `F.jazz` + `F_export.jazz` + `test_F.cpp`.
 ### Summary of Challenges
 
 * Unfamiliarity with assembly
-	* `error in “one-varmap” checker: modified expression`
 	* `asmgen: not able to assemble address`
+	* `asmgen: invalid instruction, check do not pass : MOV_32`
+	*
+            internal compilation error in function test:
+	            asmgen: (compile_arg) not compatible asm_arg
+            Please report at https://github.com/jasmin-lang/jasmin/issues
+	    
 	* Unsure what I can and cannot do.
 * Register allocations
+	* `error in “one-varmap” checker: modified expression`
 	* Automatic variables live on the stack.
 	* Adding `inline` on functions seems to help.
 	* Using `fips202.jazz` still easily runs out of register.
