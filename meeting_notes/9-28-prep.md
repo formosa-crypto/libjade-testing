@@ -7,7 +7,6 @@
 * Done implementing keygen in Jasmin!
 * Apologize for haven't done enough.
 * Quick [demo](../tests/test_keygen.cpp).
-* Duct tape engineering at its finest.
 
 ### Current Workflow
 
@@ -52,10 +51,10 @@ albeit with some minor lingering issues.
 ### Following up Previous Discussions
 
 * From [last meeting](./9-14-prep.md):
-	* Now using subarrays!
-	* Now using `require`!
-	* Still spaghetti code though.
-	* Still hard-coded at level 3.
+	* I'm using subarrays.
+	* I'm using `require`.
+	* My code quality isn't great either.
+	* Hard-coded at level 3 too.
 * How's the Jasmin memory safety checker?
 
 ## Administrative Items
@@ -63,6 +62,6 @@ albeit with some minor lingering issues.
 ### Licensing
 
 * Preferred licenses?
-	* CC0: We lose copyright completely and irrevocably. What if we regret it one day?
+	* CC0: We lose copyright completely and irrevocably. Will we regret it one day?
 	* LGPL: Seems more friendly than GPL, after having worked at startups.
 * What about `fips202.jazz` from the Kyber repo?
