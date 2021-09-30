@@ -23,6 +23,7 @@ test_packing: test_packing.cpp packing_export.s ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o packing_export.s test_packing.cpp -o $@ $(LDFLAGS)
 
 test_hashing: test_hashing.cpp hashing_export.s
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o hashing_export.s test_hashing.cpp -o $@ $(LDFLAGS)
 
 %.s: %.jazz ../src/*.jazz
 	jasminc -pasm $< > $@

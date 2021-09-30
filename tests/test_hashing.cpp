@@ -5,6 +5,7 @@
 extern "C" {
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
+#include "../dilithium/ref/poly.h"
 }
 
 using std::cout;
@@ -15,29 +16,28 @@ using std::memcmp;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void shake256_32_320_32_jazz(uint8_t rho[32], uint8_t t1[320], uint8_t out[32]);
+	void sampleInBall_jazz(int32_t f[256], uint8_t seed[32]);
 }
 
-/*
 uint8_t sampleByte() {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
 	static std::uniform_int_distribution<> distrib(0,  255);
 	return distrib(gen);
 }
-*/
 
 int main() {
-	uint8_t rho[32] = { 0 };
-	uint8_t t1[320] = { 0 };
-	uint8_t out[32];
+	uint8_t seed[32];
+	for(int i = 0; i < 32; ++i)
+		seed[i] = sampleByte();
 
-	shake256_32_320_32_jazz(rho, t1, out);
+	int32_t f_jazz[256];
+	sampleInBall_jazz(f_jazz, seed);
 
-	PRINT(int(out[0]));
-	PRINT(int(out[1]));
-	PRINT(int(out[2]));
-	PRINT(int(out[3]));
+	poly f_ref;
+	poly_challenge(&f_ref, seed);
+
+	PRINT(memcmp(f_ref.coeffs, f_jazz, 4 * 256));
 
 	return 0;
 }

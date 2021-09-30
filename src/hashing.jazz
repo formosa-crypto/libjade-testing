@@ -62,3 +62,115 @@ fn shake256_of_pk(reg ptr u8[Li2_PK_LEN] pk, reg ptr u8[32] out)
 	}
 	return out;
 }
+
+inline
+fn sampleInBall(reg ptr u32[Li2_polydeg] f, reg ptr u8[32] seed)
+	-> reg ptr u32[Li2_polydeg]
+{
+	reg u64 i;
+	reg u64 b;
+	reg u64 offset;
+	reg u64 signs;
+	stack u64[25] state;
+	inline int ii;
+	reg u8 c;
+	reg u64 v;
+	reg u32 v32;
+
+	state = shake256_absorb32(seed);
+	state = __keccakf1600_ref(state);
+
+	signs = 0;
+	for ii = 0 to 8 {
+		c = state[u8 ii];
+		v = (64u) c;
+		v <<= 8 * ii;
+		signs |= v;
+	}
+
+	offset = 8;
+
+	i = 0;
+	while(i < Li2_polydeg) {
+		f[(int) i] = 0;
+		i += 1;
+	}
+
+	i = Li2_polydeg - Li2_tau;
+	while(i < Li2_polydeg) {
+
+		// poor man's do-while
+		// Was the actual feature scrapped?
+		/*
+		if(offset >= SHAKE256_RATE) {
+			state = __keccakf1600_ref(state);
+			offset = 0;
+		}
+		c = state[u8 (int) offset];
+		b = (32u) c;
+		offset += 1;
+		*/
+
+		while {
+			if(offset >= SHAKE256_RATE) {
+				state = __keccakf1600_ref(state);
+				offset = 0;
+			}
+			c = state[u8 (int) offset];
+			b = (64u) c;
+			offset += 1;
+		} (b > i)
+
+		v32 = f[(int) b];
+		f[(int) i] = v32;
+
+		//f[(int) b] = 1 - 2 * (signs & 1);
+		v32 = (32u) signs;
+		v32 &= 1;
+		v32 *= -2;
+		v32 += 1;
+		f[(int) b] = v32;
+
+		signs >>= 1;
+
+		i += 1;
+	}
+
+	return f;
+}
+
+/*
+void poly_challenge(poly *c, const uint8_t seed[SEEDBYTES]) {
+  unsigned int i, b, pos;
+  uint64_t signs;
+  uint8_t buf[SHAKE256_RATE];
+  keccak_state state;
+
+  shake256_init(&state);
+  shake256_absorb(&state, seed, SEEDBYTES);
+  shake256_finalize(&state);
+  shake256_squeezeblocks(buf, 1, &state);
+
+  signs = 0;
+  for(i = 0; i < 8; ++i)
+    signs |= (uint64_t)buf[i] << 8*i;
+  pos = 8;
+
+  for(i = 0; i < N; ++i)
+    c->coeffs[i] = 0;
+  for(i = N-TAU; i < N; ++i) {
+    do {
+      if(pos >= SHAKE256_RATE) {
+        shake256_squeezeblocks(buf, 1, &state);
+        pos = 0;
+      }
+
+      b = buf[pos++];
+    } while(b > i);
+
+    c->coeffs[i] = c->coeffs[b];
+    c->coeffs[b] = 1 - 2*(signs & 1);
+    signs >>= 1;
+  }
+}
+*/
