@@ -1,0 +1,20 @@
+require "params.jazz"
+
+inline
+fn sign(reg ptr u8[Li2_SIGN_LEN] signature,
+		reg u64 ptr_m,
+		reg u64 m_len,
+		reg ptr u8[Li2_SK_LEN] sk)
+		-> reg ptr u8[Li2_SIGN_LEN]
+{
+	return signature;
+}
+
+export
+fn sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) {
+	//TODO copy
+
+	//TODO call
+
+	//TODO copy
+}
