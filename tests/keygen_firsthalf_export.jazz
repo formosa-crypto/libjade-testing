@@ -5,8 +5,8 @@ fn keygen_upto_As1_jazz(reg u64 ptr_randomness, reg u64 ptr_As1)
 {
 	stack u8[32] random_zeta;
 
-	stack u8[PK_LEN] pk;
-	stack u8[SK_LEN] sk;
+	stack u8[Li2_PK_LEN] pk;
+	stack u8[Li2_SK_LEN] sk;
 	stack u8[32] rho;
 	stack u32[Li2_k * Li2_polydeg] s2;
 	stack u32[Li2_k * Li2_polydeg] t;
@@ -39,8 +39,8 @@ fn probe_keygen_jazz(reg u64 ptr_s1)
 {
 	stack u8[32] random_zeta;
 
-	stack u8[PK_LEN] pk;
-	stack u8[SK_LEN] sk;
+	stack u8[Li2_PK_LEN] pk;
+	stack u8[Li2_SK_LEN] sk;
 	stack u8[32] rho;
 	stack u8[64] rho_prime;
 	stack u32[Li2_l * Li2_polydeg] s1;
