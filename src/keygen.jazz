@@ -4,7 +4,7 @@ require "gen_noises.jazz"
 require "polyvec.jazz"
 require "packing.jazz"
 require "hashing.jazz"
-require "params.jazz"
+
 
 //reminder to self
 //param int SHAKE256_RATE = 136;
