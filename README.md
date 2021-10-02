@@ -4,6 +4,8 @@ Learning formal verification by implementing [Crystals Dilithium](https://pq-cry
 
 Work in progress.
 
+See the [wiki page](https://github.com/ethanlee515/jasmin-dilithium/wiki) for project description.
+
 ## Notes
 
 * Currently hard-coded at level 3
