@@ -2,6 +2,7 @@ require "params.jazz"
 require "montgomery.jazz"
 
 //packing related parameters
+param int Li2_pack_etalen = Li2_polydeg / 2;
 param int Li2_pack_s1len = Li2_l * Li2_polydeg / 2;
 param int Li2_pack_s2len = Li2_k * Li2_polydeg / 2;
 param int Li2_pack_s2loc = 96 + Li2_pack_s1len;
@@ -213,6 +214,45 @@ fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 		dest[(int) addr] = value;
 	}
 	return dest;
+}
+
+//Unpacks a component of either s1 or s2
+fn polyeta_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_etalen] a)
+	-> reg ptr u32[Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 x;
+	reg u64 addr;
+	
+	i = 0;
+	while(i < Li2_polydeg / 2) {
+
+		// r->coeffs[2*i+0] = a[i] & 0x0F;
+		x = (32u) a[(int) i];
+		x &= 0x0F;
+		// r->coeffs[2*i+0] = ETA - r->coeffs[2*i+0];
+		x = -x;
+		x += Li2_eta;
+
+		addr = i;
+		addr *= 2;
+		r[(int) addr] = x;
+
+	    // r->coeffs[2*i+1] = a[i] >> 4;
+		x = (32u) a[(int) i];
+		x >>= 4;
+		// r->coeffs[2*i+1] = ETA - r->coeffs[2*i+1];
+		x = -x;
+		x += Li2_eta;
+
+		addr = i;
+		addr *= 2;
+		addr += 1;
+		r[(int) addr] = x;
+
+		i += 1;
+	}
+	return r;
 }
 
 inline
