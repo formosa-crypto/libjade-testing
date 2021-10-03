@@ -1,6 +1,8 @@
 #include <iostream>
 #include <random>
 #include <cstring>
+#include <string>
+#include <stdexcept>
 
 extern "C" {
 #include "../dilithium/ref/api.h"
@@ -12,12 +14,21 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::memcmp;
+using std::runtime_error;
+using std::to_string;
 
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
 	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
-	void pack_t0_jazz(uint32_t p[N], uint8_t buf[POLYT0_PACKEDBYTES]);
+	void polyz_unpack_jazz(int32_t p[N], uint8_t buf[POLYZ_PACKEDBYTES]);
+}
+
+uint8_t sampleByte() {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<> distrib(0,  255);
+	return distrib(gen);
 }
 
 uint32_t sample_t1_component() {
@@ -27,7 +38,7 @@ uint32_t sample_t1_component() {
 	return distrib(gen);
 }
 
-int main() {
+void test_pack_t1() {
 	poly p;
 	uint32_t uint_p[N];
 	for(int i = 0; i < N; ++i) {
@@ -45,12 +56,36 @@ int main() {
 	uint8_t buf_jazz[POLYT1_PACKEDBYTES];
 	pack_t1_jazz(uint_p, buf_jazz);
 
-	PRINT(memcmp(buf_ref, buf_jazz, POLYT1_PACKEDBYTES));
-	/*
-	PRINT(int(buf_ref[0]));
-	PRINT(int(buf_ref[1]));
-	PRINT(int(buf_ref[2]));
-	*/
+	if(memcmp(buf_ref, buf_jazz, POLYT1_PACKEDBYTES) != 0) {
+		throw runtime_error("test failed at " + to_string(__LINE__));
+	}
+}
+
+void test_unpack_z() {
+	poly p_ref;
+	int32_t p_jazz[N];
 	
+	uint8_t buf[POLYZ_PACKEDBYTES];
+	for(int i = 0; i < POLYZ_PACKEDBYTES; ++i) {
+		buf[i] = sampleByte();
+	}
+
+	polyz_unpack(&p_ref, buf); 
+	polyz_unpack_jazz(p_jazz, buf);
+
+
+	for(int i = 0; i < N; ++i) {
+		if(p_ref.coeffs[i] != p_jazz[i]) {
+			PRINT(i);
+			PRINT(p_ref.coeffs[i]);
+			PRINT(p_jazz[i]);
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
+}
+
+int main() {
+	test_pack_t1();
+	test_unpack_z();
 	return 0;
 }

@@ -423,3 +423,146 @@ fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
 	return dest;
 }
 
+
+/*************************************************
+* Name:        polyz_pack
+*
+* Description: Bit-pack polynomial with coefficients
+*              in [-(GAMMA1 - 1), GAMMA1].
+*
+* Arguments:   - uint8_t *r: pointer to output byte array with at least
+*                            POLYZ_PACKEDBYTES bytes
+*              - const poly *a: pointer to input polynomial
+**************************************************/
+/*
+void polyz_pack(uint8_t *r, const poly *a) {
+  unsigned int i;
+  uint32_t t[4];
+
+  for(i = 0; i < N/2; ++i) {
+    t[0] = GAMMA1 - a->coeffs[2*i+0];
+    t[1] = GAMMA1 - a->coeffs[2*i+1];
+
+    r[5*i+0]  = t[0];
+    r[5*i+1]  = t[0] >> 8;
+    r[5*i+2]  = t[0] >> 16;
+    r[5*i+2] |= t[1] << 4;
+    r[5*i+3]  = t[1] >> 4;
+    r[5*i+4]  = t[1] >> 12;
+  }
+
+}
+*/
+
+/*************************************************
+* Name:        polyz_unpack
+*
+* Description: Unpack polynomial z with coefficients
+*              in [-(GAMMA1 - 1), GAMMA1].
+*
+* Arguments:   - poly *r: pointer to output polynomial
+*              - const uint8_t *a: byte array with bit-packed polynomial
+**************************************************/
+/*
+void polyz_unpack(poly *r, const uint8_t *a) {
+  unsigned int i;
+  DBENCH_START();
+
+  for(i = 0; i < N/2; ++i) {
+    r->coeffs[2*i+0]  = a[5*i+0];
+    r->coeffs[2*i+0] |= (uint32_t)a[5*i+1] << 8;
+    r->coeffs[2*i+0] |= (uint32_t)a[5*i+2] << 16;
+    r->coeffs[2*i+0] &= 0xFFFFF;
+
+    r->coeffs[2*i+1]  = a[5*i+2] >> 4;
+    r->coeffs[2*i+1] |= (uint32_t)a[5*i+3] << 4;
+    r->coeffs[2*i+1] |= (uint32_t)a[5*i+4] << 12;
+    r->coeffs[2*i+0] &= 0xFFFFF;
+
+    r->coeffs[2*i+0] = GAMMA1 - r->coeffs[2*i+0];
+    r->coeffs[2*i+1] = GAMMA1 - r->coeffs[2*i+1];
+  }
+
+  DBENCH_STOP(*tpack);
+}
+*/
+
+param int Li2_pack_zlen = Li2_l * Li2_polydeg * 20 / 8;
+
+inline
+fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
+	-> reg ptr u32[Li2_polydeg]
+{
+	stack u64 i;
+	reg u32 x c32;
+	reg u64 addr;
+
+	i = 0;
+	while(i < Li2_polydeg / 2) {
+		//r->coeffs[2*i+0]  = a[5*i+0];
+		addr = i;
+		addr *= 5;
+		x = (32u) a[(int) addr];
+
+		//r->coeffs[2*i+0] |= (uint32_t)a[5*i+1] << 8;
+		addr = i;
+		addr *= 5;
+		addr += 1;
+		c32 = (32u) a[(int) addr];
+		c32 <<= 8;
+		x |= c32;
+		
+		//r->coeffs[2*i+0] |= (uint32_t)a[5*i+2] << 16;
+		addr = i;
+		addr *= 5;
+		addr += 2;
+		c32 = (32u) a[(int) addr];
+		c32 <<= 16;
+		x |= c32;
+
+		//r->coeffs[2*i+0] = GAMMA1 - r->coeffs[2*i+0];
+
+		x &= 0xFFFFF;
+		x = -x;
+		x += Li2_gamma1;
+		addr = i;
+		addr *= 2;
+		r[(int) addr] = x;
+
+		//r->coeffs[2*i+1]  = a[5*i+2] >> 4;
+		addr = i;
+		addr *= 5;
+		addr += 2;
+		x = (32u) a[(int) addr];
+		x >>= 4;
+
+		//r->coeffs[2*i+1] |= (uint32_t)a[5*i+3] << 4;
+		addr = i;
+		addr *= 5;
+		addr += 3;
+		c32 = (32u) a[(int) addr];
+		c32 <<= 4;
+		x |= c32;
+
+		//r->coeffs[2*i+1] |= (uint32_t)a[5*i+4] << 12;
+		addr = i;
+		addr *= 5;
+		addr += 4;
+		c32 = (32u) a[(int) addr];
+		c32 <<= 12;
+		x |= c32;
+
+		//r->coeffs[2*i+1] = GAMMA1 - r->coeffs[2*i+1];
+		x = -x;
+		x += Li2_gamma1;
+		addr = i;
+		addr *= 2;
+		addr += 1;
+		r[(int) addr] = x;
+
+		i += 1;
+	}
+	return r;
+}
+
+
