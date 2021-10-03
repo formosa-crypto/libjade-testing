@@ -454,39 +454,6 @@ void polyz_pack(uint8_t *r, const poly *a) {
 }
 */
 
-/*************************************************
-* Name:        polyz_unpack
-*
-* Description: Unpack polynomial z with coefficients
-*              in [-(GAMMA1 - 1), GAMMA1].
-*
-* Arguments:   - poly *r: pointer to output polynomial
-*              - const uint8_t *a: byte array with bit-packed polynomial
-**************************************************/
-/*
-void polyz_unpack(poly *r, const uint8_t *a) {
-  unsigned int i;
-  DBENCH_START();
-
-  for(i = 0; i < N/2; ++i) {
-    r->coeffs[2*i+0]  = a[5*i+0];
-    r->coeffs[2*i+0] |= (uint32_t)a[5*i+1] << 8;
-    r->coeffs[2*i+0] |= (uint32_t)a[5*i+2] << 16;
-    r->coeffs[2*i+0] &= 0xFFFFF;
-
-    r->coeffs[2*i+1]  = a[5*i+2] >> 4;
-    r->coeffs[2*i+1] |= (uint32_t)a[5*i+3] << 4;
-    r->coeffs[2*i+1] |= (uint32_t)a[5*i+4] << 12;
-    r->coeffs[2*i+0] &= 0xFFFFF;
-
-    r->coeffs[2*i+0] = GAMMA1 - r->coeffs[2*i+0];
-    r->coeffs[2*i+1] = GAMMA1 - r->coeffs[2*i+1];
-  }
-
-  DBENCH_STOP(*tpack);
-}
-*/
-
 param int Li2_pack_zlen = Li2_l * Li2_polydeg * 20 / 8;
 
 inline
