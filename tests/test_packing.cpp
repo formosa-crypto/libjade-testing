@@ -23,6 +23,7 @@ extern "C" {
 	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void polyz_unpack_jazz(int32_t p[N], uint8_t buf[POLYZ_PACKEDBYTES]);
 	void polyeta_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
+	void polyt0_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -107,9 +108,32 @@ void test_unpack_eta() {
 	}
 }
 
+void test_unpack_t0() {
+	poly p_ref;
+	int32_t p_jazz[N];
+	
+	uint8_t buf[POLYT0_PACKEDBYTES];
+	for(int i = 0; i < POLYT0_PACKEDBYTES; ++i) {
+		buf[i] = sampleByte();
+	}
+
+	polyt0_unpack(&p_ref, buf); 
+	polyt0_unpack_jazz(p_jazz, buf);
+
+	for(int i = 0; i < N; ++i) {
+		if(p_ref.coeffs[i] != p_jazz[i]) {
+			PRINT(i);
+			PRINT(p_ref.coeffs[i]);
+			PRINT(p_jazz[i]);
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
+}
+
 int main() {
 	test_pack_t1();
 	test_unpack_z();
 	test_unpack_eta();
+	test_unpack_t0();
 	return 0;
 }
