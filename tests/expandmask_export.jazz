@@ -1,0 +1,23 @@
+require "../src/polyvec.jazz"
+
+export
+fn expandMask_jazz(reg u64 ptr_rp, reg u16 nonce, reg u64 ptr_y) {
+	stack u32[Li2_l * Li2_polydeg] y;
+	stack u8[64] rho_prime;
+
+	reg u8 c;
+	reg u32 v;
+	inline int i;
+
+	for i = 0 to 64 {
+		c = (u8) [ptr_rp + i];
+		rho_prime[(int) i] = c;
+	}
+
+	y = expandMask(rho_prime, nonce);
+
+	for i = 0 to Li2_l * Li2_polydeg {
+		v = y[(int) i];
+		(u32) [ptr_y + 4 * i] = v;
+	}
+}

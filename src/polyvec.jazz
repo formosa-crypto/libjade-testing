@@ -112,3 +112,24 @@ fn mult_mat_vec(reg ptr u32[Li2_k * Li2_l * Li2_polydeg] mat,
 
 	return out;
 }
+
+inline
+fn expandMask(reg ptr u8[64] rho_prime, reg u16 nonce)
+	-> stack u32[Li2_l * Li2_polydeg]
+{
+	stack u32[Li2_l * Li2_polydeg] y;
+	inline int i;
+	stack u16 kappa;
+	reg u16 v;
+	reg ptr u32[Li2_polydeg] component;
+	for i = 0 to Li2_l {
+		v = nonce;
+		v *= Li2_l;
+		v += i;
+		kappa = v;
+		component = y[Li2_polydeg * i : Li2_polydeg];
+		component = expandMaskComponent(component, rho_prime, kappa);
+		y[Li2_polydeg * i : Li2_polydeg] = component;
+	}
+	return y;
+}

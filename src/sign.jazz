@@ -17,14 +17,24 @@ fn sign(reg u64 ptr_m,
 		-> stack u8[Li2_SIGN_LEN]
 {
 	stack u8[Li2_SIGN_LEN] signature;
-	reg ptr u8[32] rho;
 	reg ptr u8[32] k;
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
 
 	stack u8[64] mu;
+
+	stack u32[Li2_k * Li2_l * Li2_polydeg] fft_matA;
+	stack u32[Li2_l * Li2_polydeg] s1;
+	stack u32[Li2_k * Li2_polydeg] s2;
+	stack u32[Li2_k * Li2_polydeg] t;
+
+	// corresponds to kappa/l in spec
+	stack u32 nonce;
 	
+	fft_matA = gen_matrix(sk[0:32]);
 	mu = compute_mu(ptr_m, m_len, sk);
+
+	nonce = 0;
 	
 
 	
