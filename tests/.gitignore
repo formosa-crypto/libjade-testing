@@ -1,9 +1,4 @@
-test_keygen
-test_keygen_firsthalf
-test_noises
-test_fft
-test_gen_matrix
-test_packing
-test_matrix_mult
-test_hashing
-test_sign
+*
+!/**/
+!*.*
+
