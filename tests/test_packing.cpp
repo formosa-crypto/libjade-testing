@@ -3,11 +3,14 @@
 #include <cstring>
 #include <string>
 #include <stdexcept>
+#include <array>
 
 extern "C" {
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
 #include "../dilithium/ref/poly.h"
+#include "../dilithium/ref/polyvec.h"
+#include "../dilithium/ref/packing.h"
 }
 
 using std::cout;
@@ -16,6 +19,7 @@ using std::vector;
 using std::memcmp;
 using std::runtime_error;
 using std::to_string;
+using std::array;
 
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
@@ -25,6 +29,8 @@ extern "C" {
 	void polyz_pack_jazz(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
 	void polyeta_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void polyt0_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
+	void pack_signature_jazz(uint8_t c_tilde[32],
+			int32_t z[L * N], int32_t h[K * N], uint8_t sig[CRYPTO_BYTES]);
 }
 
 uint8_t sampleByte() {
@@ -160,6 +166,60 @@ void test_unpack_t0() {
 	}
 }
 
+array<int32_t, K * N> sample_h() {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<> distrib(0,  K * N - 1);
+	array<int32_t, K * N> arr = {};
+	for(int i = 0; i < 40; ++i) {
+		int loc = distrib(gen);
+		arr[loc] = 1;
+	}
+	return arr;
+}
+
+void test_pack_signature() {
+	uint8_t c_tilde[32];
+	for(int i = 0; i < 32; ++i) {
+		c_tilde[i] = sampleByte();
+	}
+
+	//zero-init?
+	int32_t z_jazz[L * N];
+	polyvecl z_ref;
+
+	for(int i = 0; i < L; ++i) {
+		for(int j = 0; j < N; ++j) {
+			auto z_comp = sample_z_component();
+			z_jazz[i * N + j] = z_comp;
+			z_ref.vec[i].coeffs[j] = z_comp;
+		}
+	}
+
+	auto h = sample_h();
+
+	uint8_t sig_jazz[CRYPTO_BYTES];
+	pack_signature_jazz(c_tilde, z_jazz, h.data(), sig_jazz);
+
+	uint8_t sig_ref[CRYPTO_BYTES];
+	polyveck h_ref;
+	for(int i = 0; i < K; ++i) {
+		for(int j = 0; j < N; ++j) {
+			h_ref.vec[i].coeffs[j] = h[i * N + j];
+		}
+	}
+	pack_sig(sig_ref, c_tilde, &z_ref, &h_ref);
+
+	for(int i = 0; i < CRYPTO_BYTES; ++i) {
+		if(sig_ref[i] != sig_jazz[i]) {
+			PRINT(i);
+			PRINT(int(sig_ref[i]));
+			PRINT(int(sig_jazz[i]));
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
+}
+
 
 int main() {
 	test_pack_t1();
@@ -167,5 +227,6 @@ int main() {
 	test_unpack_eta();
 	test_unpack_t0();
 	test_pack_z();
+	test_pack_signature();
 	return 0;
 }

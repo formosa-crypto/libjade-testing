@@ -51,46 +51,6 @@ fn compute_rho_prime(reg u8[32] k, reg u8[64] mu)
 	return rho_prime;
 }
 
-/* Untested */
-inline
-fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
-	-> stack u32[Li2_l * Li2_polydeg], //s1
-	stack u32[Li2_k * Li2_polydeg], //s2
-	stack u32[Li2_k * Li2_polydeg] //t0
-{
-	stack u32[Li2_l * Li2_polydeg] s1;
-	stack u32[Li2_k * Li2_polydeg] s2;
-	stack u32[Li2_k * Li2_polydeg] t0;
-
-	// temp vars.
-	inline int ii;
-	reg ptr u32[Li2_polydeg] poly_to_unpack;
-
-	// unpack sk where needed
-	for ii = 0 to Li2_l {
-		poly_to_unpack = s1[ii * Li2_polydeg : Li2_polydeg];
-		poly_to_unpack = polyeta_unpack(poly_to_unpack,
-			sk[96 + ii * Li2_pack_etalen : Li2_pack_etalen]);
-		s1[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
-	}
-
-	for ii = 0 to Li2_k {
-		poly_to_unpack = s2[ii * Li2_polydeg : Li2_polydeg];
-		poly_to_unpack = polyeta_unpack(poly_to_unpack,
-			sk[Li2_pack_s2loc + ii * Li2_pack_etalen : Li2_pack_etalen]);
-		s2[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
-	}
-
-	for ii = 0 to Li2_k {
-		poly_to_unpack = t0[ii * Li2_polydeg : Li2_polydeg];
-		poly_to_unpack = polyt0_unpack(poly_to_unpack,
-			sk[Li2_SK_LEN - (Li2_k - ii) * Li2_pack_t0len : Li2_pack_t0len]);
-		t0[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
-	}
-
-	return s1, s2, t0;
-}
-
 inline
 fn sign(reg u64 ptr_m,
 		reg u64 m_len,
@@ -117,8 +77,14 @@ fn sign(reg u64 ptr_m,
 	stack u32[Li2_k * Li2_polydeg] r0 r1;
 
 	// c-tilde unnecessary
-	// just use signature[0:32]
-	stack u32[Li2_polydeg] challenge; //from SampleInBall?
+	// can just use signature[0:32]
+	// might need to redo pack_signature though
+	// not sure if pack_sig will go through otherwise
+	// with input and output overlapping
+	stack u8[32] c_tilde;
+
+	//from SampleInBall
+	stack u32[Li2_polydeg] challenge;
 
 	// while loop condition
 	stack u8 done;
@@ -132,9 +98,6 @@ fn sign(reg u64 ptr_m,
 	stack u32[Li2_l * Li2_polydeg] cs1;
 	stack u32[Li2_l * Li2_polydeg] cs2;
 	stack u32[Li2_l * Li2_polydeg] ct0;
-	// not sure if pack_sig will go through otherwise
-	// with input and output overlapping
-	//stack u8[...] c_tilde;
 
 	s1, s2, t0 = unpack_sk(sk);
 	mu = compute_mu(ptr_m, m_len, sk);

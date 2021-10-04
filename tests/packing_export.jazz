@@ -116,3 +116,37 @@ fn polyt0_unpack_jazz(reg u64 p_t0, reg u64 p_src) {
 		(u32) [p_t0 + 4 * i] = v;
 	}
 }
+
+export
+fn pack_signature_jazz(reg u64 p_ctilde, reg u64 pz, reg u64 ph, reg u64 psign) {
+	stack u8[32] c_tilde;
+	stack u32[Li2_l * Li2_polydeg] z;
+	stack u32[Li2_k * Li2_polydeg] h;
+	stack u8[Li2_SIGN_LEN] signature;
+	reg u8 c;
+	reg u32 v;
+
+	inline int i;
+
+	for i = 0 to 32 {
+		c = (u8)[p_ctilde + i];
+		c_tilde[i] = c;
+	}
+
+	for i = 0 to Li2_l * Li2_polydeg {
+		v = (u32) [pz + 4 * i];
+		z[i] = v;
+	}
+
+	for i = 0 to Li2_k * Li2_polydeg {
+		v = (u32) [ph + 4 * i];
+		h[i] = v;
+	}
+
+	signature = pack_signature(c_tilde, z, h);
+
+	for i = 0 to Li2_SIGN_LEN {
+		c = signature[i];
+		(u8)[psign + i] = c;
+	}
+}

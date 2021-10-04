@@ -1,7 +1,7 @@
 CXXFLAGS = -Wall -Wextra -Wpedantic -std=c++17 -DDILITHIUM_MODE=3
 LDFLAGS = -I ../dilithium/ref -L../dilithium/ref -lpqcrystals_dilithium3_ref -lpqcrystals_fips202_ref
 
-TESTS = test_keygen test_fft test_gen_matrix test_packing test_keygen_firsthalf test_hashing test_matrix_mult test_sign_fragments test_expandmask
+TESTS = test_keygen test_fft test_gen_matrix test_packing test_keygen_firsthalf test_hashing test_matrix_mult test_sign_fragments test_expandmask test_sign test_rounding
 
 tests: $(TESTS)
 
