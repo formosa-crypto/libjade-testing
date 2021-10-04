@@ -52,10 +52,6 @@ int main() {
 
 	pqcrystals_dilithium3_ref_signature(signature_ref, &siglen, m, 1000, sk);
 
-	PRINT(int(signature_ref[0]));
-	PRINT(int(signature_ref[1]));
-	PRINT(int(signature_ref[2]));
-
 	PRINT(memcmp(signature_ref, signature_jazz, pqcrystals_dilithium3_BYTES));
 
 	return 0;

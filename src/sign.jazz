@@ -1,20 +1,41 @@
 require "params.jazz"
 
 inline
-fn sign(reg ptr u8[Li2_SIGN_LEN] signature,
-		reg u64 ptr_m,
+fn sign(reg u64 ptr_m,
 		reg u64 m_len,
 		reg ptr u8[Li2_SK_LEN] sk)
-		-> reg ptr u8[Li2_SIGN_LEN]
+		-> stack u8[Li2_SIGN_LEN]
 {
+	stack u8[Li2_SIGN_LEN] signature;
+	reg ptr u8[32] rho;
+	reg ptr u8[32] k;
+	reg ptr u8[32] tr;
+	stack u32[Li2_l * Li2_polydeg] s1;
+	stack u32[Li2_k * Li2_polydeg] s2;
+
 	return signature;
 }
 
 export
 fn sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) {
-	//TODO copy
+	stack u8[Li2_SK_LEN] sk;
+	reg u8 c;
+	reg u64 i;
+	stack u8[Li2_SIGN_LEN] signature;
+	
+	i = 0;
+	while(i < Li2_SK_LEN) {
+		c = (u8)[ptr_sk + i];
+		sk[(int) i] = c;
+		i += 1;
+	}
 
-	//TODO call
+	signature = sign(ptr_m, m_len, sk);
 
-	//TODO copy
+	i = 0;
+	while(i < Li2_SIGN_LEN) {
+		c = signature[(int) i];
+		(u8) [ptr_signature] = c;
+		i += 1;
+	}
 }
