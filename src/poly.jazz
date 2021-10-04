@@ -95,7 +95,7 @@ inline
 fn expandMaskComponent(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u16 kappa)
 	-> reg ptr u32[Li2_polydeg]
 {
-	stack u64 i;
+	reg u64 i;
 	reg u8 c;
 	reg u16 v;
 	stack u64[25] state;

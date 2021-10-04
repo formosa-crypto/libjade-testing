@@ -16,7 +16,7 @@ fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
 
 /* Untested */
 inline
-fn compute_rho_prime(reg u8[32] k, reg u8[64] mu)
+fn compute_rho_prime(reg ptr u8[32] k, reg ptr u8[64] mu)
 	-> stack u8[64]
 {
 	stack u8[64] rho_prime;
@@ -33,7 +33,8 @@ fn compute_rho_prime(reg u8[32] k, reg u8[64] mu)
 		i += 1;
 	}
 	while(i < 96) {
-		mu_loc = i - 32; // can I do this?
+		mu_loc = i;
+		mu_loc -= 32;
 		c = mu[(int) mu_loc];
 		state[u8 (int) i] = c;
 		i += 1;
@@ -44,7 +45,7 @@ fn compute_rho_prime(reg u8[32] k, reg u8[64] mu)
 
 	i = 0;
 	while(i < 64) {
-		c = state[(int) i];
+		c = state[u8 (int) i];
 		rho_prime[(int) i] = c;
 		i += 1;
 	}
@@ -68,12 +69,14 @@ fn sign(reg u64 ptr_m,
 	stack u32[Li2_k * Li2_l * Li2_polydeg] fft_matA;
 	stack u8[64] mu;
 	// corresponds to kappa/l in spec
-	stack u32 nonce;
+	stack u16 nonce;
+	reg u16 reg_nonce;
 	stack u8[64] rho_prime;
 	stack u32[Li2_l * Li2_polydeg] z;
 	stack u32[Li2_k * Li2_polydeg] h;
 	// w probably isn't necessary - can use w1 wherever w appears?
 	stack u32[Li2_k * Li2_polydeg] w0 w1;
+	stack u8[Li2_pack_w1len] packed_w1;
 	stack u32[Li2_k * Li2_polydeg] r0 r1;
 
 	// c-tilde unnecessary
@@ -92,12 +95,16 @@ fn sign(reg u64 ptr_m,
 	// extra intermediate values
 	// not space-efficient...
 	// but this is reference impl so we're fine?
+	stack u32[Li2_l * Li2_polydeg] y;
 	stack u32[Li2_k * Li2_polydeg] w;
 	stack u32[Li2_k * Li2_polydeg] r;
 	stack u32[Li2_l * Li2_polydeg] fft_y;
 	stack u32[Li2_l * Li2_polydeg] cs1;
 	stack u32[Li2_l * Li2_polydeg] cs2;
 	stack u32[Li2_l * Li2_polydeg] ct0;
+
+	//temp
+	stack u8 normcheck_result;
 
 	s1, s2, t0 = unpack_sk(sk);
 	mu = compute_mu(ptr_m, m_len, sk);
@@ -111,9 +118,9 @@ fn sign(reg u64 ptr_m,
 
 	nonce = 0;
 	done = 0;
-	/*
 	while(done == 0) {
-		y = expandMask(rho_prime, nonce);
+		reg_nonce = nonce;
+		y = expandMask(rho_prime, reg_nonce);
 		nonce += 1;
 		fft_y = deep_copy_vecl(y);
 		fft_y = fft_vec(fft_y);
@@ -121,15 +128,16 @@ fn sign(reg u64 ptr_m,
 		w = ifft_to_mont_vec(w);
 
 		//high-low inconsistent between spec and ref?
-		w1, w0 = decompose_vec(w); //NYI
+		w1, w0 = decompose_vec(w);
 
-		//c-tilde
-		signature[...] = packw1(w1); //NYI
-		c = SampleInBall(...); //???
+		packed_w1 = pack_w1(w1);
+		c_tilde = hash_mu_w1(mu, packed_w1);
+
+		challenge = sampleInBall(challenge, c_tilde);
+		challenge = fft(challenge);
 
 
-		//c = fft_vec(c);
-
+/*
 		cs1 = pointwise_mont_mult(c, s1);
 		ifft_vec_tomont(cs1)
 		// z = cs1 + y
@@ -156,13 +164,10 @@ fn sign(reg u64 ptr_m,
 				}
 			}
 		}
-	}
 	*/
+	}
 
-	//pack...
-	//pack z
-	//pack h
-
+	signature = pack_signature(c_tilde, z, h);
 	return signature;
 }
 
@@ -179,7 +184,7 @@ fn sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk
 		sk[(int) i] = c;
 		i += 1;
 	}
-
+	
 	signature = sign(ptr_m, m_len, sk);
 
 	i = 0;

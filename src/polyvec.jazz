@@ -191,3 +191,88 @@ fn deep_copy_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
 	}
 	return dest;
 }
+
+/* untested */
+inline
+fn decompose_vec(reg ptr u32[Li2_k * Li2_polydeg] vec)
+	-> stack u32[Li2_k * Li2_polydeg], stack u32[Li2_k * Li2_polydeg]
+{
+	stack u32[Li2_k * Li2_polydeg] vec0 vec1;
+	stack u64 i;
+	reg u64 addr;
+	reg u32 a a0 a1;
+
+
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		addr = i;
+		a = vec[(int) addr];
+
+		a0, a1 = decompose(a);
+
+		addr = i;
+		vec0[(int) addr] = a0;
+		vec1[(int) addr] = a1;
+
+		i += 1;
+	}
+
+	return vec0, vec1;
+}
+
+inline
+fn checknorm_veck(reg ptr u32[Li2_k * Li2_polydeg] vec, inline int threshold)
+	-> stack u8
+{
+	stack u8 result;
+
+	reg u64 i;
+	reg u32 val;
+
+	result = 0;
+
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		val = vec[(int) i];
+		if(val >=s threshold) {
+			result |= 1;
+		}
+		if(val <=s -threshold) {
+			result |= 1;
+		}
+		i += 1;
+	}
+	
+	return result;
+}
+
+inline
+fn checknorm_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec, inline int threshold)
+	-> stack u8
+{
+	stack u8 result;
+
+	reg u64 i;
+	reg u32 val;
+
+	result = 0;
+
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		val = vec[(int) i];
+		if(val >=s threshold) {
+			result |= 1;
+		}
+		if(val <=s -threshold) {
+			result |= 1;
+		}
+		i += 1;
+	}
+	
+	return result;
+}
+
+/*
+inline
+fn sum_hint(reg ptr
+*/

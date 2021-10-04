@@ -1,21 +1,6 @@
 require "params.jazz"
 require "montgomery.jazz"
 
-//packing related parameters
-param int Li2_pack_etalen = Li2_polydeg / 2;
-param int Li2_pack_s1len = Li2_l * Li2_polydeg / 2;
-param int Li2_pack_s2len = Li2_k * Li2_polydeg / 2;
-param int Li2_pack_s2loc = 96 + Li2_pack_s1len;
-
-// length of only one poly
-// naming taken from C ref
-// actual lengths are K times the above...
-
-param int Li2_pack_t1len = 10 * Li2_polydeg / 8;
-param int Li2_pack_t0len = 416;
-
-param int Li2_pack_t0loc = Li2_SK_LEN - Li2_k * Li2_pack_t0len;
-
 inline
 fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 	-> reg ptr u8[Li2_pack_t1len]
@@ -660,10 +645,6 @@ fn polyt0_unpack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] src)
 	return t0;
 }
 
-// length of only one poly
-// actual length is l time this.
-// naming taken from C ref impl
-param int Li2_pack_zlen = Li2_polydeg * 20 / 8;
 
 inline
 fn polyz_pack(reg ptr u8[Li2_pack_zlen] r, reg ptr u32[Li2_polydeg] a)
@@ -851,8 +832,6 @@ fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
 	return s1, s2, t0;
 }
 
-param int Li2_pack_hstart = 32 + Li2_l * Li2_pack_zlen;
-
 inline
 fn pack_signature(reg ptr u8[32] c_tilde,
 		reg ptr u32[Li2_l * Li2_polydeg] z,
@@ -924,4 +903,35 @@ fn pack_signature(reg ptr u8[32] c_tilde,
 	}
 
 	return signature;
+}
+
+inline
+fn pack_w1(reg ptr u32[Li2_k * Li2_polydeg] w1)
+	-> stack u8[Li2_pack_w1len]
+{
+	stack u8[Li2_pack_w1len] buf;
+	stack u64 i;
+	reg u64 addr;
+	reg u8 c0 c1;
+	reg u32 val;
+
+	i = 0;
+	while(i < Li2_pack_w1len) {
+		addr = i;
+		addr *= 2;
+		val = w1[(int) addr];
+		c0 = (8u) val;
+		addr += 1;
+		val = w1[(int) addr];
+		c1 = (8u) val;
+
+		c0 <<= 4;
+		c0 += c1;
+
+		addr = i;
+		buf[(int) addr] = c0;
+
+		i += 1;
+	}
+	return buf;
 }

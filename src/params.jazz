@@ -43,3 +43,25 @@ fn eta_minus_x(reg u32 x) -> reg u32
 	return result;
 }
 
+//packing-related
+param int Li2_pack_w1len = Li2_k * Li2_polydeg / 2;
+param int Li2_pack_etalen = Li2_polydeg / 2;
+param int Li2_pack_s1len = Li2_l * Li2_polydeg / 2;
+param int Li2_pack_s2len = Li2_k * Li2_polydeg / 2;
+param int Li2_pack_s2loc = 96 + Li2_pack_s1len;
+
+// length of only one poly
+// naming taken from C ref
+// actual lengths are K times the above...
+
+param int Li2_pack_t1len = 10 * Li2_polydeg / 8;
+param int Li2_pack_t0len = 416;
+
+param int Li2_pack_t0loc = Li2_SK_LEN - Li2_k * Li2_pack_t0len;
+
+// length of only one poly
+// actual length is l time this.
+// naming taken from C ref impl
+param int Li2_pack_zlen = Li2_polydeg * 20 / 8;
+
+param int Li2_pack_hstart = 32 + Li2_l * Li2_pack_zlen;
