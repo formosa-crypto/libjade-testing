@@ -1,4 +1,14 @@
 require "params.jazz"
+require "hashing.jazz"
+
+inline
+fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
+	-> stack u8[64]
+{
+	stack u8[64] mu;
+	mu = hash_tr_m(sk[64:32], m_len, ptr_m);
+	return mu;
+}
 
 inline
 fn sign(reg u64 ptr_m,
@@ -9,9 +19,15 @@ fn sign(reg u64 ptr_m,
 	stack u8[Li2_SIGN_LEN] signature;
 	reg ptr u8[32] rho;
 	reg ptr u8[32] k;
-	reg ptr u8[32] tr;
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
+
+	stack u8[64] mu;
+	
+	mu = compute_mu(ptr_m, m_len, sk);
+	
+
+	
 
 	return signature;
 }

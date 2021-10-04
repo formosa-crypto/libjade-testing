@@ -98,19 +98,7 @@ fn sampleInBall(reg ptr u32[Li2_polydeg] f, reg ptr u8[32] seed)
 
 	i = Li2_polydeg - Li2_tau;
 	while(i < Li2_polydeg) {
-
-		// poor man's do-while
-		// Was the actual feature scrapped?
-		/*
-		if(offset >= SHAKE256_RATE) {
-			state = __keccakf1600_ref(state);
-			offset = 0;
-		}
-		c = state[u8 (int) offset];
-		b = (32u) c;
-		offset += 1;
-		*/
-
+		// do-while
 		while {
 			if(offset >= SHAKE256_RATE) {
 				state = __keccakf1600_ref(state);
@@ -137,4 +125,60 @@ fn sampleInBall(reg ptr u32[Li2_polydeg] f, reg ptr u8[32] seed)
 	}
 
 	return f;
+}
+
+inline
+fn hash_tr_m(reg ptr u8[32] tr, reg u64 m_len, reg u64 m)
+	-> stack u8[64]
+{
+	stack u8[64] mu;
+	stack u64[25] state;
+	reg u8 c;
+	reg u64 offset;
+	reg u64 m_loc;
+	reg u64 space_required;
+
+	state = st0(state);
+	offset = 0;
+	while(offset < 32) {
+		c = tr[(int) offset];
+		state[u8 (int) offset] ^= c;
+		offset += 1;
+	}
+
+	m_loc = 0;
+	space_required = m_len;
+	space_required += 32; //edge case correction
+	while(space_required >= SHAKE256_RATE) {
+		while(offset < SHAKE256_RATE) {
+			c = (u8) [m + m_loc];
+			state[u8 (int) offset] ^= c;
+			m_loc += 1;
+			offset += 1;
+		}
+		state = __keccakf1600_ref(state);
+		offset = 0;
+		space_required = m_len;
+		space_required -= m_loc;
+	}
+
+	//last block
+	while(m_loc < m_len) {
+		c = (u8) [m + m_loc];
+		state[u8 (int) offset] ^= c;
+		m_loc += 1;
+		offset += 1;
+	}
+	state[u8 (int) offset] ^= 0x1f;
+	state[u8 SHAKE256_RATE-1] ^= 0x80;
+
+	state = __keccakf1600_ref(state);
+
+	offset = 0;
+	while(offset < 64) {
+		c = state[u8 (int) offset];
+		mu[(int) offset] = c;
+		offset += 1;
+	}
+	return mu;
 }
