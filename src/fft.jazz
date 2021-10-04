@@ -2,7 +2,6 @@ require "montgomery.jazz"
 require "params.jazz"
 require "twiddle_factors.jazz"
 
-inline
 fn fft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 {
 	inline int exp_len;
@@ -66,7 +65,6 @@ fn fft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 	return f;
 }
 
-inline
 fn ifft_to_mont(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 {
 	inline int exp_len;
