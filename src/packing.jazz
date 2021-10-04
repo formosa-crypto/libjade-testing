@@ -660,38 +660,79 @@ fn polyt0_unpack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] src)
 	return t0;
 }
 
+// length of only one poly
+// actual length is l time this.
+// naming taken from C ref impl
+param int Li2_pack_zlen = Li2_polydeg * 20 / 8;
 
-/*************************************************
-* Name:        polyz_pack
-*
-* Description: Bit-pack polynomial with coefficients
-*              in [-(GAMMA1 - 1), GAMMA1].
-*
-* Arguments:   - uint8_t *r: pointer to output byte array with at least
-*                            POLYZ_PACKEDBYTES bytes
-*              - const poly *a: pointer to input polynomial
-**************************************************/
-/*
-void polyz_pack(uint8_t *r, const poly *a) {
-  unsigned int i;
-  uint32_t t[4];
+inline
+fn polyz_pack(reg ptr u8[Li2_pack_zlen] r, reg ptr u32[Li2_polydeg] a)
+	-> reg ptr u8[Li2_pack_zlen]
+{
+	stack u64 i;
+	reg u64 addr;
+	reg u32 v;
+	reg u8 c;
+	stack u32 t0 t1;
 
-  for(i = 0; i < N/2; ++i) {
-    t[0] = GAMMA1 - a->coeffs[2*i+0];
-    t[1] = GAMMA1 - a->coeffs[2*i+1];
+	i = 0;
+	while(i < Li2_polydeg / 2) {
+		// t[0] = GAMMA1 - a->coeffs[2*i+0];
+		addr = i;
+		addr *= 2;
+		v = a[(int) addr];
+		t0 = v;
+		t0 = -t0;
+		t0 += Li2_gamma1;
 
-    r[5*i+0]  = t[0];
-    r[5*i+1]  = t[0] >> 8;
-    r[5*i+2]  = t[0] >> 16;
-    r[5*i+2] |= t[1] << 4;
-    r[5*i+3]  = t[1] >> 4;
-    r[5*i+4]  = t[1] >> 12;
-  }
+		// t[1] = GAMMA1 - a->coeffs[2*i+1];
+		addr += 1;
+		v = a[(int) addr];
+		t1 = v;
+		t1 = -t1;
+		t1 += Li2_gamma1;
 
+		// r[5*i+0]  = t[0];
+		addr = i;
+		addr *= 5;
+		v = t0;
+		r[(int) addr] = (8u) v;
+
+		// r[5*i+1]  = t[0] >> 8;
+		v = t0;
+		v >>= 8;
+		addr += 1;
+		r[(int) addr] = (8u) v;
+
+		// r[5*i+2]  = t[0] >> 16;
+		v = t0;
+		v >>= 16;
+		c = (8u) v;
+
+		// r[5*i+2] |= t[1] << 4;
+		v = t1;
+		v <<= 4;
+		c |= (8u) v;
+		addr += 1;
+		r[(int) addr] = c;
+
+		// r[5*i+3]  = t[1] >> 4;
+		v = t1;
+		v >>= 4;
+		addr += 1;
+		r[(int) addr] = (8u) v;
+
+		// r[5*i+4]  = t[1] >> 12;
+		v = t1;
+		v >>= 12;
+		addr += 1;
+		r[(int) addr] = (8u) v;
+
+		i += 1;
+	}
+	return r;
 }
-*/
 
-param int Li2_pack_zlen = Li2_l * Li2_polydeg * 20 / 8;
 
 inline
 fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)

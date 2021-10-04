@@ -22,6 +22,7 @@ using std::to_string;
 extern "C" {
 	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void polyz_unpack_jazz(int32_t p[N], uint8_t buf[POLYZ_PACKEDBYTES]);
+	void polyz_pack_jazz(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
 	void polyeta_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void polyt0_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 }
@@ -37,6 +38,13 @@ uint32_t sample_t1_component() {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
 	static std::uniform_int_distribution<> distrib(0,  1023);
+	return distrib(gen);
+}
+
+uint32_t sample_z_component() {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<> distrib(0,  (1 << 20) - 1);
 	return distrib(gen);
 }
 
@@ -60,6 +68,28 @@ void test_pack_t1() {
 
 	if(memcmp(buf_ref, buf_jazz, POLYT1_PACKEDBYTES) != 0) {
 		throw runtime_error("test failed at " + to_string(__LINE__));
+	}
+}
+
+void test_pack_z() {
+	poly p;
+
+	for(int i = 0; i < N; ++i)
+		p.coeffs[i] = sample_z_component();
+
+	uint8_t buf_ref[POLYZ_PACKEDBYTES];
+	pqcrystals_dilithium3_ref_polyz_pack(buf_ref, &p);
+
+	uint8_t buf_jazz[POLYZ_PACKEDBYTES];
+	polyz_pack_jazz(buf_jazz, p.coeffs);
+
+	for(int i = 0; i < POLYZ_PACKEDBYTES; ++i) {
+		if(buf_ref[i] != buf_jazz[i]) {
+			PRINT(i);
+			PRINT(int(buf_ref[i]));
+			PRINT(int(buf_jazz[i]));
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
 	}
 }
 
@@ -130,10 +160,12 @@ void test_unpack_t0() {
 	}
 }
 
+
 int main() {
 	test_pack_t1();
 	test_unpack_z();
 	test_unpack_eta();
 	test_unpack_t0();
+	test_pack_z();
 	return 0;
 }
