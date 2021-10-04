@@ -95,7 +95,7 @@ inline
 fn expandMaskComponent(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u16 kappa)
 	-> reg ptr u32[Li2_polydeg]
 {
-	reg u64 i;
+	stack u64 i;
 	reg u8 c;
 	reg u16 v;
 	stack u64[25] state;
@@ -135,7 +135,8 @@ fn expandMaskComponent(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, sta
 
 		i = 0;
 		while(i < SHAKE256_RATE) {
-			c = state[u8 (int) i];
+			addr = i;
+			c = state[u8 (int) addr];
 			addr = y_loc;
 			y_packed[(int) addr] = c;
 			y_loc += 1;

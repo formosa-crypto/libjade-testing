@@ -1,5 +1,9 @@
 require "params.jazz"
 require "hashing.jazz"
+require "packing.jazz"
+require "gen_matrix.jazz"
+require "fft.jazz"
+require "polyvec.jazz"
 
 inline
 fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
@@ -10,6 +14,83 @@ fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
 	return mu;
 }
 
+/* Untested */
+inline
+fn compute_rho_prime(reg u8[32] k, reg u8[64] mu)
+	-> stack u8[64]
+{
+	stack u8[64] rho_prime;
+	reg u8 c;
+	reg u64 i;
+	stack u64[25] state;
+	reg u64 mu_loc;
+
+	state = st0(state);
+	i = 0;
+	while(i < 32) {
+		c = k[(int) i];
+		state[u8 (int) i] = c;	
+		i += 1;
+	}
+	while(i < 96) {
+		mu_loc = i - 32; // can I do this?
+		c = mu[(int) mu_loc];
+		state[u8 (int) i] = c;
+		i += 1;
+	}
+
+	state[u8 96] ^= 0x1f;
+	state[u8 SHAKE256_RATE - 1] ^= 0x80;
+
+	i = 0;
+	while(i < 64) {
+		c = state[(int) i];
+		rho_prime[(int) i] = c;
+		i += 1;
+	}
+	return rho_prime;
+}
+
+/* Untested */
+inline
+fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
+	-> stack u32[Li2_l * Li2_polydeg], //s1
+	stack u32[Li2_k * Li2_polydeg], //s2
+	stack u32[Li2_k * Li2_polydeg] //t0
+{
+	stack u32[Li2_l * Li2_polydeg] s1;
+	stack u32[Li2_k * Li2_polydeg] s2;
+	stack u32[Li2_k * Li2_polydeg] t0;
+
+	// temp vars.
+	inline int ii;
+	reg ptr u32[Li2_polydeg] poly_to_unpack;
+
+	// unpack sk where needed
+	for ii = 0 to Li2_l {
+		poly_to_unpack = s1[ii * Li2_polydeg : Li2_polydeg];
+		poly_to_unpack = polyeta_unpack(poly_to_unpack,
+			sk[96 + ii * Li2_pack_etalen : Li2_pack_etalen]);
+		s1[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
+	}
+
+	for ii = 0 to Li2_k {
+		poly_to_unpack = s2[ii * Li2_polydeg : Li2_polydeg];
+		poly_to_unpack = polyeta_unpack(poly_to_unpack,
+			sk[Li2_pack_s2loc + ii * Li2_pack_etalen : Li2_pack_etalen]);
+		s2[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
+	}
+
+	for ii = 0 to Li2_k {
+		poly_to_unpack = t0[ii * Li2_polydeg : Li2_polydeg];
+		poly_to_unpack = polyt0_unpack(poly_to_unpack,
+			sk[Li2_SK_LEN - (Li2_k - ii) * Li2_pack_t0len : Li2_pack_t0len]);
+		t0[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
+	}
+
+	return s1, s2, t0;
+}
+
 inline
 fn sign(reg u64 ptr_m,
 		reg u64 m_len,
@@ -17,27 +98,107 @@ fn sign(reg u64 ptr_m,
 		-> stack u8[Li2_SIGN_LEN]
 {
 	stack u8[Li2_SIGN_LEN] signature;
-	reg ptr u8[32] k;
+
+	// parts of sk
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
+	stack u32[Li2_k * Li2_polydeg] t0;
 
-	stack u8[64] mu;
-
+	// automatic variables in spec
 	stack u32[Li2_k * Li2_l * Li2_polydeg] fft_matA;
-	stack u32[Li2_l * Li2_polydeg] s1;
-	stack u32[Li2_k * Li2_polydeg] s2;
-	stack u32[Li2_k * Li2_polydeg] t;
-
+	stack u8[64] mu;
 	// corresponds to kappa/l in spec
 	stack u32 nonce;
-	
-	fft_matA = gen_matrix(sk[0:32]);
+	stack u8[64] rho_prime;
+	stack u32[Li2_l * Li2_polydeg] z;
+	stack u32[Li2_k * Li2_polydeg] h;
+	// w probably isn't necessary - can use w1 wherever w appears?
+	stack u32[Li2_k * Li2_polydeg] w0 w1;
+	stack u32[Li2_k * Li2_polydeg] r0 r1;
+
+	// c-tilde unnecessary
+	// just use signature[0:32]
+	stack u32[Li2_polydeg] challenge; //from SampleInBall?
+
+	// while loop condition
+	stack u8 done;
+
+	// extra intermediate values
+	// not space-efficient...
+	// but this is reference impl so we're fine?
+	stack u32[Li2_k * Li2_polydeg] w;
+	stack u32[Li2_k * Li2_polydeg] r;
+	stack u32[Li2_l * Li2_polydeg] fft_y;
+	stack u32[Li2_l * Li2_polydeg] cs1;
+	stack u32[Li2_l * Li2_polydeg] cs2;
+	stack u32[Li2_l * Li2_polydeg] ct0;
+	// not sure if pack_sig will go through otherwise
+	// with input and output overlapping
+	//stack u8[...] c_tilde;
+
+	s1, s2, t0 = unpack_sk(sk);
 	mu = compute_mu(ptr_m, m_len, sk);
+	rho_prime = compute_rho_prime(sk[32:32], mu);
+
+	fft_matA = gen_matrix(sk[0:32]);
+
+	s1 = fft_vec(s1);
+	s2 = fft_veck(s2);
+	t0 = fft_veck(t0);
 
 	nonce = 0;
-	
+	done = 0;
+	/*
+	while(done == 0) {
+		y = expandMask(rho_prime, nonce);
+		nonce += 1;
+		fft_y = deep_copy_vecl(y);
+		fft_y = fft_vec(fft_y);
+		w = mult_mat_vec(fft_matA, fft_y);
+		w = ifft_to_mont_vec(w);
 
-	
+		//high-low inconsistent between spec and ref?
+		w1, w0 = decompose_vec(w); //NYI
+
+		//c-tilde
+		signature[...] = packw1(w1); //NYI
+		c = SampleInBall(...); //???
+
+
+		//c = fft_vec(c);
+
+		cs1 = pointwise_mont_mult(c, s1);
+		ifft_vec_tomont(cs1)
+		// z = cs1 + y
+
+		//norm = norm(z);
+		if(norm < gamma1 - beta) {
+			cs2 = pointwise_mont_mult(c, s2);
+			cs2 = ifft(cs2);
+			r = w - cs2; //vec ver?
+			r1, r0 = decompose(r);
+			norm = norm(r0);
+			if(norm < gamma2 - beta) {
+				ct0 = pointwise_mont_mult(c, t0);
+				ct0 = ifft(ct0);
+				norm = norm(ct0);
+				if(norm < gamma2) {
+					//what is this interface again?
+					hint = make_hint(ct0, w0, w1);
+					
+					norm = norm(hint)
+					if(norm < omega) {
+						done = true;
+					}
+				}
+			}
+		}
+	}
+	*/
+
+	//pack...
+	//pack z
+	//pack h
 
 	return signature;
 }

@@ -2,6 +2,7 @@ require "poly.jazz"
 require "high-low-order.jazz"
 require "fft.jazz"
 
+//TODO rename to reflect this is vecl
 inline
 fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
 	-> stack u32[Li2_l * Li2_polydeg]
@@ -10,6 +11,22 @@ fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
 	reg ptr u32[Li2_polydeg] entry;
 
 	for i = 0 to Li2_l {
+		entry = vec[i * Li2_polydeg : Li2_polydeg];
+		entry = fft(entry);
+		vec[i * Li2_polydeg : Li2_polydeg] = entry;
+	}
+
+	return vec;
+}
+
+inline
+fn fft_veck(stack u32[Li2_k * Li2_polydeg] vec)
+	-> stack u32[Li2_k * Li2_polydeg]
+{
+	inline int i;
+	reg ptr u32[Li2_polydeg] entry;
+
+	for i = 0 to Li2_k {
 		entry = vec[i * Li2_polydeg : Li2_polydeg];
 		entry = fft(entry);
 		vec[i * Li2_polydeg : Li2_polydeg] = entry;
@@ -132,4 +149,45 @@ fn expandMask(reg ptr u8[64] rho_prime, reg u16 nonce)
 		y[Li2_polydeg * i : Li2_polydeg] = component;
 	}
 	return y;
+}
+
+/* untested */
+inline
+fn pointwise_mont_mult(reg ptr u32[Li2_l * Li2_polydeg] f g fg)
+	-> reg ptr u32[Li2_l * Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 v;
+	stack u32 fv gv fgv;
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		v = f[(int) i];
+		fv = v;
+		v = g[(int) i];
+		gv = v;
+		fgv = montgomery_mult(fv, gv);
+		v = fgv;
+		fg[(int) i] = v;
+		i += 1;
+	}
+	return fg;
+}
+
+// why am I doing this again?
+/* untested */
+inline
+fn deep_copy_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
+	-> stack u32[Li2_l * Li2_polydeg]
+{
+	stack u32[Li2_l * Li2_polydeg] dest;
+	reg u64 i;
+	reg u32 entry;
+
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		entry = vec[(int) i];
+		dest[(int) i] = entry;
+		i += 1;
+	}
+	return dest;
 }
