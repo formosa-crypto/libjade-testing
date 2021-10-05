@@ -100,8 +100,15 @@ fn sign(reg u64 ptr_m,
 	stack u32[Li2_k * Li2_polydeg] r;
 	stack u32[Li2_l * Li2_polydeg] fft_y;
 	stack u32[Li2_l * Li2_polydeg] cs1;
-	stack u32[Li2_l * Li2_polydeg] cs2;
-	stack u32[Li2_l * Li2_polydeg] ct0;
+	stack u32[Li2_k * Li2_polydeg] cs2;
+	stack u32[Li2_k * Li2_polydeg] ct0;
+
+	// Time for bad code?
+	stack u32[Li2_k * Li2_polydeg] w0_minus_cs2;
+	stack u32[Li2_k * Li2_polydeg] w0_minus_cs2_plus_ct0;
+
+
+	stack u32 hints_weight;
 
 	//temp
 	stack u8 normcheck_result;
@@ -136,35 +143,39 @@ fn sign(reg u64 ptr_m,
 		challenge = sampleInBall(challenge, c_tilde);
 		challenge = fft(challenge);
 
+		cs1 = mult_scalar_vec(challenge, s1);
+		cs1 = ifft_to_mont_vecl(cs1);
 
-/*
-		cs1 = pointwise_mont_mult(c, s1);
-		ifft_vec_tomont(cs1)
-		// z = cs1 + y
+		z = sum_vecl(cs1, y);
 
-		//norm = norm(z);
-		if(norm < gamma1 - beta) {
-			cs2 = pointwise_mont_mult(c, s2);
-			cs2 = ifft(cs2);
-			r = w - cs2; //vec ver?
-			r1, r0 = decompose(r);
-			norm = norm(r0);
-			if(norm < gamma2 - beta) {
-				ct0 = pointwise_mont_mult(c, t0);
-				ct0 = ifft(ct0);
-				norm = norm(ct0);
-				if(norm < gamma2) {
-					//what is this interface again?
-					hint = make_hint(ct0, w0, w1);
-					
-					norm = norm(hint)
-					if(norm < omega) {
-						done = true;
+		normcheck_result = checknorm_vecl(z, (int) (Li2_gamma1 - Li2_beta));
+
+		if(normcheck_result == 0) {
+			cs2 = mult_scalar_veck(challenge, s2);
+			cs2 = ifft_to_mont_vec(cs2);
+
+			r = subtract_veck(w, cs2);
+			r1, r0 = decompose_vec(r);
+
+			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
+			if(normcheck_result == 0) {
+				ct0 = mult_scalar_veck(challenge, t0);
+				ct0 = ifft_to_mont_vec(ct0);
+
+				normcheck_result = checknorm_veck(ct0, Li2_gamma2);
+				if(normcheck_result == 0) {
+
+					// Obviously this is deviation from reference...
+					w0_minus_cs2 = subtract_veck(w0, cs2);
+					w0_minus_cs2_plus_ct0 = sum_vecs(w0_minus_cs2, ct0);
+
+					hints_weight, h = polyveck_make_hint(w0_minus_cs2_plus_ct0, w1);
+					if(hints_weight < Li2_omega) {
+						done = 1;
 					}
 				}
 			}
 		}
-	*/
 	}
 
 	signature = pack_signature(c_tilde, z, h);
