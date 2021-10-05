@@ -1,9 +1,9 @@
-require "params.jazz"
-require "hashing.jazz"
-require "packing.jazz"
-require "gen_matrix.jazz"
-require "fft.jazz"
-require "polyvec.jazz"
+require "../src/params.jazz"
+require "../src/hashing.jazz"
+require "../src/packing.jazz"
+require "../src/gen_matrix.jazz"
+require "../src/fft.jazz"
+require "../src/polyvec.jazz"
 
 inline
 fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
@@ -58,8 +58,11 @@ inline
 fn sign(reg u64 ptr_m,
 		reg u64 m_len,
 		reg ptr u8[Li2_SK_LEN] sk)
-		-> stack u8[Li2_SIGN_LEN]
+		-> stack u32[5000]
 {
+	//stack u8[5000] probe_val;
+	stack u32[5000] probe_val32;
+
 	stack u8[Li2_SIGN_LEN] signature;
 
 	// parts of sk
@@ -112,9 +115,26 @@ fn sign(reg u64 ptr_m,
 	stack u32 hints_weight;
 	stack u8 normcheck_result;
 
+	// loop/output tests var
+	reg u64 i;
+	//reg u8 c;
+	reg u32 val32;
+
 	s1, s2, t0 = unpack_sk(sk);
 	mu = compute_mu(ptr_m, m_len, sk);
 	rho_prime = compute_rho_prime(sk[32:32], mu);
+
+/*
+	//try outputting rho_prime
+	i = 0;
+	while(i < 64) {
+		c = rho_prime[(int) i];
+		probe_val[(int) i] = c;
+		i += 1;
+	}
+	return probe_val;
+	*/
+
 
 	fft_matA = gen_matrix(sk[0:32]);
 
@@ -134,6 +154,8 @@ fn sign(reg u64 ptr_m,
 		fft_y = fft_vec(fft_y);
 		w = mult_mat_vec(fft_matA, fft_y);
 		w = ifft_to_mont_vec(w);
+
+		/*
 
 		//high-low inconsistent between spec and ref?
 		w1, w0 = decompose_vec(w);
@@ -177,32 +199,61 @@ fn sign(reg u64 ptr_m,
 				}
 			}
 		}
+		*/
 	}
 
+	//try outputting w
+	//stack u32[Li2_k * Li2_polydeg] w;
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		val32 = w[(int) i];
+		probe_val32[(int) i] = val32;
+		i += 1;
+	}
+	return probe_val32;
+
+
+
+
+/*
 	signature = pack_signature(c_tilde, z, h);
 	return signature;
+	*/
 }
 
 export
-fn sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) {
-	stack u8[Li2_SK_LEN] sk;
-	reg u8 c;
+fn test_jazz(reg u64 p_m p_sk p_out32) {
 	reg u64 i;
-	stack u8[Li2_SIGN_LEN] signature;
-	
+	reg u8 c;
+	reg u32 v32;
+	//stack u8[5000] out;
+	stack u32[5000] out32;
+	reg u64 mlen;
+	stack u8[Li2_SK_LEN] sk;
+
 	i = 0;
 	while(i < Li2_SK_LEN) {
-		c = (u8)[ptr_sk + i];
+		c = (u8)[p_sk + i];
 		sk[(int) i] = c;
 		i += 1;
 	}
-	
-	signature = sign(ptr_m, m_len, sk);
+
+	mlen = 1000;
+	out32 = sign(p_m, mlen, sk);
+
+/*
+	i = 0;
+	while(i < 5000) {
+		c = out[(int) i];
+		(u8) [p_out + i] = c;
+		i += 1;
+	}
+	*/
 
 	i = 0;
-	while(i < Li2_SIGN_LEN) {
-		c = signature[(int) i];
-		(u8) [ptr_signature] = c;
+	while(i < 5000) {
+		v32 = out32[(int) i];
+		(u32) [p_out32 + 4 * i] = v32;
 		i += 1;
 	}
 }

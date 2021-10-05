@@ -54,5 +54,16 @@ int main() {
 
 	PRINT(memcmp(signature_ref, signature_jazz, pqcrystals_dilithium3_BYTES));
 
+	PRINT(memcmp(signature_ref, signature_jazz, 32));
+
+	int z_total_len = L * N * 20 / 8;
+	int h_start = 32 + z_total_len;
+
+	PRINT(memcmp(signature_ref + 32, signature_jazz + 32, z_total_len));
+
+	PRINT(memcmp(signature_ref + h_start,
+				signature_jazz + h_start,
+				pqcrystals_dilithium3_BYTES - h_start));
+
 	return 0;
 }

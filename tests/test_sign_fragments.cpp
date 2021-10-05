@@ -71,7 +71,6 @@ void test_compute_mu(int mlen) {
 
 	pqcrystals_dilithium3_ref_keypair(pk, sk);
 
-
 	uint8_t mu_ref[64];
 	uint8_t mu_jazz[64];
 
@@ -79,7 +78,6 @@ void test_compute_mu(int mlen) {
 	
 	for(int i = 0; i < mlen; ++i)
 		m[i] = sampleByte();
-
 
 	compute_mu_jazz(m.get(), mlen, sk, mu_jazz);
 	compute_mu_ref(mu_ref, m.get(), mlen, sk);
@@ -104,3 +102,4 @@ int main() {
 	test_compute_mu(10000);
 	return 0;
 }
+
