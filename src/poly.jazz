@@ -204,3 +204,22 @@ fn poly_make_hint(reg ptr u32[Li2_polydeg] f0 f1 hints)
 
 	return weight, hints;
 }
+
+inline
+fn poly_use_hint(reg ptr u32[Li2_polydeg] f b hints)
+	-> reg ptr u32[Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 a h c;
+
+
+	i = 0;
+	while(i < Li2_polydeg){
+		a = f[(int) i];
+		h = hints[(int) i];
+		c = use_hint(h, a);
+		b[(int) i] = c;
+		i += 1;
+	}
+	return b;
+}		
