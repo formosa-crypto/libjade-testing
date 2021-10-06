@@ -125,8 +125,11 @@ fn sign(reg u64 ptr_m,
 
 	fft_matA = gen_matrix(sk[0:32]);
 
+	s1 = polyvecl_caddq(s1);
 	s1 = fft_vec(s1);
+	s2 = polyveck_caddq(s2);
 	s2 = fft_veck(s2);
+	t0 = polyveck_caddq(t0);
 	t0 = fft_veck(t0);
 
 	nonce = 0;

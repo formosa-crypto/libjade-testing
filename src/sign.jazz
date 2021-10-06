@@ -117,8 +117,13 @@ fn sign(reg u64 ptr_m,
 
 	fft_matA = gen_matrix(sk[0:32]);
 
+	//These caddq are just temporary workarounds.
+	//Will have to fix the signedness issues sometime
+	s1 = polyvecl_caddq(s1);
 	s1 = fft_vec(s1);
+	s2 = polyveck_caddq(s2);
 	s2 = fft_veck(s2);
+	t0 = polyveck_caddq(t0);
 	t0 = fft_veck(t0);
 
 	nonce = 0;
@@ -143,6 +148,7 @@ fn sign(reg u64 ptr_m,
 		c_tilde = hash_mu_w1(mu, packed_w1);
 
 		challenge = sampleInBall(challenge, c_tilde);
+		challenge = poly_caddq(challenge);
 		challenge = fft(challenge);
 
 		cs1 = mult_scalar_vec(challenge, s1);

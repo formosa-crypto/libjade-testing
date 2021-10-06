@@ -78,10 +78,6 @@ rej:
 	polyveck_reduce(&w1);
 	polyveck_invntt_tomont(&w1);
 
-	PRINT(w1.vec[0].coeffs[0]);
-	PRINT(w1.vec[0].coeffs[1]);
-	PRINT(w1.vec[0].coeffs[2]);
-
 	//uint8_t out_buf[5000];
 	uint32_t out_buf_32[5000];
 	test_jazz(m, sk, out_buf_32);
@@ -102,8 +98,6 @@ rej:
 		}
 	}
 
-
-	/*
 	// Decompose w and call the random oracle
 	polyveck_caddq(&w1);
 	polyveck_decompose(&w1, &w0, &w1);
@@ -115,6 +109,8 @@ rej:
 	shake256_finalize(&state);
 	shake256_squeeze(sig, SEEDBYTES, &state);
 	poly_challenge(&cp, sig);
+
+	/*
 	poly_ntt(&cp);
 
 	// Compute z, reject if it reveals secret

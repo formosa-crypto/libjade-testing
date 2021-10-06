@@ -175,6 +175,22 @@ fn expandMaskComponent(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, sta
 	return f;
 }
 
+inline
+fn poly_caddq(reg ptr u32[Li2_polydeg] f)
+	-> reg ptr u32[Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 val;
+	i = 0;
+	while(i < Li2_polydeg) {
+		val = f[(int) i];
+		val = caddq(val);
+		f[(int) i] = val;
+		i += 1;
+	}
+	return f;
+}
+
 
 inline
 fn poly_make_hint(reg ptr u32[Li2_polydeg] f0 f1 hints)
@@ -205,6 +221,7 @@ fn poly_make_hint(reg ptr u32[Li2_polydeg] f0 f1 hints)
 	return weight, hints;
 }
 
+/*
 inline
 fn poly_use_hint(reg ptr u32[Li2_polydeg] f b hints)
 	-> reg ptr u32[Li2_polydeg]
@@ -223,3 +240,4 @@ fn poly_use_hint(reg ptr u32[Li2_polydeg] f b hints)
 	}
 	return b;
 }		
+*/
