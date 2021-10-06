@@ -59,7 +59,7 @@ fn sign(reg u64 ptr_m,
 		reg ptr u8[Li2_SK_LEN] sk)
 		-> stack u32[5000]
 {
-	//stack u8[5000] probe_val;
+	stack u8[5000] probe_val;
 	stack u32[5000] probe_val32;
 
 	stack u8[Li2_SIGN_LEN] signature;
@@ -116,7 +116,7 @@ fn sign(reg u64 ptr_m,
 
 	reg u64 i;
 	// loop/output tests var
-	//reg u8 c;
+	reg u8 c;
 	reg u32 val32;
 
 	s1, s2, t0 = unpack_sk(sk);
@@ -147,15 +147,22 @@ fn sign(reg u64 ptr_m,
 		w = mult_mat_vec(fft_matA, fft_y);
 		w = ifft_to_mont_vec(w);
 
-		/*
+		// not sure why this order but oh well...
+		w0, w1 = decompose_vec(w);
 
-		//high-low inconsistent between spec and ref?
-		w1, w0 = decompose_vec(w);
-
+		//packed_w1 tested
 		packed_w1 = pack_w1(w1);
+
 		c_tilde = hash_mu_w1(mu, packed_w1);
 
+		//TODO test c_tilde?
+
 		challenge = sampleInBall(challenge, c_tilde);
+
+		//more scuffed workarounds and crutches...
+		challenge = poly_caddq(challenge);
+
+		/*
 		challenge = fft(challenge);
 
 		cs1 = mult_scalar_vec(challenge, s1);
@@ -170,7 +177,7 @@ fn sign(reg u64 ptr_m,
 			cs2 = ifft_to_mont_vec(cs2);
 
 			r = subtract_veck(w, cs2);
-			r1, r0 = decompose_vec(r);
+			r0, r1 = decompose_vec(r);
 
 			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
 			if(normcheck_result == 0) {
@@ -194,18 +201,14 @@ fn sign(reg u64 ptr_m,
 		*/
 	}
 
-	//try outputting w
-	//stack u32[Li2_k * Li2_polydeg] w;
+	// test outputs
 	i = 0;
-	while(i < Li2_k * Li2_polydeg) {
-		val32 = w[(int) i];
+	while(i < Li2_polydeg) {
+		val32 = challenge[(int) i];
 		probe_val32[(int) i] = val32;
 		i += 1;
 	}
 	return probe_val32;
-
-
-
 
 /*
 	signature = pack_signature(c_tilde, z, h);
@@ -214,11 +217,11 @@ fn sign(reg u64 ptr_m,
 }
 
 export
-fn test_jazz(reg u64 p_m p_sk p_out32) {
+fn test_jazz(reg u64 p_m p_sk p_out) {
 	reg u64 i;
 	reg u8 c;
 	reg u32 v32;
-	//stack u8[5000] out;
+	stack u8[5000] out;
 	stack u32[5000] out32;
 	reg u64 mlen;
 	stack u8[Li2_SK_LEN] sk;
@@ -245,7 +248,7 @@ fn test_jazz(reg u64 p_m p_sk p_out32) {
 	i = 0;
 	while(i < 5000) {
 		v32 = out32[(int) i];
-		(u32) [p_out32 + 4 * i] = v32;
+		(u32) [p_out + 4 * i] = v32;
 		i += 1;
 	}
 }

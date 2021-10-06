@@ -129,7 +129,8 @@ fn sign(reg u64 ptr_m,
 	nonce = 0;
 	done = 0;
 	while(done == 0) {
-		done = 1; //TODO remove me
+		//TODO remove me
+		//done = 1;
 
 		reg_nonce = nonce;
 		y = expandMask(rho_prime, reg_nonce);
@@ -141,8 +142,7 @@ fn sign(reg u64 ptr_m,
 		w = mult_mat_vec(fft_matA, fft_y);
 		w = ifft_to_mont_vec(w);
 
-		//high-low inconsistent between spec and ref?
-		w1, w0 = decompose_vec(w);
+		w0, w1 = decompose_vec(w);
 
 		packed_w1 = pack_w1(w1);
 		c_tilde = hash_mu_w1(mu, packed_w1);
@@ -163,7 +163,7 @@ fn sign(reg u64 ptr_m,
 			cs2 = ifft_to_mont_vec(cs2);
 
 			r = subtract_veck(w, cs2);
-			r1, r0 = decompose_vec(r);
+			r0, r1 = decompose_vec(r);
 
 			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
 			if(normcheck_result == 0) {

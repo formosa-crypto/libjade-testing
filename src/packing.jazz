@@ -925,11 +925,15 @@ fn pack_w1(reg ptr u32[Li2_k * Li2_polydeg] w1)
 		val = w1[(int) addr];
 		c1 = (8u) val;
 
+		/* why not this??
 		c0 <<= 4;
 		c0 += c1;
+		*/
+		c1 <<= 4;
+		c1 += c0;
 
 		addr = i;
-		buf[(int) addr] = c0;
+		buf[(int) addr] = c1;
 
 		i += 1;
 	}

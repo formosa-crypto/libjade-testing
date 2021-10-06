@@ -28,7 +28,7 @@ using std::runtime_error;
 extern "C" {
 	void test_jazz(uint8_t m[1000],
 			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES],
-			//uint8_t out_buf[5000],
+//			uint8_t out_buf[5000]);
 			uint32_t out_buf32[5000]);
 }
 
@@ -78,14 +78,70 @@ rej:
 	polyveck_reduce(&w1);
 	polyveck_invntt_tomont(&w1);
 
+	// Decompose w and call the random oracle
+	polyveck_caddq(&w1);
+	polyveck_decompose(&w1, &w0, &w1);
+	polyveck_pack_w1(sig, &w1);
+
+	/*
+	uint8_t out_buf[5000];
+	test_jazz(m, sk, out_buf);
+
+	uint32_t out_buf32[5000];
+	test_jazz(m, sk, out_buf32);
+
+	PRINT(int(w1.vec[0].coeffs[0]));
+	PRINT(int(w1.vec[0].coeffs[1]));
+	PRINT(int(w1.vec[0].coeffs[2]));
+	PRINT(int(w1.vec[0].coeffs[3]));
+	*/
+
+	/*
+	PRINT(int(out_buf[0]));
+	PRINT(int(out_buf[1]));
+	PRINT(int(out_buf[2]));
+	PRINT(int(out_buf[3]));
+
+	PRINT(int(sig[0]));
+	PRINT(int(sig[1]));
+	PRINT(int(sig[2]));
+	PRINT(int(sig[3]));
+
+	PRINT(memcmp(out_buf, sig, K * N / 2));
+	*/
+
+
+	shake256_init(&state);
+	shake256_absorb(&state, mu, CRHBYTES);
+	shake256_absorb(&state, sig, K*POLYW1_PACKEDBYTES);
+	shake256_finalize(&state);
+	shake256_squeeze(sig, SEEDBYTES, &state);
+	poly_challenge(&cp, sig);
+
 	//uint8_t out_buf[5000];
-	uint32_t out_buf_32[5000];
-	test_jazz(m, sk, out_buf_32);
+	uint32_t out_buf32[5000];
+	test_jazz(m, sk, out_buf32);
 
-	PRINT(out_buf_32[0]);
-	PRINT(out_buf_32[1]);
-	PRINT(out_buf_32[2]);
+	PRINT(out_buf32[0]);
+	PRINT(out_buf32[1]);
+	PRINT(out_buf32[2]);
 
+	PRINT(cp.coeffs[0]);
+	PRINT(cp.coeffs[1]);
+	PRINT(cp.coeffs[2]);
+
+	for(int i = 0; i < N; ++i) {
+		uint32_t cval = (cp.coeffs[i] % Q + Q) % Q;
+		if(cval != out_buf32[i]) {
+			PRINT(i);
+			PRINT(out_buf32[i]);
+			PRINT(cp.coeffs[i]);
+			PRINT(cval);
+			return;
+		}
+	}
+
+			/*
 	for(int i = 0; i < K; ++i) {
 		for(int j = 0; j < N; ++j) {
 			uint32_t w1val = (w1.vec[i].coeffs[j] % Q + Q) % Q;
@@ -97,18 +153,7 @@ rej:
 			}
 		}
 	}
-
-	// Decompose w and call the random oracle
-	polyveck_caddq(&w1);
-	polyveck_decompose(&w1, &w0, &w1);
-	polyveck_pack_w1(sig, &w1);
-
-	shake256_init(&state);
-	shake256_absorb(&state, mu, CRHBYTES);
-	shake256_absorb(&state, sig, K*POLYW1_PACKEDBYTES);
-	shake256_finalize(&state);
-	shake256_squeeze(sig, SEEDBYTES, &state);
-	poly_challenge(&cp, sig);
+	*/
 
 	/*
 	poly_ntt(&cp);
