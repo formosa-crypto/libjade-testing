@@ -162,7 +162,6 @@ fn sign(reg u64 ptr_m,
 		//more scuffed workarounds and crutches...
 		challenge = poly_caddq(challenge);
 
-		/*
 		challenge = fft(challenge);
 
 		cs1 = mult_scalar_vec(challenge, s1);
@@ -170,6 +169,7 @@ fn sign(reg u64 ptr_m,
 
 		z = sum_vecl(cs1, y);
 
+		/*
 		normcheck_result = checknorm_vecl(z, (int) (Li2_gamma1 - Li2_beta));
 
 		if(normcheck_result == 0) {
@@ -203,8 +203,8 @@ fn sign(reg u64 ptr_m,
 
 	// test outputs
 	i = 0;
-	while(i < Li2_polydeg) {
-		val32 = challenge[(int) i];
+	while(i < Li2_l * Li2_polydeg) {
+		val32 = z[(int) i];
 		probe_val32[(int) i] = val32;
 		i += 1;
 	}
