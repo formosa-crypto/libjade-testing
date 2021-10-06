@@ -90,6 +90,18 @@ rej:
 	PRINT(out_buf_32[1]);
 	PRINT(out_buf_32[2]);
 
+	for(int i = 0; i < K; ++i) {
+		for(int j = 0; j < N; ++j) {
+			uint32_t w1val = (w1.vec[i].coeffs[j] % Q + Q) % Q;
+			if(w1val != out_buf_32[i * N + j]) {
+				PRINT(i);
+				PRINT(out_buf_32[i]);
+				PRINT(w1.vec[i].coeffs[j]);
+				PRINT(w1val);
+			}
+		}
+	}
+
 
 	/*
 	// Decompose w and call the random oracle

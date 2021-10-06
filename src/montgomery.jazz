@@ -98,3 +98,14 @@ fn montgomery_mult(stack u32 x y) -> stack u32
 	result = montgomery_REDC(xy);
 	return result;
 }
+
+// Add Q if input coefficient is negative.
+inline
+fn caddq(reg u32 a) -> reg u32 {
+	// TODO make constant time ver.
+	// See reference impl.
+	if(a <s 0) {
+		a += Li2_q;
+	}
+	return a;
+}

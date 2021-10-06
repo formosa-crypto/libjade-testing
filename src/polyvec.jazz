@@ -419,3 +419,19 @@ fn polyveck_make_hint(reg ptr u32[Li2_k * Li2_polydeg] v0 v1)
 
 	return total_weight, hints;
 }
+
+inline
+fn polyvecl_caddq(reg ptr u32[Li2_l * Li2_polydeg] vec)
+	-> reg ptr u32[Li2_l * Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 val;
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		val = vec[(int) i];
+		val = caddq(val);
+		vec[(int) i] = val;
+		i += 1;
+	}
+	return vec;
+}

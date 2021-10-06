@@ -14,7 +14,6 @@ fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
 	return mu;
 }
 
-/* Untested */
 inline
 fn compute_rho_prime(reg ptr u8[32] k, reg ptr u8[64] mu)
 	-> stack u8[64]
@@ -129,6 +128,8 @@ fn sign(reg u64 ptr_m,
 
 		reg_nonce = nonce;
 		y = expandMask(rho_prime, reg_nonce);
+		y = polyvecl_caddq(y);
+
 		nonce += 1;
 		fft_y = deep_copy_vecl(y);
 		fft_y = fft_vec(fft_y);

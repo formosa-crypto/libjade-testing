@@ -14,7 +14,6 @@ fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
 	return mu;
 }
 
-/* Untested */
 inline
 fn compute_rho_prime(reg ptr u8[32] k, reg ptr u8[64] mu)
 	-> stack u8[64]
@@ -115,26 +114,14 @@ fn sign(reg u64 ptr_m,
 	stack u32 hints_weight;
 	stack u8 normcheck_result;
 
-	// loop/output tests var
 	reg u64 i;
+	// loop/output tests var
 	//reg u8 c;
 	reg u32 val32;
 
 	s1, s2, t0 = unpack_sk(sk);
 	mu = compute_mu(ptr_m, m_len, sk);
 	rho_prime = compute_rho_prime(sk[32:32], mu);
-
-/*
-	//try outputting rho_prime
-	i = 0;
-	while(i < 64) {
-		c = rho_prime[(int) i];
-		probe_val[(int) i] = c;
-		i += 1;
-	}
-	return probe_val;
-	*/
-
 
 	fft_matA = gen_matrix(sk[0:32]);
 
@@ -149,6 +136,8 @@ fn sign(reg u64 ptr_m,
 
 		reg_nonce = nonce;
 		y = expandMask(rho_prime, reg_nonce);
+		y = polyvecl_caddq(y);
+
 		nonce += 1;
 		fft_y = deep_copy_vecl(y);
 		fft_y = fft_vec(fft_y);
