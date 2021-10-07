@@ -269,7 +269,6 @@ fn deep_copy_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
 	return dest;
 }
 
-/* untested */
 inline
 fn decompose_vec(reg ptr u32[Li2_k * Li2_polydeg] vec)
 	-> stack u32[Li2_k * Li2_polydeg], stack u32[Li2_k * Li2_polydeg]
@@ -278,7 +277,6 @@ fn decompose_vec(reg ptr u32[Li2_k * Li2_polydeg] vec)
 	stack u64 i;
 	reg u64 addr;
 	reg u32 a a0 a1;
-
 
 	i = 0;
 	while(i < Li2_k * Li2_polydeg) {
@@ -302,26 +300,21 @@ inline
 fn checknorm_veck(reg ptr u32[Li2_k * Li2_polydeg] vec, inline int threshold)
 	-> stack u8
 {
-	stack u8 result;
-
-	reg u64 i;
-	reg u32 val;
+	reg u8 result;
+	stack u8 result_s;
+	stack u8 r;
+	reg u8 c;
+	inline int ii;
 
 	result = 0;
-
-	i = 0;
-	while(i < Li2_k * Li2_polydeg) {
-		val = vec[(int) i];
-		if(val >=s threshold) {
-			result |= 1;
-		}
-		if(val <=s -threshold) {
-			result |= 1;
-		}
-		i += 1;
+	for ii = 0 to Li2_k {
+		r = poly_checknorm(vec[ii * Li2_polydeg : Li2_polydeg], threshold);
+		c = r;
+		result |= c;
 	}
-	
-	return result;
+
+	result_s = result;
+	return result_s;
 }
 
 /* UNTESTED */
@@ -329,26 +322,21 @@ inline
 fn checknorm_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec, inline int threshold)
 	-> stack u8
 {
-	stack u8 result;
-
-	reg u64 i;
-	reg u32 val;
+	reg u8 result;
+	stack u8 r;
+	reg u8 c;
+	inline int ii;
+	stack u8 result_s;
 
 	result = 0;
-
-	i = 0;
-	while(i < Li2_l * Li2_polydeg) {
-		val = vec[(int) i];
-		if(val >=s threshold) {
-			result |= 1;
-		}
-		if(val <=s -threshold) {
-			result |= 1;
-		}
-		i += 1;
+	for ii = 0 to Li2_l {
+		r = poly_checknorm(vec[ii * Li2_polydeg : Li2_polydeg], threshold);
+		c = r;
+		result |= c;
 	}
-	
-	return result;
+
+	result_s = result;
+	return result_s;
 }
 
 /* UNTESTED */

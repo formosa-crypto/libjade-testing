@@ -109,3 +109,17 @@ fn caddq(reg u32 a) -> reg u32 {
 	}
 	return a;
 }
+
+inline
+fn checknorm(reg u32 val, inline int threshold)
+	-> stack u8
+{
+	stack u8 result;
+	result = 0;
+	if(val >= threshold) {
+		if(val <= Li2_q - threshold) {
+			result = 1;
+		}
+	}
+	return result;
+}

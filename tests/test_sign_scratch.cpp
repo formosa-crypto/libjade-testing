@@ -78,6 +78,7 @@ rej:
 	polyveck_reduce(&w1);
 	polyveck_invntt_tomont(&w1);
 
+
 	// Decompose w and call the random oracle
 	polyveck_caddq(&w1);
 	polyveck_decompose(&w1, &w0, &w1);
@@ -98,56 +99,55 @@ rej:
 	polyvecl_add(&z, &z, &y);
 	polyvecl_reduce(&z);
 
-	uint32_t out_buf32[5000];
-	test_jazz(m, sk, out_buf32);
-
-	PRINT(out_buf32[0]);
-	PRINT(out_buf32[1]);
-	PRINT(out_buf32[2]);
-
-	PRINT(z.vec[0].coeffs[0]);
-	PRINT(z.vec[0].coeffs[1]);
-	PRINT(z.vec[0].coeffs[2]);
-
-	for(int i = 0; i < L; ++i) {
-		for(int j = 0; j < N; ++j) {
-			int zval = ((z.vec[i].coeffs[j] % Q) + Q) % Q;
-			if(zval != out_buf32[i * N + j]) {
-				PRINT(i);
-				PRINT(j);
-				PRINT(out_buf32[i * N + j]);
-				PRINT(zval);
-				return;
-			}
-		}
-	}
-
-	/*
-	for(int i = 0; i < N; ++i) {
-		uint32_t cval = (cp.coeffs[i] % Q + Q) % Q;
-		if(cval != out_buf32[i]) {
-			PRINT(i);
-			PRINT(out_buf32[i]);
-			PRINT(cp.coeffs[i]);
-			PRINT(cval);
-			return;
-		}
-	}
-	*/
-
-	/*
 	if(polyvecl_chknorm(&z, GAMMA1 - BETA))
 		goto rej;
 
 	// Check that subtracting cs2 does not change high bits of w and low bits
 	// do not reveal secret information
 	polyveck_pointwise_poly_montgomery(&h, &cp, &s2);
-	polyveck_invntt_tomont(&h);
+	polyveck_invntt_tomont(&h); // h = cs2 tested
+
 	polyveck_sub(&w0, &w0, &h);
-	polyveck_reduce(&w0);
+	polyveck_reduce(&w0); //correct up to here
+
+	uint32_t out_buf32[5000];
+	test_jazz(m, sk, out_buf32);
+
+	PRINT(out_buf32[0]);
+	PRINT(out_buf32[1]);
+	PRINT(out_buf32[2]);
+	PRINT(out_buf32[3]);
+
+	PRINT(w0.vec[0].coeffs[0]);
+	PRINT(w0.vec[0].coeffs[1]);
+	PRINT(w0.vec[0].coeffs[2]);
+	PRINT(w0.vec[0].coeffs[3]);
+
+	for(int i = 0; i < K; ++i) {
+		for(int j = 0; j < N; ++j) {
+			int wval = ((w0.vec[i].coeffs[j] % Q) + Q) % Q;
+			if(wval != out_buf32[i * N + j]) {
+				PRINT(i);
+				PRINT(j);
+				PRINT(out_buf32[i * N + j]);
+				PRINT(wval);
+				return;
+			}
+		}
+	}
+
 	if(polyveck_chknorm(&w0, GAMMA2 - BETA))
 		goto rej;
 
+	/*
+	uint32_t out_buf32[5000];
+	test_jazz(m, sk, out_buf32);
+	PRINT(out_buf32[0]);
+
+	PRINT(polyvecl_chknorm(&z, GAMMA1 - BETA));
+	*/
+
+	/*
 	// Compute hints for w1
 	polyveck_pointwise_poly_montgomery(&h, &cp, &t0);
 	polyveck_invntt_tomont(&h);
