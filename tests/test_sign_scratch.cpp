@@ -131,18 +131,22 @@ rej:
 	test_jazz(m, sk, out_buf32);
 
 	PRINT(out_buf32[0]);
+	PRINT(n);
+	/*
 	PRINT(out_buf32[1]);
 	PRINT(out_buf32[2]);
 	PRINT(out_buf32[3]);
 
-	PRINT(w1.vec[0].coeffs[0]);
-	PRINT(w1.vec[0].coeffs[1]);
-	PRINT(w1.vec[0].coeffs[2]);
-	PRINT(w1.vec[0].coeffs[3]);
+	PRINT(h.vec[0].coeffs[0]);
+	PRINT(h.vec[0].coeffs[1]);
+	PRINT(h.vec[0].coeffs[2]);
+	PRINT(h.vec[0].coeffs[3]);
+	*/
 
+	/*
 	for(int i = 0; i < K; ++i) {
 		for(int j = 0; j < N; ++j) {
-			int wval = ((w1.vec[i].coeffs[j] % Q) + Q) % Q;
+			int wval = ((h.vec[i].coeffs[j] % Q) + Q) % Q;
 			if(wval != out_buf32[i * N + j]) {
 				PRINT(i);
 				PRINT(j);
@@ -152,6 +156,7 @@ rej:
 			}
 		}
 	}
+	*/
 	/*
 	PRINT(out_buf32[0]);
 	PRINT(polyveck_chknorm(&h, GAMMA2));
@@ -170,12 +175,12 @@ rej:
 int main() {
 	uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
 	uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
-	uint8_t randomness[32] = { 0 };
+	uint8_t randomness[32] = { 1, 2 };
 	pqcrystals_dilithium3_ref_seeded_keypair(pk, sk, randomness);
 
 	uint8_t sig[pqcrystals_dilithium3_BYTES];
 
-	uint8_t m[1000] = { 0 };
+	uint8_t m[1000] = { 3, 4 };
 	probe(sig, m, 1000, sk);
 
 	return 0;

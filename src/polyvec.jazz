@@ -387,6 +387,7 @@ fn polyveck_make_hint(reg ptr u32[Li2_k * Li2_polydeg] v0 v1)
 {
 	stack u32 total_weight weight_comp;
 	reg u32 reg_weight_comp;
+	reg u32 reg_total_weight;
 	stack u32[Li2_k * Li2_polydeg] hints;
 
 	inline int i;
@@ -401,7 +402,10 @@ fn polyveck_make_hint(reg ptr u32[Li2_k * Li2_polydeg] v0 v1)
 		weight_comp, hints_comp = poly_make_hint(v0_comp, v1_comp, hints_comp);
 
 		reg_weight_comp = weight_comp;
-		total_weight += reg_weight_comp;
+		reg_total_weight = total_weight;
+		reg_total_weight += reg_weight_comp;
+		total_weight = reg_total_weight;
+
 		hints[i * Li2_polydeg : Li2_polydeg] = hints_comp;
 	}
 
