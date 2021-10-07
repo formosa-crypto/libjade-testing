@@ -102,10 +102,7 @@ fn sign(reg u64 ptr_m,
 	stack u32[Li2_l * Li2_polydeg] cs1;
 	stack u32[Li2_k * Li2_polydeg] cs2;
 	stack u32[Li2_k * Li2_polydeg] ct0;
-
-	// Time for bad code?
-	stack u32[Li2_k * Li2_polydeg] w0_minus_cs2;
-	stack u32[Li2_k * Li2_polydeg] w0_minus_cs2_plus_ct0;
+	stack u32[Li2_k * Li2_polydeg] r0_plus_ct0;
 
 	stack u32 hints_weight;
 	stack u8 normcheck_result;
@@ -161,6 +158,7 @@ fn sign(reg u64 ptr_m,
 			cs2 = mult_scalar_veck(challenge, s2);
 			cs2 = ifft_to_mont_vec(cs2);
 
+			w0 = polyveck_caddq(w0);
 			r0 = subtract_veck(w, cs2);
 
 			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
@@ -170,12 +168,9 @@ fn sign(reg u64 ptr_m,
 
 				normcheck_result = checknorm_veck(ct0, Li2_gamma2);
 				if(normcheck_result == 0) {
+					r0_plus_ct0 = sum_vecs(r0, ct0);
 
-					// Obviously this is deviation from reference...
-					w0_minus_cs2 = subtract_veck(w0, cs2);
-					w0_minus_cs2_plus_ct0 = sum_vecs(w0_minus_cs2, ct0);
-
-					hints_weight, h = polyveck_make_hint(w0_minus_cs2_plus_ct0, w1);
+					hints_weight, h = polyveck_make_hint(r0_plus_ct0, w1);
 					if(hints_weight < Li2_omega) {
 						done = 1;
 					}
