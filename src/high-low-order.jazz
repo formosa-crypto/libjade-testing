@@ -22,9 +22,11 @@ fn power2round(reg u32 r)
 // high bits = a0, low bits = a1
 inline
 fn decompose(reg u32 a) -> reg u32, reg u32 {
-	reg u32 a0;
+	reg u64 a0;
+	reg u32 a0_32;
 	reg u32 a1;
 	reg u32 v;
+	reg u64 v64;
 
 	// a1  = (a + 127) >> 7;
 	a1 = a;
@@ -40,18 +42,21 @@ fn decompose(reg u32 a) -> reg u32, reg u32 {
 	a1 &= 15;
 
 	// *a0  = a - a1*2*GAMMA2;
-	a0 = a1;
-	a0 *= - 2 * Li2_gamma2;
-	a0 += a;
+	v64 = (64u) a1;
+	v64 *= 2 * Li2_gamma2;
+	a0 = (64u) a;
+	a0 -= v64;
 
 	// *a0 -= (((Q-1)/2 - *a0) >> 31) & Q;
-	v = ((Li2_q) - 1) / 2;
-	v -= a0;
-	v >>= 31;
-	v &= Li2_q;
-	a0 -= v;
+	v64 = (Li2_q - 1) / 2;
+	v64 -= a0;
+	v64 >>= 31;
+	v64 &= Li2_q;
+	a0 -= v64;
 
-	return a0, a1;
+	a0_32 = (32u) a0;
+
+	return a0_32, a1;
 }
 
 // TODO just check reference impl

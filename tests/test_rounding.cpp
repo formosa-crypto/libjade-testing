@@ -8,6 +8,7 @@ extern "C" {
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
 #include "../dilithium/ref/rounding.h"
+#include "../dilithium/ref/polyvec.h"
 }
 
 using std::cout;
@@ -21,10 +22,11 @@ using std::to_string;
 
 extern "C" {
 	void decompose_jazz(int32_t a, int32_t* a0, int32_t* a1);
+	void decompose_vec_jazz(int32_t a[N], int32_t a0[N], int32_t a1[N]);
 	uint32_t make_hint_jazz(int32_t a0, int32_t a1);
 }
 
-uint8_t sample() {
+int32_t sample() {
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
 	static std::uniform_int_distribution<> distrib(0,  Q - 1);
@@ -51,6 +53,45 @@ int main() {
 			PRINT(a1_ref);
 			PRINT(a1_jazz);
 			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+
+		int32_t vec_jazz[K * N];
+		int32_t vec0_jazz[K * N];
+		int32_t vec1_jazz[K * N];
+
+		polyveck vec_ref;
+		polyveck vec0_ref;
+		polyveck vec1_ref;
+
+		for(int i = 0; i < K; ++i) {
+			for(int j = 0; j < N; ++j) {
+				int s = sample();
+				vec_jazz[i * N + j] = s;
+				vec_ref.vec[i].coeffs[j] = s;
+			}
+		}
+
+		decompose_vec_jazz(vec_jazz, vec0_jazz, vec1_jazz);
+		polyveck_decompose(&vec1_ref, &vec0_ref, &vec_ref);
+		
+		for(int i = 0; i < K; ++i) {
+			for(int j = 0; j < N; ++j) {
+				if(vec0_jazz[i * N + j] != vec0_ref.vec[i].coeffs[j]) {
+					PRINT(i);
+					PRINT(j);
+					PRINT(vec0_jazz[i * N + j]);
+					PRINT(vec0_ref.vec[i].coeffs[j]);
+					PRINT(vec_jazz[i * N + j]);
+					throw runtime_error("test failed at " + to_string(__LINE__));
+				}
+				if(vec1_jazz[i * N + j] != vec1_ref.vec[i].coeffs[j]) {
+					PRINT(i);
+					PRINT(j);
+					PRINT(vec1_jazz[i * N + j]);
+					PRINT(vec1_ref.vec[i].coeffs[j]);
+					throw runtime_error("test failed at " + to_string(__LINE__));
+				}
+			}
 		}
 
 		unsigned int hint_ref = make_hint(a0_ref, a1_ref);
