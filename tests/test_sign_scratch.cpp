@@ -99,6 +99,8 @@ rej:
 	polyvecl_add(&z, &z, &y);
 	polyvecl_reduce(&z);
 
+	//PRINT(polyvecl_chknorm(&z, GAMMA1 - BETA));
+
 	if(polyvecl_chknorm(&z, GAMMA1 - BETA))
 		goto rej;
 
@@ -110,31 +112,8 @@ rej:
 	polyveck_sub(&w0, &w0, &h);
 	polyveck_reduce(&w0); //correct up to here
 
-	uint32_t out_buf32[5000];
-	test_jazz(m, sk, out_buf32);
 
-	PRINT(out_buf32[0]);
-	PRINT(out_buf32[1]);
-	PRINT(out_buf32[2]);
-	PRINT(out_buf32[3]);
-
-	PRINT(w0.vec[0].coeffs[0]);
-	PRINT(w0.vec[0].coeffs[1]);
-	PRINT(w0.vec[0].coeffs[2]);
-	PRINT(w0.vec[0].coeffs[3]);
-
-	for(int i = 0; i < K; ++i) {
-		for(int j = 0; j < N; ++j) {
-			int wval = ((w0.vec[i].coeffs[j] % Q) + Q) % Q;
-			if(wval != out_buf32[i * N + j]) {
-				PRINT(i);
-				PRINT(j);
-				PRINT(out_buf32[i * N + j]);
-				PRINT(wval);
-				return;
-			}
-		}
-	}
+	//PRINT(polyveck_chknorm(&w0, GAMMA2 - BETA));
 
 	if(polyveck_chknorm(&w0, GAMMA2 - BETA))
 		goto rej;
@@ -147,22 +126,54 @@ rej:
 	PRINT(polyvecl_chknorm(&z, GAMMA1 - BETA));
 	*/
 
-	/*
 	// Compute hints for w1
 	polyveck_pointwise_poly_montgomery(&h, &cp, &t0);
 	polyveck_invntt_tomont(&h);
 	polyveck_reduce(&h);
+
+	uint32_t out_buf32[5000];
+	test_jazz(m, sk, out_buf32);
+
+	/*
+	PRINT(out_buf32[0]);
+	PRINT(out_buf32[1]);
+	PRINT(out_buf32[2]);
+	PRINT(out_buf32[3]);
+
+	PRINT(h.vec[0].coeffs[0]);
+	PRINT(h.vec[0].coeffs[1]);
+	PRINT(h.vec[0].coeffs[2]);
+	PRINT(h.vec[0].coeffs[3]);
+
+	for(int i = 0; i < K; ++i) {
+		for(int j = 0; j < N; ++j) {
+			int hval = ((h.vec[i].coeffs[j] % Q) + Q) % Q;
+			if(hval != out_buf32[i * N + j]) {
+				PRINT(i);
+				PRINT(j);
+				PRINT(out_buf32[i * N + j]);
+				PRINT(hval);
+				return;
+			}
+		}
+	}
+	*/
+	PRINT(out_buf32[0]);
+	PRINT(polyveck_chknorm(&h, GAMMA2));
+	return;
+	/*
 	if(polyveck_chknorm(&h, GAMMA2))
 		goto rej;
 
 	polyveck_add(&w0, &w0, &h);
 	n = polyveck_make_hint(&h, &w0, &w1);
+	//PRINT(n > OMEGA);
 	if(n > OMEGA)
 		goto rej;
 
 	// Write signature
 	pack_sig(sig, sig, &z, &h);
-*/
+		*/
 }
 
 int main() {

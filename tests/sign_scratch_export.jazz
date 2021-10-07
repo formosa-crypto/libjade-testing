@@ -81,7 +81,7 @@ fn sign(reg u64 ptr_m,
 	// w probably isn't necessary - can use w1 wherever w appears?
 	stack u32[Li2_k * Li2_polydeg] w0 w1;
 	stack u8[Li2_pack_w1len] packed_w1;
-	stack u32[Li2_k * Li2_polydeg] r0 r1;
+	stack u32[Li2_k * Li2_polydeg] r0;
 
 	// c-tilde unnecessary
 	// can just use signature[0:32]
@@ -101,7 +101,6 @@ fn sign(reg u64 ptr_m,
 	// but this is reference impl so we're fine?
 	stack u32[Li2_l * Li2_polydeg] y;
 	stack u32[Li2_k * Li2_polydeg] w;
-	stack u32[Li2_k * Li2_polydeg] r;
 	stack u32[Li2_l * Li2_polydeg] fft_y;
 	stack u32[Li2_l * Li2_polydeg] cs1;
 	stack u32[Li2_k * Li2_polydeg] cs2;
@@ -178,10 +177,7 @@ fn sign(reg u64 ptr_m,
 			//cs2 is correct up to here
 
 			w0 = polyveck_caddq(w0);
-			r = subtract_veck(w0, cs2);
-
-			/*
-			r0, r1 = decompose_vec(r);
+			r0 = subtract_veck(w0, cs2);
 
 			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
 			if(normcheck_result == 0) {
@@ -189,6 +185,7 @@ fn sign(reg u64 ptr_m,
 				ct0 = ifft_to_mont_vec(ct0);
 
 				normcheck_result = checknorm_veck(ct0, Li2_gamma2);
+			/*
 				if(normcheck_result == 0) {
 
 					// Obviously this is deviation from reference...
@@ -200,27 +197,26 @@ fn sign(reg u64 ptr_m,
 						done = 1;
 					}
 				}
-			}
 			*/
+			}
 		}
 	}
 
 	// test outputs
+	/*
 	i = 0;
 	while(i < Li2_k * Li2_polydeg) {
-		val32 = r[(int) i];
+		val32 = ct0[(int) i];
 		probe_val32[(int) i] = val32;
 		i += 1;
 	}
-
 	return probe_val32;
+	*/
 
-	/*
 	c = normcheck_result;
 	val32 = (32u) c;
 	probe_val32[0] = val32;
 	return probe_val32;
-	*/
 
 /*
 	signature = pack_signature(c_tilde, z, h);

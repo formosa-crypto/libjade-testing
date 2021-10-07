@@ -78,7 +78,7 @@ fn sign(reg u64 ptr_m,
 	// w probably isn't necessary - can use w1 wherever w appears?
 	stack u32[Li2_k * Li2_polydeg] w0 w1;
 	stack u8[Li2_pack_w1len] packed_w1;
-	stack u32[Li2_k * Li2_polydeg] r0 r1;
+	stack u32[Li2_k * Li2_polydeg] r0;
 
 	// c-tilde unnecessary
 	// can just use signature[0:32]
@@ -98,7 +98,6 @@ fn sign(reg u64 ptr_m,
 	// but this is reference impl so we're fine?
 	stack u32[Li2_l * Li2_polydeg] y;
 	stack u32[Li2_k * Li2_polydeg] w;
-	stack u32[Li2_k * Li2_polydeg] r;
 	stack u32[Li2_l * Li2_polydeg] fft_y;
 	stack u32[Li2_l * Li2_polydeg] cs1;
 	stack u32[Li2_k * Li2_polydeg] cs2;
@@ -162,8 +161,7 @@ fn sign(reg u64 ptr_m,
 			cs2 = mult_scalar_veck(challenge, s2);
 			cs2 = ifft_to_mont_vec(cs2);
 
-			r = subtract_veck(w, cs2);
-			r0, r1 = decompose_vec(r);
+			r0 = subtract_veck(w, cs2);
 
 			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
 			if(normcheck_result == 0) {
