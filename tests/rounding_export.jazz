@@ -11,9 +11,9 @@ fn decompose_jazz(reg u32 a, reg u64 pa0, reg u64 pa1)
 }
 
 export
-fn make_hint_jazz(reg u32 a0, reg u32 a1) -> reg u8
+fn make_hint_jazz(reg u32 a0, reg u32 a1) -> reg u32
 {
-	reg u8 result;
+	reg u32 result;
 	result = make_hint(a0, a1);
 	return result;
 }
