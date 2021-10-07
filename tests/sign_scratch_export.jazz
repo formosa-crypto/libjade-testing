@@ -57,7 +57,8 @@ inline
 fn sign(reg u64 ptr_m,
 		reg u64 m_len,
 		reg ptr u8[Li2_SK_LEN] sk)
-		-> stack u32[5000]
+//		-> stack u32[5000]
+		-> stack u8[Li2_SIGN_LEN]
 {
 	stack u8[5000] probe_val;
 	stack u32[5000] probe_val32;
@@ -195,15 +196,15 @@ fn sign(reg u64 ptr_m,
 	// test outputs
 	/*
 	i = 0;
-	while(i < Li2_k * Li2_polydeg) {
-		val32 = h[(int) i];
+	while(i < Li2_l * Li2_polydeg) {
+		val32 = z[(int) i];
 		probe_val32[(int) i] = val32;
 		i += 1;
 	}
-	*/
-	val32 = hints_weight;
-	probe_val32[0] = val32;
+	//val32 = hints_weight;
+	//probe_val32[0] = val32;
 	return probe_val32;
+	*/
 
 	/*
 
@@ -213,10 +214,8 @@ fn sign(reg u64 ptr_m,
 	return probe_val32;
 	*/
 
-/*
 	signature = pack_signature(c_tilde, z, h);
 	return signature;
-	*/
 }
 
 export
@@ -226,6 +225,7 @@ fn test_jazz(reg u64 p_m p_sk p_out) {
 	reg u32 v32;
 	stack u8[5000] out;
 	stack u32[5000] out32;
+	stack u8[Li2_SIGN_LEN] out_sig;
 	reg u64 mlen;
 	stack u8[Li2_SK_LEN] sk;
 
@@ -237,21 +237,21 @@ fn test_jazz(reg u64 p_m p_sk p_out) {
 	}
 
 	mlen = 1000;
-	out32 = sign(p_m, mlen, sk);
+	out_sig = sign(p_m, mlen, sk);
 
-/*
 	i = 0;
-	while(i < 5000) {
-		c = out[(int) i];
+	while(i < Li2_SIGN_LEN) {
+		c = out_sig[(int) i];
 		(u8) [p_out + i] = c;
 		i += 1;
 	}
-	*/
 
+/*
 	i = 0;
 	while(i < 5000) {
 		v32 = out32[(int) i];
 		(u32) [p_out + 4 * i] = v32;
 		i += 1;
 	}
+	*/
 }

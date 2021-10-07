@@ -28,8 +28,8 @@ using std::runtime_error;
 extern "C" {
 	void test_jazz(uint8_t m[1000],
 			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES],
-//			uint8_t out_buf[5000]);
-			uint32_t out_buf32[5000]);
+			uint8_t out_buf[5000]);
+//			uint32_t out_buf32[5000]);
 }
 
 void probe(uint8_t *sig,
@@ -97,7 +97,7 @@ rej:
 	polyvecl_pointwise_poly_montgomery(&z, &cp, &s1);
 	polyvecl_invntt_tomont(&z);
 	polyvecl_add(&z, &z, &y);
-	polyvecl_reduce(&z);
+	polyvecl_reduce(&z); //z =? cs1+y
 
 	//PRINT(polyvecl_chknorm(&z, GAMMA1 - BETA));
 
@@ -126,27 +126,23 @@ rej:
 	polyveck_add(&w0, &w0, &h);
 	n = polyveck_make_hint(&h, &w0, &w1);
 
-
+	/*
 	uint32_t out_buf32[5000];
 	test_jazz(m, sk, out_buf32);
 
 	PRINT(out_buf32[0]);
-	PRINT(n);
-	/*
 	PRINT(out_buf32[1]);
 	PRINT(out_buf32[2]);
 	PRINT(out_buf32[3]);
 
-	PRINT(h.vec[0].coeffs[0]);
-	PRINT(h.vec[0].coeffs[1]);
-	PRINT(h.vec[0].coeffs[2]);
-	PRINT(h.vec[0].coeffs[3]);
-	*/
+	PRINT(z.vec[0].coeffs[0]);
+	PRINT(z.vec[0].coeffs[1]);
+	PRINT(z.vec[0].coeffs[2]);
+	PRINT(z.vec[0].coeffs[3]);
 
-	/*
-	for(int i = 0; i < K; ++i) {
+	for(int i = 0; i < L; ++i) {
 		for(int j = 0; j < N; ++j) {
-			int wval = ((h.vec[i].coeffs[j] % Q) + Q) % Q;
+			int wval = ((z.vec[i].coeffs[j] % Q) + Q) % Q;
 			if(wval != out_buf32[i * N + j]) {
 				PRINT(i);
 				PRINT(j);
@@ -162,25 +158,28 @@ rej:
 	PRINT(polyveck_chknorm(&h, GAMMA2));
 	return;
 	*/
-	/*
 	//PRINT(n > OMEGA);
 	if(n > OMEGA)
 		goto rej;
 
+	uint8_t out_buf[5000];
+	test_jazz(m, sk, out_buf);
+
 	// Write signature
 	pack_sig(sig, sig, &z, &h);
-		*/
+
+	PRINT(memcmp(out_buf, sig, pqcrystals_dilithium3_BYTES));
 }
 
 int main() {
 	uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
 	uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
-	uint8_t randomness[32] = { 1, 2 };
+	uint8_t randomness[32] = { 0 };
 	pqcrystals_dilithium3_ref_seeded_keypair(pk, sk, randomness);
 
 	uint8_t sig[pqcrystals_dilithium3_BYTES];
 
-	uint8_t m[1000] = { 3, 4 };
+	uint8_t m[1000] = { 0 };
 	probe(sig, m, 1000, sk);
 
 	return 0;

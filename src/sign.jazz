@@ -159,7 +159,7 @@ fn sign(reg u64 ptr_m,
 			cs2 = ifft_to_mont_vec(cs2);
 
 			w0 = polyveck_caddq(w0);
-			r0 = subtract_veck(w, cs2);
+			r0 = subtract_veck(w0, cs2);
 
 			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
 			if(normcheck_result == 0) {
@@ -202,7 +202,7 @@ fn sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk
 	i = 0;
 	while(i < Li2_SIGN_LEN) {
 		c = signature[(int) i];
-		(u8) [ptr_signature] = c;
+		(u8) [ptr_signature + i] = c;
 		i += 1;
 	}
 }
