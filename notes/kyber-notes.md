@@ -1,3 +1,14 @@
+# EasyCrypt model
+
+High level description found in MLWE\_PKE.ec
+* Number of lines even less than the paper
+* No NTT
+* Matrix operations taken from `import Matrix_`. Seems to be from KyberAlgebra.ec.
+
+TODO check Kyber.ec
+
+TODO Find the functional correctness theorem
+
 # General question
 
 What's all these python doing here???
@@ -67,3 +78,4 @@ lemma poly_csubq_corr_h ap :
 ```
 
 Line 1002: What...?
+
