@@ -6,18 +6,9 @@ require "packing.jazz"
 require "hashing.jazz"
 require "params.jazz"
 
-//reminder to self
-//param int SHAKE256_RATE = 136;
-
-// Cutting keygen in half so I can test...
-// Duct tape engineering at its finest.
 inline
-fn keygen_upto_As1(reg ptr u8[32] random_zeta)
-	-> stack u8[Li2_PK_LEN], //pk
-	stack u8[Li2_SK_LEN], //sk
-	stack u8[32], //rho
-	stack u32[Li2_k * Li2_polydeg], //s2
-	stack u32[Li2_k * Li2_polydeg] //t
+fn keygen(reg ptr u8[32] random_zeta)
+	-> stack u8[Li2_PK_LEN], stack u8[Li2_SK_LEN]
 {
 	// keys
 	stack u8[Li2_PK_LEN] pk;
@@ -33,11 +24,20 @@ fn keygen_upto_As1(reg ptr u8[32] random_zeta)
 	stack u32[Li2_k * Li2_l * Li2_polydeg] fft_matA;
 	stack u32[Li2_l * Li2_polydeg] s1;
 	stack u32[Li2_k * Li2_polydeg] s2;
-	stack u32[Li2_k * Li2_polydeg] t;
-	// temp. vars
+	
+	stack u8[SHAKE256_RATE] s256_out;
+
+	stack u32[Li2_k * Li2_polydeg] s2;
+	stack u32[Li2_k * Li2_polydeg] t t1 t0;
+
+	reg ptr u8[Li2_pack_t1len] t1ptr_in_pk;
+	reg ptr u32[Li2_polydeg] t1_to_pack;
+
+	//temp variables
 	reg u64 i;
-	reg u8 c;
+	inline int j;
 	reg u32 noise_val;
+	reg u8 c;
 
 	state = shake256_absorb32(random_zeta);
 	state, s256_out = shake256_squeezeblock(state, s256_out);
@@ -85,33 +85,7 @@ fn keygen_upto_As1(reg ptr u8[32] random_zeta)
 	t = mult_mat_vec(fft_matA, s1);
 	t = ifft_to_mont_vec(t);
 
-	return pk, sk, rho, s2, t;
-}
-
-inline
-fn keygen(reg ptr u8[32] random_zeta)
-	-> stack u8[Li2_PK_LEN], stack u8[Li2_SK_LEN]
-{
-	stack u8[Li2_PK_LEN] pk;
-	stack u8[Li2_SK_LEN] sk;
-	
-	stack u64[25] state;
-	stack u8[SHAKE256_RATE] s256_out;
-
-	stack u8[32] rho;
-
-	stack u32[Li2_k * Li2_polydeg] s2;
-	stack u32[Li2_k * Li2_polydeg] t t1 t0;
-
-	reg ptr u8[Li2_pack_t1len] t1ptr_in_pk;
-	reg ptr u32[Li2_polydeg] t1_to_pack;
-
-	//temp variables
-	reg u64 i;
-	inline int j;
-	reg u32 noise_val;
-
-	pk, sk, rho, s2, t = keygen_upto_As1(random_zeta);
+	//pk, sk, rho, s2, t = keygen_upto_As1(random_zeta);
 
 	i = 0;
 	while(i < Li2_k * Li2_polydeg) {
