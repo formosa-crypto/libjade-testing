@@ -798,7 +798,6 @@ fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
 }
 
 
-/* Untested */
 inline
 fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
 	-> stack u32[Li2_l * Li2_polydeg], //s1

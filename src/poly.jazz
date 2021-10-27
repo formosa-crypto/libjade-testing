@@ -26,7 +26,6 @@ fn poly_add(reg ptr u32[Li2_polydeg] f g sum)
 	return sum;
 }
 
-/* UNTESTED */
 inline
 fn poly_subtract(reg ptr u32[Li2_polydeg] f g difference)
 	-> reg ptr u32[Li2_polydeg]

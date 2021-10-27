@@ -51,7 +51,6 @@ fn ifft_to_mont_vec(stack u32[Li2_k * Li2_polydeg] vec)
 	return vec;
 }
 
-/* UNTESTED */
 inline
 fn ifft_to_mont_vecl(stack u32[Li2_l * Li2_polydeg] vec)
 	-> stack u32[Li2_l * Li2_polydeg]
@@ -107,7 +106,6 @@ fn sum_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
 	return vsum;
 }
 
-/* UNTESTED */
 inline
 fn sum_vecl(stack u32[Li2_l * Li2_polydeg] v1 v2)
 	-> stack u32[Li2_l * Li2_polydeg]
@@ -126,7 +124,6 @@ fn sum_vecl(stack u32[Li2_l * Li2_polydeg] v1 v2)
 	return vsum;
 }
 
-/* UNTESTED */
 inline
 fn subtract_vecl(stack u32[Li2_l * Li2_polydeg] v1 v2)
 	-> stack u32[Li2_l * Li2_polydeg]
@@ -145,7 +142,6 @@ fn subtract_vecl(stack u32[Li2_l * Li2_polydeg] v1 v2)
 	return vdiff;
 }
 
-/* UNTESTED */
 inline
 fn subtract_veck(stack u32[Li2_k * Li2_polydeg] v1 v2)
 	-> stack u32[Li2_k * Li2_polydeg]
@@ -228,7 +224,6 @@ fn expandMask(reg ptr u8[64] rho_prime, reg u16 nonce)
 	return y;
 }
 
-/* untested */
 inline
 fn pointwise_mont_mult(reg ptr u32[Li2_l * Li2_polydeg] f g fg)
 	-> reg ptr u32[Li2_l * Li2_polydeg]
@@ -251,7 +246,6 @@ fn pointwise_mont_mult(reg ptr u32[Li2_l * Li2_polydeg] f g fg)
 }
 
 // why am I doing this again?
-/* untested */
 inline
 fn deep_copy_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
 	-> stack u32[Li2_l * Li2_polydeg]
@@ -295,7 +289,6 @@ fn decompose_vec(reg ptr u32[Li2_k * Li2_polydeg] vec)
 	return vec0, vec1;
 }
 
-/* UNTESTED */
 inline
 fn checknorm_veck(reg ptr u32[Li2_k * Li2_polydeg] vec, inline int threshold)
 	-> stack u8
@@ -317,7 +310,6 @@ fn checknorm_veck(reg ptr u32[Li2_k * Li2_polydeg] vec, inline int threshold)
 	return result_s;
 }
 
-/* UNTESTED */
 inline
 fn checknorm_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec, inline int threshold)
 	-> stack u8
@@ -339,7 +331,6 @@ fn checknorm_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec, inline int threshold)
 	return result_s;
 }
 
-/* UNTESTED */
 inline
 fn mult_scalar_vec(reg ptr u32[Li2_polydeg] f,
 		reg ptr u32[Li2_l * Li2_polydeg] vec)
@@ -360,7 +351,6 @@ fn mult_scalar_vec(reg ptr u32[Li2_polydeg] f,
 	return fvec;
 }
 
-/* UNTESTED */
 inline
 fn mult_scalar_veck(reg ptr u32[Li2_polydeg] f,
 		reg ptr u32[Li2_k * Li2_polydeg] vec)

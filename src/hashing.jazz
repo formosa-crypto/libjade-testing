@@ -185,7 +185,6 @@ fn hash_tr_m(reg ptr u8[32] tr, reg u64 m_len, reg u64 m)
 	return mu;
 }
 
-/* Untested */
 inline
 fn hash_mu_w1(reg ptr u8[64] mu, reg ptr u8[Li2_pack_w1len] w1_packed)
 	-> stack u8[32]
