@@ -258,7 +258,9 @@ fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
 
 	reg u8 c c1;
 
-	max_t0 = Li2_expd >> 1;
+	//max_t0 = Li2_expd >> 1;
+
+	max_t0 = Li2_expd / 2;
 
 	i = 0;
 	while(i < Li2_polydeg / 8) {
@@ -458,7 +460,9 @@ fn polyt0_unpack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] src)
 	reg u64 term;
 	inline int max_t0;
 
-	max_t0 = (int) (Li2_expd >> 1);
+	max_t0 = Li2_expd / 2;
+
+	//max_t0 = (int) (Li2_expd >> 1);
 
 	i = 0;
 	while(i < Li2_polydeg / 8) {

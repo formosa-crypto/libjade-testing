@@ -17,6 +17,8 @@ fn montgomery_REDC(reg u64 x) -> stack u32
 	stack u32 result;
 	reg u64 m;
 
+	reg u64 m_mod_Q;
+
 	//m = ((x & twoTo32Minus1) * dilithium_modulo_inv_neg) & twoTo32Minus1;
 	m = (64u) x;
 	m &= twoTo32Minus1;
@@ -28,9 +30,10 @@ fn montgomery_REDC(reg u64 x) -> stack u32
 	m += (64u) x;
 	m = m >> 32;
 
-	if(m >= dilithium_modulo) {
-		m -= dilithium_modulo;
-	}
+	m_mod_Q = m;
+	m_mod_Q -= dilithium_modulo;
+
+	m = m_mod_Q if (m >= dilithium_modulo);
 
 	result = (32u) m;
 	return result;
@@ -43,17 +46,21 @@ fn montgomery_add(stack u32 sx sy) -> stack u32
 	reg u32 result;
 	stack u32 sr;
 
+	reg u32 result_mod_q;
+
 	x = sx;
 	y = sy;
 	result = x + y;
 
-	if(result >=s dilithium_modulo) {
-		result -= dilithium_modulo;
-	}
+	result_mod_q = result;
+	result_mod_q -= dilithium_modulo;
 
-	if(result < 0) {
-		result += dilithium_modulo;
-	}
+	result = result_mod_q if(result >=s dilithium_modulo);
+
+	result_mod_q = result;
+	result_mod_q += dilithium_modulo;
+
+	result = result_mod_q if(result < 0);
 
 	sr = result;
 	return sr;
@@ -102,11 +109,14 @@ fn montgomery_mult(stack u32 x y) -> stack u32
 // Add Q if input coefficient is negative.
 inline
 fn caddq(reg u32 a) -> reg u32 {
-	// TODO make constant time ver.
-	// See reference impl.
-	if(a <s 0) {
-		a += Li2_q;
-	}
+
+	reg u32 a_add_q;
+
+	a_add_q = a;
+	a_add_q += Li2_q;
+
+	a = a_add_q if(a <s 0);
+
 	return a;
 }
 

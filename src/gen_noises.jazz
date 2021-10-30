@@ -35,7 +35,8 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polyde
 	}
 	
 	seed[64] = i & 255;
-	seed[65] = i >> 8;
+	//seed[65] = i >> 8;
+	seed[65] = 0; //maybe this is ok?
 
 	state = shake256_absorb66(seed);
 	state = __keccakf1600_ref(state);
