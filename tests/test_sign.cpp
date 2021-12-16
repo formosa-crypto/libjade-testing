@@ -32,11 +32,13 @@ int main() {
 	uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
 	uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
 
+	/*
 	uint8_t randomness[32] = { 0 };
 	for(int i = 0; i < 32; ++i)
 		randomness[i] = sampleByte();
+		*/
 
-	pqcrystals_dilithium3_ref_seeded_keypair(pk, sk, randomness);
+	pqcrystals_dilithium3_ref_keypair(pk, sk);
 
 	uint8_t m[1000];
 	for(int i = 0; i < 1000; ++i)

@@ -11,6 +11,12 @@ test_keygen: test_keygen.cpp ../src/keygen.s ../dilithium/ref/randombytes.o
 test_sign: test_sign.cpp ../src/sign.s ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ../src/sign.s test_sign.cpp -o $@ $(LDFLAGS)
 
+bench_keygen: bench_keygen.cpp ../src/keygen.s ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ../src/keygen.s bench_keygen.cpp -o $@ $(LDFLAGS)
+
+bench_sign: bench_sign.cpp ../src/sign.s ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ../src/sign.s bench_sign.cpp -o $@ $(LDFLAGS)
+
 test_%: test_%.cpp %_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $*_export.s test_$*.cpp -o $@ $(LDFLAGS)
 
