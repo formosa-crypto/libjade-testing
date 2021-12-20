@@ -49,7 +49,7 @@ pair<double, int> bench_keygen_jazz() {
 		uint8_t sk_jazz[pqcrystals_dilithium3_SECRETKEYBYTES];
 		keygen_jazz(pk_jazz, sk_jazz, randomness);
 
-		accumulator ^= pk_jazz[0] ^ sk_jazz[0];
+		accumulator ^= pk_jazz[0] ^ sk_jazz[1];
 	}
 
 	auto end = high_resolution_clock::now();
@@ -74,7 +74,7 @@ pair<double, int> bench_keygen_ref() {
 
 		pqcrystals_dilithium3_ref_seeded_keypair(pk_ref, sk_ref, randomness);
 
-		accumulator ^= pk_ref[0] ^ sk_ref[0];
+		accumulator ^= pk_ref[0] ^ sk_ref[1];
 	}
 
 	auto end = high_resolution_clock::now();
