@@ -52,7 +52,7 @@ static const int32_t zetas[N] = {
 
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
-void printrow(vector<uint32_t> const& v, int r, ofstream& fout) {
+void printrow(vector<int32_t> const& v, int r, ofstream& fout) {
 
 	fout << '\t' << v[16 * r];
 	for(int c = 1; c < 16; ++c) {
@@ -60,7 +60,7 @@ void printrow(vector<uint32_t> const& v, int r, ofstream& fout) {
 	}
 }
 
-void print_tfs(vector<uint32_t> const& factors, ofstream& fout) {
+void print_tfs(vector<int32_t> const& factors, ofstream& fout) {
 	fout << "u32[256] twiddle_factors = {" << endl;
 	printrow(factors, 0, fout);
 	for(int i = 1; i < N / 16; ++i) {
@@ -72,10 +72,11 @@ void print_tfs(vector<uint32_t> const& factors, ofstream& fout) {
 	fout << endl << "};" << endl;
 }
 
-vector<uint32_t> compute_twiddle_factors() {
-	vector<uint32_t> tfs;
+vector<int32_t> compute_twiddle_factors() {
+	vector<int32_t> tfs;
 	for(int i = 0; i < N; ++i) {
-		tfs.push_back((zetas[i] + Q) % Q);
+		/* tfs.push_back((zetas[i] + Q) % Q); */
+		tfs.push_back(zetas[i]);
 	}
 	return tfs;
 }

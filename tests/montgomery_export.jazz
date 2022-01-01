@@ -1,0 +1,10 @@
+require "../src/montgomery.jazz"
+
+export
+fn montgomery_REDC_jazz(reg u64 a) -> reg u32
+{
+	reg u32 result;
+	result = montgomery_REDC(a);
+	return result;
+}
+

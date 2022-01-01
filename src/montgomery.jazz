@@ -11,32 +11,29 @@ param int dilithium_primitive_root = 1753;
 param int m_1 = 4193792;
 param int m_root = 2091667;
 
+param int Li2_QINV = 58728449;
+
 inline
-fn montgomery_REDC(reg u64 x) -> stack u32
+fn montgomery_REDC(reg u64 a) -> reg u32
 {
-	stack u32 result;
-	reg u64 m;
+	reg u32 a32;
+	reg u64 v64;
+	reg u32 t;
 
-	reg u64 m_mod_Q;
+	/* t = (int64_t)(int32_t)a*QINV; */
+	a32 = (32s) a;
+	v64 = (64s) a32;
+	v64 *= dilithium_modulo_inv;
+	t = (32s) v64;
 
-	//m = ((x & twoTo32Minus1) * dilithium_modulo_inv_neg) & twoTo32Minus1;
-	m = (64u) x;
-	m &= twoTo32Minus1;
-	m *= dilithium_modulo_inv_neg;
-	m &= twoTo32Minus1;
+	/* t = (a - (int64_t)t*Q) >> 32; */
+	v64 = (64s) t;
+	v64 *= -Li2_q;
+	v64 += a;
+	v64 >>= 32;
+	t = (32s) v64;
 
-	//t = (x + m * dilithium_N) >> 32
-	m *= dilithium_modulo;
-	m += (64u) x;
-	m = m >> 32;
-
-	m_mod_Q = m;
-	m_mod_Q -= dilithium_modulo;
-
-	m = m_mod_Q if (m >= dilithium_modulo);
-
-	result = (32u) m;
-	return result;
+	return t;
 }
 
 inline
