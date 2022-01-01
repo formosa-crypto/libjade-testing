@@ -23,7 +23,6 @@ fn fft_jazz(reg u64 vec)
 	}
 }
 
-/*
 export
 fn ifft_to_mont_jazz(reg u64 vec)
 {
@@ -44,4 +43,3 @@ fn ifft_to_mont_jazz(reg u64 vec)
 		(u32) [vec + 4 * i] = term;
 	}
 }
-*/
