@@ -24,6 +24,7 @@ extern "C" {
 	void decompose_jazz(int32_t a, int32_t* a0, int32_t* a1);
 	void decompose_vec_jazz(int32_t a[N], int32_t a0[N], int32_t a1[N]);
 	uint32_t make_hint_jazz(int32_t a0, int32_t a1);
+	void power2round_jazz(int32_t a, int32_t* a0, int32_t* a1);
 }
 
 int32_t sample() {
@@ -31,6 +32,23 @@ int32_t sample() {
 	static std::mt19937 gen(rd());
 	static std::uniform_int_distribution<> distrib(0,  Q - 1);
 	return distrib(gen);
+}
+
+void test_power2round() {
+	for(int i = 0; i < 500; ++i) {
+		int32_t a = sample();
+		int32_t h_jazz, l_jazz, h_ref, l_ref;
+		power2round_jazz(a, &h_jazz, &l_jazz);
+		h_ref = power2round(&l_ref, a);
+		if(h_ref != h_jazz || l_ref != l_jazz) {
+			PRINT(a);
+			PRINT(h_ref);
+			PRINT(h_jazz);
+			PRINT(l_ref);
+			PRINT(l_jazz);
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
 }
 
 int main() {
@@ -54,6 +72,8 @@ int main() {
 			PRINT(a1_jazz);
 			throw runtime_error("test failed at " + to_string(__LINE__));
 		}
+
+		test_power2round();
 
 		int32_t vec_jazz[K * N];
 		int32_t vec0_jazz[K * N];

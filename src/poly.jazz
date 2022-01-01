@@ -8,19 +8,15 @@ inline
 fn poly_add(reg ptr u32[Li2_polydeg] f g sum)
 	-> reg ptr u32[Li2_polydeg]
 {
-	stack u32 x1 x2 y;
-	reg u32 temp;
+	reg u32 result v32;
 
 	reg u64 i;
 	i = 0;
 	while(i < Li2_polydeg) {
-		temp = f[(int) i];
-		x1 = temp;
-		temp = g[(int) i];
-		x2 = temp;
-		y = montgomery_add(x1, x2);
-		temp = y;
-		sum[(int) i] = temp;
+		result = f[(int) i];
+		v32 = g[(int) i];
+		result += v32;
+		sum[(int) i] = result;
 		i += 1;
 	}
 	return sum;
@@ -30,19 +26,15 @@ inline
 fn poly_subtract(reg ptr u32[Li2_polydeg] f g difference)
 	-> reg ptr u32[Li2_polydeg]
 {
-	stack u32 x1 x2 y;
-	reg u32 temp;
+	reg u32 result v32;
 
 	reg u64 i;
 	i = 0;
 	while(i < Li2_polydeg) {
-		temp = f[(int) i];
-		x1 = temp;
-		temp = g[(int) i];
-		x2 = temp;
-		y = montgomery_subtract(x1, x2);
-		temp = y;
-		difference[(int) i] = temp;
+		result = f[(int) i];
+		v32 = g[(int) i];
+		result -= v32;
+		difference[(int) i] = result;
 		i += 1;
 	}
 	return difference;
@@ -52,49 +44,42 @@ inline
 fn poly_accumulate(reg ptr u32[Li2_polydeg] f sum)
 	-> reg ptr u32[Li2_polydeg]
 {
-	// Might need fix
-	// Probably too much movement between reg and stack
 	reg u32 temp;
 	stack u32 x1 x2 y;
+
+	reg u32 v32 result;
 
 	reg u64 i;
 	i = 0;
 	while(i < Li2_polydeg) {
-		temp = f[(int) i];
-		x1 = temp;
-
-		temp = sum[(int) i];
-		x2 = temp;
-
-		y = montgomery_add(x1, x2);
-		temp = y;
-		sum[(int) i] = temp;
+		v32 = f[(int) i];
+		result = sum[(int) i];
+		result += v32;
+		sum[(int) i] = result;
 		i += 1;
 	}
 	return sum;
 }
 
-// Tested in test_fft.cpp
 inline
 fn poly_mult(reg ptr u32[Li2_polydeg] fft_f fft_g fft_prod)
 	-> reg ptr u32[Li2_polydeg]
 {
 	reg u64 i;
-	reg u32 temp;
-	stack u32 x1 x2 y;
+	reg u32 x1 x2;
+	reg u64 prod x2_64;
+	reg u32 prod_redc;
 
 	i = 0;
 	while(i < Li2_polydeg) {
-		// Probably too much movement between reg and stack
-		// Might need fix
-
-		temp = fft_f[(int) i];
-		x1 = temp;
-		temp = fft_g[(int) i];
-		x2 = temp;
-		y = montgomery_mult(x1, x2);
-		temp = y;
-		fft_prod[(int) i] = temp;
+		x1 = fft_f[(int) i];
+		prod = (64s) x1;
+		x2 = fft_g[(int) i];
+		x2_64 = (64s) x2;
+		prod *= x2_64;
+		
+		prod_redc = montgomery_REDC(prod);
+		fft_prod[(int) i] = prod_redc;
 		i += 1;
 	}
 	return fft_prod;

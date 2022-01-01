@@ -38,3 +38,12 @@ fn make_hint_jazz(reg u32 a0, reg u32 a1) -> reg u32
 	result = make_hint(a0, a1);
 	return result;
 }
+
+export
+fn power2round_jazz(reg u32 r, reg u64 ph pl)
+{
+	reg u32 h l;
+	h, l = power2round(r);
+	(u32)[ph] = h;
+	(u32)[pl] = l;
+}

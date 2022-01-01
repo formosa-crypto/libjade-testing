@@ -240,13 +240,14 @@ fn polyeta_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_etalen] a)
 	return r;
 }
 
+param int max_t0 = Li2_expd / 2;
+
 inline
 fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
 	-> reg ptr u8[Li2_pack_t0len]
 {
 	stack u32 t0_term;
 	stack u32[8] t;
-	stack u32 max_t0;
 	stack u64 i;
 
 	reg u64 addr;
@@ -258,10 +259,6 @@ fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
 
 	reg u8 c c1;
 
-	//max_t0 = Li2_expd >> 1;
-
-	max_t0 = Li2_expd / 2;
-
 	i = 0;
 	while(i < Li2_polydeg / 8) {
 		for ii = 0 to 8 {
@@ -272,8 +269,8 @@ fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
 			v32 = t0[(int) addr];
 			t0_term = v32;
 
-			v32s = montgomery_subtract(max_t0, t0_term);
-			v32 = v32s;
+			v32 = max_t0;
+			v32 -= t0_term;
 			t[ii] = v32;
 		}
 

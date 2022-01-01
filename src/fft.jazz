@@ -120,8 +120,8 @@ fn ifft_to_mont(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 			tfs = twiddle_factors;
 			addr = (64u) k;
 			v32 = tfs[(int) addr];
+			v32 *= -1;
 			zeta = v32;
-			zeta = montgomery_negate(zeta);
 
 			j = start;
 			bound = start;

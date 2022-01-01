@@ -36,7 +36,7 @@ fn keygen(reg ptr u8[32] random_zeta)
 	//temp variables
 	reg u64 i;
 	inline int j;
-	reg u32 noise_val;
+	reg u32 noise_val v32;
 	reg u8 c;
 
 	state = shake256_absorb32(random_zeta);
@@ -75,7 +75,8 @@ fn keygen(reg ptr u8[32] random_zeta)
 	i = 0;
 	while(i < Li2_l * Li2_polydeg) {
 		noise_val = s1[(int) i];
-		noise_val = eta_minus_x(noise_val);
+		noise_val *= -1;
+		noise_val += Li2_eta;
 		s1[(int) i] = noise_val;
 		i += 1;
 	}
@@ -83,20 +84,21 @@ fn keygen(reg ptr u8[32] random_zeta)
 
 	fft_matA = gen_matrix(rho);
 	t = mult_mat_vec(fft_matA, s1);
+	t = reduce32_veck(t);
 	t = ifft_to_mont_vec(t);
-
-	//pk, sk, rho, s2, t = keygen_upto_As1(random_zeta);
 
 	i = 0;
 	while(i < Li2_k * Li2_polydeg) {
 		noise_val = s2[(int) i];
-		noise_val = eta_minus_x(noise_val);
+		noise_val *= -1;
+		noise_val += Li2_eta;
 		s2[(int) i] = noise_val;
 		i += 1;
 	}
 
 	t = sum_vecs(t, s2);
 
+	t = polyveck_caddq(t);
 	t1, t0 = power2round_vec(t);
 
 	pk[0:32] = rho_pack(rho, pk[0:32]);

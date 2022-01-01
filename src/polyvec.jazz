@@ -2,6 +2,42 @@ require "poly.jazz"
 require "high-low-order.jazz"
 require "fft.jazz"
 
+inline
+fn reduce32_vecl(stack u32[Li2_l * Li2_polydeg] vec)
+	-> stack u32[Li2_l * Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 val res;
+
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		val = vec[(int) i];
+		res = reduce32(val);
+		vec[(int) i] = res;
+		i += 1;
+	}
+
+	return vec;
+}
+
+inline
+fn reduce32_veck(stack u32[Li2_k * Li2_polydeg] vec)
+	-> stack u32[Li2_k * Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 val res;
+
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		val = vec[(int) i];
+		res = reduce32(val);
+		vec[(int) i] = res;
+		i += 1;
+	}
+
+	return vec;
+}
+
 //TODO rename to reflect this is vecl
 inline
 fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
@@ -229,17 +265,18 @@ fn pointwise_mont_mult(reg ptr u32[Li2_l * Li2_polydeg] f g fg)
 	-> reg ptr u32[Li2_l * Li2_polydeg]
 {
 	reg u64 i;
-	reg u32 v;
-	stack u32 fv gv fgv;
+	reg u32 v32;
+	reg u64 result gv_64;
+	reg u32 prod_redc;
 	i = 0;
 	while(i < Li2_l * Li2_polydeg) {
-		v = f[(int) i];
-		fv = v;
-		v = g[(int) i];
-		gv = v;
-		fgv = montgomery_mult(fv, gv);
-		v = fgv;
-		fg[(int) i] = v;
+		v32 = f[(int) i];
+		result = (64s) v32;
+		v32 = g[(int) i];
+		gv_64 = (64s) v32;
+		result *= gv_64;
+		prod_redc = montgomery_REDC(result);
+		fg[(int) i] = prod_redc;
 		i += 1;
 	}
 	return fg;
