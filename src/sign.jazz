@@ -113,59 +113,48 @@ fn sign(reg u64 ptr_m,
 
 	fft_matA = gen_matrix(sk[0:32]);
 
-	//These caddq are just temporary workarounds.
-	//Will have to fix the signedness issues sometime
-	s1 = polyvecl_caddq(s1);
 	s1 = fft_vec(s1);
-	s2 = polyveck_caddq(s2);
 	s2 = fft_veck(s2);
-	t0 = polyveck_caddq(t0);
 	t0 = fft_veck(t0);
 
 	nonce = 0;
 	done = 0;
 	while(done == 0) {
-		//TODO remove me
-		//done = 1;
-
 		reg_nonce = nonce;
 		y = expandMask(rho_prime, reg_nonce);
-		y = polyvecl_caddq(y);
 
 		nonce += 1;
 		fft_y = deep_copy_vecl(y);
 		fft_y = fft_vec(fft_y);
 		w = mult_mat_vec(fft_matA, fft_y);
+		w = reduce32_veck(w);
 		w = ifft_to_mont_vec(w);
 
+		w = polyveck_caddq(w);
 		w0, w1 = decompose_vec(w);
-
 		packed_w1 = pack_w1(w1);
+
 		c_tilde = hash_mu_w1(mu, packed_w1);
 
 		challenge = sampleInBall(challenge, c_tilde);
-		challenge = poly_caddq(challenge);
 		challenge = fft(challenge);
 
 		cs1 = mult_scalar_vec(challenge, s1);
 		cs1 = ifft_to_mont_vecl(cs1);
-
 		z = sum_vecl(cs1, y);
-
+		z = reduce32_vecl(z);
 		normcheck_result = checknorm_vecl(z, (int) (Li2_gamma1 - Li2_beta));
 
 		if(normcheck_result == 0) {
 			cs2 = mult_scalar_veck(challenge, s2);
 			cs2 = ifft_to_mont_vec(cs2);
-
-			w0 = polyveck_caddq(w0);
 			r0 = subtract_veck(w0, cs2);
-
+			w0 = reduce32_veck(w0);
 			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
 			if(normcheck_result == 0) {
 				ct0 = mult_scalar_veck(challenge, t0);
 				ct0 = ifft_to_mont_vec(ct0);
-
+				ct0 = reduce32_veck(ct0);
 				normcheck_result = checknorm_veck(ct0, Li2_gamma2);
 				if(normcheck_result == 0) {
 					r0_plus_ct0 = sum_vecs(r0, ct0);

@@ -663,9 +663,6 @@ fn polyz_pack(reg ptr u8[Li2_pack_zlen] r, reg ptr u32[Li2_polydeg] a)
 		addr = i;
 		addr *= 2;
 		v = a[(int) addr];
-		if(v > Li2_q / 2) {
-			v -= Li2_q;
-		}
 		t0 = v;
 		t0 = -t0;
 		t0 += Li2_gamma1;
@@ -673,9 +670,6 @@ fn polyz_pack(reg ptr u8[Li2_pack_zlen] r, reg ptr u32[Li2_polydeg] a)
 		// t[1] = GAMMA1 - a->coeffs[2*i+1];
 		addr += 1;
 		v = a[(int) addr];
-		if(v > Li2_q / 2) {
-			v -= Li2_q;
-		}
 		t1 = v;
 		t1 = -t1;
 		t1 += Li2_gamma1;

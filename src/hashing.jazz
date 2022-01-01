@@ -64,7 +64,6 @@ fn shake256_of_pk(reg ptr u8[Li2_PK_LEN] pk, reg ptr u8[32] out)
 }
 
 // TODO can simplify signature
-// sampleInBall(reg ptr u8[32]) -> stack u32[Li2_polydeg]
 inline
 fn sampleInBall(reg ptr u32[Li2_polydeg] f, reg ptr u8[32] seed)
 	-> reg ptr u32[Li2_polydeg]
