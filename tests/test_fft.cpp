@@ -24,10 +24,8 @@ using std::uniform_int_distribution;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void fft_jazz(uint32_t f[N]);
-	void ifft_to_mont_jazz(uint32_t f[N]);
-	//uint32_t montgomery_REDC_jazz(uint64_t mx);
-	//void fft_poly_mult_jazz(uint32_t f[N], uint32_t g[N], uint32_t fg[N]);
+	void fft_jazz(int32_t f[N]);
+	//void ifft_to_mont_jazz(uint32_t f[N]);
 }
 
 
@@ -41,11 +39,11 @@ template<typename T> void print_poly(T f[N]) {
 	}
 }
 
-array<uint32_t, N> random_poly() {
+array<int32_t, N> random_poly(bool want_neg = false) {
 	random_device rd;
 	mt19937 gen(rd());
-	uniform_int_distribution<> distrib(0, Q - 1);
-	array<uint32_t, N> arr;
+	uniform_int_distribution<> distrib(want_neg ? (1 - Q) : 0, Q - 1);
+	array<int32_t, N> arr;
 	for(int i = 0; i < N; ++i)
 		arr[i] = distrib(gen);
 	return arr;
@@ -53,7 +51,7 @@ array<uint32_t, N> random_poly() {
 
 void test_fft() {
 	auto arr = random_poly();
-	uint32_t f[N];
+	int32_t f[N];
 	int32_t g[N];
 	for(int i = 0; i < N; ++i) {
 		f[i] = arr[i];
@@ -62,24 +60,19 @@ void test_fft() {
 	fft_jazz(f);
 	ntt(g);
 
-	uint32_t uint_g[N];
-	for(int i = 0; i < N; ++i) {
-		uint_g[i] = (g[i] % Q + Q) % Q;
-	}
-
-
-	if(memcmp(f, uint_g, 4 * N) != 0) {
+	if(memcmp(f, g, 4 * N) != 0) {
 		cout << "f =" << endl;
 		print_poly(arr.data());
 		cout << endl << "fft_f =" << endl;
 		print_poly(f);
 		cout << endl << "fft_g =" << endl;
-		print_poly(uint_g);
+		print_poly(g);
 		throw runtime_error("test failed at " + to_string(__LINE__));
 	}
 }
 
 void test_ifft_to_mont() {
+	/*
 	auto arr = random_poly();
 	uint32_t f[N];
 	int32_t g[N];
@@ -104,6 +97,7 @@ void test_ifft_to_mont() {
 		print_poly(uint_g);
 		throw runtime_error("test failed at " + to_string(__LINE__));
 	}
+	*/
 }
 
 int main() {
