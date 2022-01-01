@@ -17,6 +17,9 @@ bench_keygen: bench_keygen.cpp ../src/keygen.s ../dilithium/ref/randombytes.o
 bench_sign: bench_sign.cpp ../src/sign.s ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ../src/sign.s bench_sign.cpp -o $@ $(LDFLAGS)
 
+bench_fft: bench_fft.cpp fft_export.s
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o fft_export.s bench_fft.cpp -o $@ $(LDFLAGS)
+
 test_%: test_%.cpp %_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $*_export.s test_$*.cpp -o $@ $(LDFLAGS)
 
