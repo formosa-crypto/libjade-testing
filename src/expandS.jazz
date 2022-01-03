@@ -5,7 +5,7 @@ require "params.jazz"
 //param int SHAKE256_RATE = 136;
 
 inline
-fn gen_noises_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polydeg] buf)
+fn expandS_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polydeg] buf)
 	-> reg ptr u32[Li2_polydeg]
 {
 	// Poly
@@ -80,7 +80,7 @@ fn gen_noises_entry(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polyde
 
 
 inline
-fn gen_noises(stack u8[64] rho_prime)
+fn expandS(stack u8[64] rho_prime)
 	-> stack u32[Li2_l * Li2_polydeg], stack u32[Li2_k * Li2_polydeg]
 {
 	reg ptr u32[Li2_polydeg] entry;
@@ -91,13 +91,13 @@ fn gen_noises(stack u8[64] rho_prime)
 
 	for i = 0 to Li2_l {
 		entry = s1[Li2_polydeg * i : Li2_polydeg];
-		entry = gen_noises_entry(rho_prime, i, entry);
+		entry = expandS_entry(rho_prime, i, entry);
 		s1[Li2_polydeg * i : Li2_polydeg] = entry;
 	}
 
 	for i = 0 to Li2_k {
 		entry = s2[Li2_polydeg * i : Li2_polydeg];
-		entry = gen_noises_entry(rho_prime, Li2_l + i, entry);
+		entry = expandS_entry(rho_prime, Li2_l + i, entry);
 		s2[Li2_polydeg * i : Li2_polydeg] = entry;
 	}
 

@@ -1,7 +1,7 @@
 require "params.jazz"
 require "hashing.jazz"
 require "packing.jazz"
-require "gen_matrix.jazz"
+require "expandA.jazz"
 require "fft.jazz"
 require "polyvec.jazz"
 
@@ -111,7 +111,7 @@ fn sign(reg u64 ptr_m,
 	mu = compute_mu(ptr_m, m_len, sk);
 	rho_prime = compute_rho_prime(sk[32:32], mu);
 
-	fft_matA = gen_matrix(sk[0:32]);
+	fft_matA = expandA(sk[0:32]);
 
 	s1 = fft_vec(s1);
 	s2 = fft_veck(s2);

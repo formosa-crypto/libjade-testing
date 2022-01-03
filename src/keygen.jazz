@@ -1,6 +1,6 @@
 require "fips202.jazz"
-require "gen_matrix.jazz"
-require "gen_noises.jazz"
+require "expandA.jazz"
+require "expandS.jazz"
 require "polyvec.jazz"
 require "packing.jazz"
 require "hashing.jazz"
@@ -63,7 +63,7 @@ fn keygen(reg ptr u8[32] random_zeta)
 	sk[0:32] = rho_pack(rho, sk[0:32]);
 	sk[32:32] = rho_pack(k, sk[32:32]); 
 
-	s1, s2 = gen_noises(rho_prime);
+	s1, s2 = expandS(rho_prime);
 
 	//saving these before they get modified in-place
 	sk[96 : Li2_pack_s1len] = pack_s1(
@@ -82,7 +82,7 @@ fn keygen(reg ptr u8[32] random_zeta)
 	}
 	s1 = fft_vec(s1);
 
-	fft_matA = gen_matrix(rho);
+	fft_matA = expandA(rho);
 	t = mult_mat_vec(fft_matA, s1);
 	t = reduce32_veck(t);
 	t = ifft_to_mont_vec(t);

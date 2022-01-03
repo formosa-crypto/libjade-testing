@@ -2,7 +2,7 @@ require "fips202.jazz"
 require "params.jazz"
 
 inline
-fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
+fn expandA_entry(stack u8[32] rho, inline int i, inline int j,
 	reg ptr u32[Li2_polydeg] result) -> reg ptr u32[Li2_polydeg]
 {
 	stack u32 term;
@@ -63,7 +63,7 @@ fn gen_matrix_entry(stack u8[32] rho, inline int i, inline int j,
 
 
 inline
-fn gen_matrix(stack u8[32] rho) -> stack u32[Li2_k * Li2_l * Li2_polydeg]
+fn expandA(stack u8[32] rho) -> stack u32[Li2_k * Li2_l * Li2_polydeg]
 {
 	reg ptr u32[Li2_polydeg] entry;
 	stack u32[Li2_k * Li2_l * Li2_polydeg] matrix;
@@ -73,7 +73,7 @@ fn gen_matrix(stack u8[32] rho) -> stack u32[Li2_k * Li2_l * Li2_polydeg]
 	for i = 0 to Li2_k {
 		for j = 0 to Li2_l {
 			entry = matrix[(i * Li2_l + j) * Li2_polydeg : Li2_polydeg];
-			entry = gen_matrix_entry(rho, i, j, entry);
+			entry = expandA_entry(rho, i, j, entry);
 			matrix[(i * Li2_l + j) * Li2_polydeg : Li2_polydeg] = entry;
 		}
 	}
