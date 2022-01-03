@@ -66,7 +66,6 @@ fn decompose(reg u32 a) -> reg u32, reg u32 {
 	return a0_32, a1;
 }
 
-/* UNTESTED */
 inline
 fn make_hint(reg u32 a0, reg u32 a1) -> reg u32 {
 	reg u32 result;
