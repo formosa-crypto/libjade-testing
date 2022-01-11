@@ -2,7 +2,6 @@
 
 param int SHAKE128_RATE = 168;
 param int SHAKE256_RATE = 136;
-param int SHA3512_RATE = 72;
 
 inline
 fn index(inline int x, inline int y) -> inline int {
@@ -99,7 +98,6 @@ fn pi(reg ptr u64[25] a) -> reg ptr u64[25] {
   return a;
 }
 
-
 inline
 fn chi(reg ptr u64[25] a) -> reg ptr u64[25] {
   inline int x, y, i;
@@ -121,7 +119,6 @@ fn chi(reg ptr u64[25] a) -> reg ptr u64[25] {
   return a;
 }
 
-
 inline
 fn iota(reg ptr u64[25] a, reg u64 c) -> reg ptr u64[25] {
   a[0] ^= c;
@@ -135,7 +132,6 @@ u64[24] roundconstants = {0x0000000000000001, 0x0000000000008082, 0x800000000000
                           0x8000000000008002, 0x8000000000000080, 0x000000000000800a, 0x800000008000000a, 
                           0x8000000080008081, 0x8000000000008080, 0x0000000080000001, 0x8000000080008008};
 
-inline
 fn __keccakf1600_ref(reg ptr u64[25] state) -> reg ptr u64[25] {
   inline int round;
   reg ptr u64[24] constptr;
@@ -201,7 +197,6 @@ fn add_full_block(
 
   return state, in, inlen;
 }
-
 
 inline
 fn add_final_block(
