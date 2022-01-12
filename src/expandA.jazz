@@ -2,7 +2,7 @@ require "fips202.jazz"
 require "params.jazz"
 
 inline
-fn expandA_entry(stack u8[32] rho, inline int i, inline int j,
+fn expandA_entry(reg ptr u8[32] rho, inline int i, inline int j,
 	reg ptr u32[Li2_polydeg] result) -> reg ptr u32[Li2_polydeg]
 {
 	stack u32 term;

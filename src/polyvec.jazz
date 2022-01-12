@@ -2,9 +2,8 @@ require "poly.jazz"
 require "rounding.jazz"
 require "fft.jazz"
 
-inline
-fn reduce32_vecl(stack u32[Li2_l * Li2_polydeg] vec)
-	-> stack u32[Li2_l * Li2_polydeg]
+fn reduce32_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
+	-> reg ptr u32[Li2_l * Li2_polydeg]
 {
 	reg u64 i;
 	reg u32 val res;
@@ -20,9 +19,8 @@ fn reduce32_vecl(stack u32[Li2_l * Li2_polydeg] vec)
 	return vec;
 }
 
-inline
-fn reduce32_veck(stack u32[Li2_k * Li2_polydeg] vec)
-	-> stack u32[Li2_k * Li2_polydeg]
+fn reduce32_veck(reg ptr u32[Li2_k * Li2_polydeg] vec)
+	-> reg ptr u32[Li2_k * Li2_polydeg]
 {
 	reg u64 i;
 	reg u32 val res;
@@ -39,9 +37,8 @@ fn reduce32_veck(stack u32[Li2_k * Li2_polydeg] vec)
 }
 
 //TODO rename to reflect this is vecl
-inline
-fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
-	-> stack u32[Li2_l * Li2_polydeg]
+fn fft_vec(reg ptr u32[Li2_l * Li2_polydeg] vec)
+	-> reg ptr u32[Li2_l * Li2_polydeg]
 {
 	inline int i;
 	reg ptr u32[Li2_polydeg] entry;
@@ -55,9 +52,8 @@ fn fft_vec(stack u32[Li2_l * Li2_polydeg] vec)
 	return vec;
 }
 
-inline
-fn fft_veck(stack u32[Li2_k * Li2_polydeg] vec)
-	-> stack u32[Li2_k * Li2_polydeg]
+fn fft_veck(reg ptr u32[Li2_k * Li2_polydeg] vec)
+	-> reg ptr u32[Li2_k * Li2_polydeg]
 {
 	inline int i;
 	reg ptr u32[Li2_polydeg] entry;
@@ -71,9 +67,8 @@ fn fft_veck(stack u32[Li2_k * Li2_polydeg] vec)
 	return vec;
 }
 
-inline
-fn ifft_to_mont_vec(stack u32[Li2_k * Li2_polydeg] vec)
-	-> stack u32[Li2_k * Li2_polydeg]
+fn ifft_to_mont_vec(reg ptr u32[Li2_k * Li2_polydeg] vec)
+	-> reg ptr u32[Li2_k * Li2_polydeg]
 {
 	inline int i;
 	reg ptr u32[Li2_polydeg] entry;
@@ -87,9 +82,8 @@ fn ifft_to_mont_vec(stack u32[Li2_k * Li2_polydeg] vec)
 	return vec;
 }
 
-inline
-fn ifft_to_mont_vecl(stack u32[Li2_l * Li2_polydeg] vec)
-	-> stack u32[Li2_l * Li2_polydeg]
+fn ifft_to_mont_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
+	-> reg ptr u32[Li2_l * Li2_polydeg]
 {
 	inline int i;
 	reg ptr u32[Li2_polydeg] entry;
@@ -105,7 +99,7 @@ fn ifft_to_mont_vecl(stack u32[Li2_l * Li2_polydeg] vec)
 
 
 inline
-fn power2round_vec(stack u32[Li2_k * Li2_polydeg] v)
+fn power2round_vec(reg ptr u32[Li2_k * Li2_polydeg] v)
 	-> stack u32[Li2_k * Li2_polydeg], stack u32[Li2_k * Li2_polydeg]
 {
 	stack u32[Li2_k * Li2_polydeg] t1 t0;
@@ -125,7 +119,7 @@ fn power2round_vec(stack u32[Li2_k * Li2_polydeg] v)
 }
 
 inline
-fn sum_vecs(stack u32[Li2_k * Li2_polydeg] v1 v2)
+fn sum_vecs(reg ptr u32[Li2_k * Li2_polydeg] v1 v2)
 	-> stack u32[Li2_k * Li2_polydeg]
 {
 	stack u32[Li2_k * Li2_polydeg] vsum;

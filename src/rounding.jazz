@@ -27,7 +27,6 @@ fn power2round(reg u32 r)
 }
 
 // high bits = a0, low bits = a1
-inline
 fn decompose(reg u32 a) -> reg u32, reg u32 {
 	reg u64 a0;
 	reg u32 a0_32;
@@ -66,7 +65,6 @@ fn decompose(reg u32 a) -> reg u32, reg u32 {
 	return a0_32, a1;
 }
 
-inline
 fn make_hint(reg u32 a0, reg u32 a1) -> reg u32 {
 	reg u32 result;
 
