@@ -7,17 +7,22 @@ fn sampleInBall_jazz(reg u64 ptr_f, reg u64 ptr_seed) {
 	reg u8 c;
 	reg u32 v;
 
-	inline int i;
+	reg u64 i;
+	//reg u64 addr;
 
-	for i = 0 to 32 {
+	i = 0;
+	while(i < 32) {
 		c = (u8)[ptr_seed + i];
-		seed[i] = c;
+		seed[(int) i] = c;
+		i += 1;
 	}
 
 	f = sampleInBall(f, seed);
 	
-	for i = 0 to Li2_polydeg {
-		v = f[i];
+	i = 0;
+	while(i < Li2_polydeg) {
+		v = f[(int) i];
 		(u32)[ptr_f + 4 * i] = v;
+		i += 1;
 	}
 }

@@ -76,7 +76,7 @@ fn sampleInBall(reg ptr u32[Li2_polydeg] f, reg ptr u8[32] seed)
 	inline int ii;
 	reg u8 c;
 	reg u64 v;
-	reg u32 v32;
+	reg u32 v32 fb;
 
 	state = shake256_absorb32(seed);
 	state = __keccakf1600_ref(state);
@@ -116,9 +116,14 @@ fn sampleInBall(reg ptr u32[Li2_polydeg] f, reg ptr u8[32] seed)
 		//f[(int) b] = 1 - 2 * (signs & 1);
 		v32 = (32u) signs;
 		v32 &= 1;
+		/*
 		v32 *= -2;
 		v32 += 1;
-		f[(int) b] = v32;
+		*/
+		fb = 1;
+		fb -= v32;
+		fb -= v32;
+		f[(int) b] = fb;
 
 		signs >>= 1;
 

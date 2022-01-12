@@ -20,6 +20,9 @@ bench_sign: bench_sign.cpp ../src/sign.s ../dilithium/ref/randombytes.o
 bench_fft: bench_fft.cpp fft_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o fft_export.s bench_fft.cpp -o $@ $(LDFLAGS)
 
+bench_hashing: bench_hashing.cpp hashing_export.s
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o hashing_export.s bench_hashing.cpp -o $@ $(LDFLAGS)
+
 test_%: test_%.cpp %_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $*_export.s test_$*.cpp -o $@ $(LDFLAGS)
 
