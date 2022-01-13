@@ -178,6 +178,12 @@ fn sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk
 	reg u8 c;
 	reg u64 i;
 	stack u8[Li2_SIGN_LEN] signature;
+
+	stack u64 s_ptr_signature;
+	reg u64 sig_addr;
+
+	// spilling this
+	s_ptr_signature = ptr_signature;
 	
 	i = 0;
 	while(i < Li2_SK_LEN) {
@@ -188,10 +194,12 @@ fn sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk
 	
 	signature = sign(ptr_m, m_len, sk);
 
+	sig_addr = s_ptr_signature;
+	
 	i = 0;
 	while(i < Li2_SIGN_LEN) {
 		c = signature[(int) i];
-		(u8) [ptr_signature + i] = c;
+		(u8) [sig_addr + i] = c;
 		i += 1;
 	}
 }
