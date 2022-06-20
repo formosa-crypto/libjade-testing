@@ -12,7 +12,7 @@ param int Li2_tau = 49;
 param int Li2_challenge_entropy = 225;
 // log of y coefficient range
 param int Li2_log_gamma1 = 19;
-param int Li2_gamma1 = (int) (1 << 19);
+param int Li2_gamma1 = (1 << 19);
 // low-order rounding range
 param int Li2_gamma2 = 261888;
 // number of rows in A
