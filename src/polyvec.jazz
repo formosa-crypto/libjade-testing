@@ -255,15 +255,15 @@ fn expandMask(reg ptr u8[64] rho_prime, reg u16 nonce)
 }
 
 inline
-fn pointwise_mont_mult(reg ptr u32[Li2_l * Li2_polydeg] f g fg)
-	-> reg ptr u32[Li2_l * Li2_polydeg]
+fn pointwise_mont_mult(reg ptr u32[Li2_polydeg] f g fg)
+	-> reg ptr u32[Li2_polydeg]
 {
 	reg u64 i;
 	reg u32 v32;
 	reg u64 result gv_64;
 	reg u32 prod_redc;
 	i = 0;
-	while(i < Li2_l * Li2_polydeg) {
+	while(i < Li2_polydeg) {
 		v32 = f[(int) i];
 		result = (64s) v32;
 		v32 = g[(int) i];
