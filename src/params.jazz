@@ -27,6 +27,7 @@ param int Li2_beta = 196;
 param int Li2_omega = 55;
 // poly degrees
 param int Li2_polydeg = 256;
+param int Li2_log2polydeg = 8;
 
 //packing-related
 param int Li2_pack_w1len = Li2_k * Li2_polydeg / 2;

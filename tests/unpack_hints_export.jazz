@@ -1,0 +1,39 @@
+require "../src/verify.jazz"
+
+// int8_t unpack_hints_jazz(uint8_t hints_buf[OMEGA + K], int32_t hints[K * N]);
+export
+fn unpack_hints_jazz(reg u64 hints_buf_ptr, reg u64 hints_ptr) -> reg u8 {
+	reg u8 status;
+	
+	reg u64 i;
+	reg u8 tmp8;
+	reg u32 tmp32;
+
+	stack u8[Li2_omega + Li2_k] hints_buf;
+	stack u32[Li2_k * Li2_polydeg] hints;
+
+	i = 0;
+	while (i < Li2_omega + Li2_k) {
+		tmp8 = (u8)[hints_buf_ptr + i];
+		hints_buf[(int) i] = tmp8;
+		i += 1;
+	}
+
+	i = 0;
+	while (i < Li2_k * Li2_polydeg) {
+		tmp32 = (u32)[hints_ptr + 4 * i];
+		hints[(int) i] = tmp32;
+		i += 1;
+	}
+
+	hints, status = unpack_hints(hints_buf, hints);
+
+	i = 0;
+	while (i < Li2_k * Li2_polydeg) {
+		tmp32 = hints[(int) i];
+		(u32)[hints_ptr + 4 * i] = tmp32;
+		i += 1;
+	}
+
+	return status;
+}

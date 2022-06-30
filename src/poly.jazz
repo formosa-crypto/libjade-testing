@@ -198,26 +198,22 @@ fn poly_make_hint(reg ptr u32[Li2_polydeg] f0 f1 hints)
 	return weight, hints;
 }
 
-/*
-inline
-fn poly_use_hint(reg ptr u32[Li2_polydeg] f b hints)
+fn poly_use_hint(reg ptr u32[Li2_polydeg] w1 hints)
 	-> reg ptr u32[Li2_polydeg]
 {
 	reg u64 i;
-	reg u32 a h c;
-
+	reg u32 a h;
 
 	i = 0;
-	while(i < Li2_polydeg){
-		a = f[(int) i];
+	while (i < Li2_polydeg) {
 		h = hints[(int) i];
-		c = use_hint(h, a);
-		b[(int) i] = c;
+		a = w1[(int) i];
+		a = use_hint(a, h);
+		w1[(int) i] = a;
 		i += 1;
 	}
-	return b;
-}		
-*/
+	return w1;
+}
 
 inline
 fn poly_checknorm(reg ptr u32[Li2_polydeg] f, inline int threshold)
@@ -243,4 +239,21 @@ fn poly_checknorm(reg ptr u32[Li2_polydeg] f, inline int threshold)
 
 	result_s = result;
 	return result_s;
+}
+
+fn poly_reduce32(reg ptr u32[Li2_polydeg] poly)
+	-> reg ptr u32[Li2_polydeg]
+{
+	reg u64 i;
+	reg u32 val res;
+
+	i = 0;
+	while(i < Li2_polydeg) {
+		val = poly[(int) i];
+		res = reduce32(val);
+		poly[(int) i] = res;
+		i += 1;
+	}
+
+	return poly;
 }

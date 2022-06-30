@@ -40,6 +40,13 @@ fn make_hint_jazz(reg u32 a0, reg u32 a1) -> reg u32
 }
 
 export
+fn use_hint_jazz(reg u32 a hint) -> reg u32 {
+	reg u32 result;
+	result = use_hint(a, hint);
+	return result;
+}
+
+export
 fn power2round_jazz(reg u32 r, reg u64 ph pl)
 {
 	reg u32 h l;
