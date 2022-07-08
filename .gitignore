@@ -7,6 +7,7 @@ montgomery.ec
 write_twiddle_factors
 twiddle_factors.jazz
 test_keygen
+extracted/**
 
 # Created by https://www.toptal.com/developers/gitignore/api/emacs
 # Edit at https://www.toptal.com/developers/gitignore?templates=emacs
