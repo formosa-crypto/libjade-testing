@@ -2,5 +2,5 @@
 	path = dilithium
 	url = https://github.com/ethanlee515/dilithium
 [submodule "proofs/verifyhashbased"]
-	path = proofs/verifyhashbased
+	path = proofs/utils/verifyhashbased
 	url = https://gitlab.tue.nl/ahuelsin/verifyhashbased.git
