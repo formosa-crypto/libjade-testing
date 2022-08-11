@@ -3,4 +3,4 @@
 	url = https://github.com/ethanlee515/dilithium
 [submodule "proofs/verifyhashbased"]
 	path = proofs/utils/verifyhashbased
-	url = https://gitlab.tue.nl/ahuelsin/verifyhashbased.git
+	url = git@gitlab.tue.nl:ahuelsin/verifyhashbased.git
