@@ -1,6 +1,6 @@
 require "montgomery.jazz"
 require "params.jazz"
-require "twiddle_factors.jazz"
+require "../common/twiddle_factors.jazz"
 
 fn fft(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg]
 {

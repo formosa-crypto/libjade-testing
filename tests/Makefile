@@ -35,5 +35,6 @@ test_%: test_%.cpp %_export.s
 
 clean:
 	$(MAKE) --directory=../dilithium/ref libpqcrystals_dilithium3_ref.so clean
+	$(MAKE) --directory=../src/common clean
 	$(MAKE) --directory=../src/dilithium3 clean
 	rm -f $(TESTS)
