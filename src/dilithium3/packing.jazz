@@ -17,7 +17,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 		// Having i be inline int will greatly simplify the code
 		// But compile time will probably be no good?
 
-		// XXX: [dsprenkels] I think we should not use a for loop here.
+		// XXX: [Amber] I think we should not use a for loop here.
 		// I see no benefit and it will blow up the size of the code.
 
 		//buf[5*i+0] = t1[4*i+0] >> 0;
