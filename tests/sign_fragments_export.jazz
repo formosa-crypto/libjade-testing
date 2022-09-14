@@ -1,5 +1,5 @@
 require "../src/dilithium3/sign.jazz"
-require "../src/dilithium3/params.jazz"
+require "../src/dilithium3/variant_params.jazz"
 
 export
 fn compute_mu_jazz(reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk, reg u64 ptr_mu)

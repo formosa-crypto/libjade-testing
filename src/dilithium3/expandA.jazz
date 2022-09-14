@@ -1,5 +1,5 @@
 require "../common/fips202.jazz"
-require "params.jazz"
+require "variant_params.jazz"
 
 inline
 fn expandA_entry(reg ptr u8[32] rho, inline int i, inline int j,

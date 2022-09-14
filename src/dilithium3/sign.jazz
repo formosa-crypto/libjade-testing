@@ -1,8 +1,8 @@
-require "params.jazz"
+require "variant_params.jazz"
 require "hashing.jazz"
 require "packing.jazz"
 require "expandA.jazz"
-require "fft.jazz"
+require "../common/fft.jazz"
 require "polyvec.jazz"
 
 inline

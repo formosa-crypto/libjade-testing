@@ -1,6 +1,6 @@
 require "poly.jazz"
 require "rounding.jazz"
-require "fft.jazz"
+require "../common/fft.jazz"
 
 fn reduce32_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
 	-> reg ptr u32[Li2_l * Li2_polydeg]

@@ -1,12 +1,8 @@
+require "../common/params.jazz"
+
 param int Li2_PK_LEN = 1952;
 param int Li2_SK_LEN = 4000;
 param int Li2_SIGN_LEN = 3293;
-// Modulus
-param int Li2_q = 8380417;
-// Dropped bits from t
-param int Li2_d = 13;
-// exp(d)
-param int Li2_expd = 8192;
 // number of plus or minus 1s in c
 param int Li2_tau = 49;
 param int Li2_challenge_entropy = 225;
@@ -25,9 +21,6 @@ param int Li2_eta = 4;
 param int Li2_beta = 196;
 // max number of 1s in the hint h
 param int Li2_omega = 55;
-// poly degrees
-param int Li2_polydeg = 256;
-param int Li2_log2polydeg = 8;
 
 //packing-related
 param int Li2_pack_w1len = Li2_k * Li2_polydeg / 2;

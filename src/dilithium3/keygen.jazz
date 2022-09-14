@@ -4,7 +4,7 @@ require "expandS.jazz"
 require "polyvec.jazz"
 require "packing.jazz"
 require "hashing.jazz"
-require "params.jazz"
+require "variant_params.jazz"
 
 inline
 fn keygen(reg ptr u8[32] random_zeta)

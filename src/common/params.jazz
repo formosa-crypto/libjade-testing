@@ -1,0 +1,9 @@
+// Modulus
+param int Li2_q = 8380417;
+// Dropped bits from t
+param int Li2_d = 13;
+// exp(d)
+param int Li2_expd = 8192;
+// poly degrees
+param int Li2_polydeg = 256;
+param int Li2_log2polydeg = 8;

@@ -1,5 +1,5 @@
-require "params.jazz"
-require "montgomery.jazz"
+require "variant_params.jazz"
+require "../common/montgomery.jazz"
 require "packing.jazz"
 require "../common/fips202.jazz"
 require "rounding.jazz"

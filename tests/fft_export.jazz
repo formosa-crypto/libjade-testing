@@ -1,5 +1,5 @@
-require "../src/dilithium3/fft.jazz"
-require "../src/dilithium3/montgomery.jazz"
+require "../src/common/fft.jazz"
+require "../src/common/montgomery.jazz"
 require "../src/dilithium3/poly.jazz"
 
 export
