@@ -1,7 +1,7 @@
 require "params.jazz"
 require "montgomery.jazz"
 require "packing.jazz"
-require "fips202.jazz"
+require "../common/fips202.jazz"
 require "rounding.jazz"
 
 fn poly_add(reg ptr u32[Li2_polydeg] f g sum)

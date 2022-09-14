@@ -30,8 +30,10 @@ bench_hashing: bench_hashing.cpp hashing_export.s
 test_%: test_%.cpp %_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $*_export.s test_$*.cpp -o $@ $(LDFLAGS)
 
-%.s: %.jazz ../src/*.jazz
+%.s: %.jazz ../src/**/*.jazz
 	jasminc -pasm $< > $@
 
 clean:
+	$(MAKE) --directory=../dilithium/ref libpqcrystals_dilithium3_ref.so clean
+	$(MAKE) --directory=../src/dilithium3 clean
 	rm -f $(TESTS)
