@@ -1,5 +1,5 @@
-require "../src/high-low-order.jazz"
-require "../src/polyvec.jazz"
+require "../src/dilithium3/high-low-order.jazz"
+require "../src/dilithium3/polyvec.jazz"
 
 export
 fn decompose_jazz(reg u32 a, reg u64 pa0, reg u64 pa1)

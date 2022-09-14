@@ -1,4 +1,4 @@
-require "../src/polyvec.jazz"
+require "../src/dilithium3/polyvec.jazz"
 
 export
 fn expandMask_jazz(reg u64 ptr_rp, reg u16 nonce, reg u64 ptr_y) {

@@ -1,4 +1,4 @@
-require "../src/packing.jazz"
+require "../src/dilithium3/packing.jazz"
 
 //void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 export
