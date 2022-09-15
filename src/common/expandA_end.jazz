@@ -1,5 +1,4 @@
 require "fips202.jazz"
-require "params.jazz"
 
 inline
 fn expandA_poly(reg ptr u8[32] rho, inline int i, inline int j,
@@ -59,4 +58,23 @@ fn expandA_poly(reg ptr u8[32] rho, inline int i, inline int j,
 	}
 
 	return result;
+}
+
+inline
+fn expandA(stack u8[32] rho) -> stack u32[Li2_k * Li2_l * Li2_polydeg]
+{
+	reg ptr u32[Li2_polydeg] poly;
+	stack u32[Li2_k * Li2_l * Li2_polydeg] matrix;
+
+	inline int i j;
+
+	for i = 0 to Li2_k {
+		for j = 0 to Li2_l {
+			poly = matrix[(i * Li2_l + j) * Li2_polydeg : Li2_polydeg];
+			poly = expandA_poly(rho, i, j, poly);
+			matrix[(i * Li2_l + j) * Li2_polydeg : Li2_polydeg] = poly;
+		}
+	}
+
+	return matrix;
 }
