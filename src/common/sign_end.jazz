@@ -1,9 +1,3 @@
-require "../src/dilithium3/params.jazz"
-require "../src/dilithium3/hashing.jazz"
-require "../src/dilithium3/packing.jazz"
-require "../src/dilithium3/gen_matrix.jazz"
-require "../src/dilithium3/fft.jazz"
-require "../src/dilithium3/polyvec.jazz"
 
 inline
 fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
@@ -57,12 +51,8 @@ inline
 fn sign(reg u64 ptr_m,
 		reg u64 m_len,
 		reg ptr u8[Li2_SK_LEN] sk)
-//		-> stack u32[5000]
 		-> stack u8[Li2_SIGN_LEN]
 {
-	stack u8[5000] probe_val;
-	stack u32[5000] probe_val32;
-
 	stack u8[Li2_SIGN_LEN] signature;
 
 	// parts of sk
@@ -111,76 +101,54 @@ fn sign(reg u64 ptr_m,
 	stack u32 hints_weight;
 	stack u8 normcheck_result;
 
-	reg u64 i;
-	// loop/output tests var
-	reg u8 c;
-	reg u32 val32;
-
 	s1, s2, t0 = unpack_sk(sk);
 	mu = compute_mu(ptr_m, m_len, sk);
 	rho_prime = compute_rho_prime(sk[32:32], mu);
 
-	fft_matA = gen_matrix(sk[0:32]);
+	fft_matA = expandA(sk[0:32]);
 
-	s1 = polyvecl_caddq(s1);
 	s1 = fft_vec(s1);
-	s2 = polyveck_caddq(s2);
 	s2 = fft_veck(s2);
-	t0 = polyveck_caddq(t0);
 	t0 = fft_veck(t0);
 
 	nonce = 0;
 	done = 0;
 	while(done == 0) {
-		//TODO remove me
-		//done = 1;
-
 		reg_nonce = nonce;
 		y = expandMask(rho_prime, reg_nonce);
-		y = polyvecl_caddq(y);
 
 		nonce += 1;
 		fft_y = deep_copy_vecl(y);
 		fft_y = fft_vec(fft_y);
 		w = mult_mat_vec(fft_matA, fft_y);
+		w = reduce32_veck(w);
 		w = ifft_to_mont_vec(w);
 
-		// not sure why this order but oh well...
+		w = polyveck_caddq(w);
 		w0, w1 = decompose_vec(w);
-
-		//packed_w1 tested
 		packed_w1 = pack_w1(w1);
 
 		c_tilde = hash_mu_w1(mu, packed_w1);
 
 		challenge = sampleInBall(challenge, c_tilde);
-
-		//more scuffed workarounds and crutches...
-		challenge = poly_caddq(challenge);
-
 		challenge = fft(challenge);
 
 		cs1 = mult_scalar_vec(challenge, s1);
 		cs1 = ifft_to_mont_vecl(cs1);
-
 		z = sum_vecl(cs1, y);
-
+		z = reduce32_vecl(z);
 		normcheck_result = checknorm_vecl(z, (int) (Li2_gamma1 - Li2_beta));
 
 		if(normcheck_result == 0) {
 			cs2 = mult_scalar_veck(challenge, s2);
 			cs2 = ifft_to_mont_vec(cs2);
-
-			//cs2 is correct up to here
-
-			w0 = polyveck_caddq(w0);
 			r0 = subtract_veck(w0, cs2);
-
+			w0 = reduce32_veck(w0);
 			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
 			if(normcheck_result == 0) {
 				ct0 = mult_scalar_veck(challenge, t0);
 				ct0 = ifft_to_mont_vec(ct0);
-
+				ct0 = reduce32_veck(ct0);
 				normcheck_result = checknorm_veck(ct0, Li2_gamma2);
 				if(normcheck_result == 0) {
 					r0_plus_ct0 = sum_vecs(r0, ct0);
@@ -193,65 +161,7 @@ fn sign(reg u64 ptr_m,
 			}
 		}
 	}
-	// test outputs
-	/*
-	i = 0;
-	while(i < Li2_l * Li2_polydeg) {
-		val32 = z[(int) i];
-		probe_val32[(int) i] = val32;
-		i += 1;
-	}
-	//val32 = hints_weight;
-	//probe_val32[0] = val32;
-	return probe_val32;
-	*/
-
-	/*
-
-	c = normcheck_result;
-	val32 = (32u) c;
-	probe_val32[0] = val32;
-	return probe_val32;
-	*/
 
 	signature = pack_signature(c_tilde, z, h);
 	return signature;
-}
-
-export
-fn test_jazz(reg u64 p_m p_sk p_out) {
-	reg u64 i;
-	reg u8 c;
-	reg u32 v32;
-	stack u8[5000] out;
-	stack u32[5000] out32;
-	stack u8[Li2_SIGN_LEN] out_sig;
-	reg u64 mlen;
-	stack u8[Li2_SK_LEN] sk;
-
-	i = 0;
-	while(i < Li2_SK_LEN) {
-		c = (u8)[p_sk + i];
-		sk[(int) i] = c;
-		i += 1;
-	}
-
-	mlen = 1000;
-	out_sig = sign(p_m, mlen, sk);
-
-	i = 0;
-	while(i < Li2_SIGN_LEN) {
-		c = out_sig[(int) i];
-		(u8) [p_out + i] = c;
-		i += 1;
-	}
-
-/*
-	i = 0;
-	while(i < 5000) {
-		v32 = out32[(int) i];
-		(u32) [p_out + 4 * i] = v32;
-		i += 1;
-	}
-	*/
 }
