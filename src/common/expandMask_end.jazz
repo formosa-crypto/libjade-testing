@@ -13,7 +13,7 @@ fn expandMask(reg ptr u8[64] rho_prime, reg u16 nonce)
 		v += i;
 		kappa = v;
 		poly = y[Li2_polydeg * i : Li2_polydeg];
-		poly = expandMaskPoly(poly, rho_prime, kappa);
+		poly = expandMask_poly(poly, rho_prime, kappa);
 		y[Li2_polydeg * i : Li2_polydeg] = poly;
 	}
 	return y;
