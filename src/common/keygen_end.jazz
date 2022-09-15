@@ -1,7 +1,7 @@
 require "fips202.jazz"
 
 inline
-fn keygen(reg ptr u8[32] random_zeta)
+fn keygen_inner(reg ptr u8[32] random_zeta)
 	-> stack u8[Li2_PK_LEN], stack u8[Li2_SK_LEN]
 {
 	// keys
@@ -112,4 +112,38 @@ fn keygen(reg ptr u8[32] random_zeta)
 	}
 
 	return pk, sk;
+}
+
+//zeta is 32 bytes
+inline
+fn keygen(reg u64 pk_ptr, reg u64 sk_ptr, reg u64 randomness)
+{
+	stack u8[Li2_PK_LEN] pk;
+	stack u8[Li2_SK_LEN] sk;
+	stack u8[32] random_zeta;
+	reg u8 c;
+	reg u64 i;
+
+	i = 0;
+	while(i < 32) {
+		c = (u8)[randomness + i];
+		random_zeta[(int) i] = c;
+		i += 1;
+	}
+
+	pk, sk = keygen_inner(random_zeta);
+
+	i = 0;
+	while(i < Li2_PK_LEN) {
+		c = pk[(int) i];
+		(u8)[pk_ptr + i] = c;
+		i += 1;
+	}
+
+	i = 0;
+	while(i < Li2_SK_LEN) {
+		c = sk[(int) i];
+		(u8)[sk_ptr + i] = c;
+		i += 1;
+	}
 }

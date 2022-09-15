@@ -112,7 +112,7 @@ fn cmp_ctilde(stack u8[32] c_tilde1 c_tilde2) -> reg u8 {
 }
 
 inline
-fn verify(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr u8[Li2_PK_LEN] pk) -> reg u32 {
+fn verify_inner(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr u8[Li2_PK_LEN] pk) -> reg u32 {
     // TODO: [dsprenkels] Go through the code and check for all operators
     // whether they should be signed or unsigned.
 
@@ -219,5 +219,32 @@ fn verify(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr u8[Li2
             }
         }
     }
+    return status;
+}
+
+inline
+fn verify(reg u64 ptr_sig, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_pk) -> reg u32 {
+    stack u8[Li2_PK_LEN] pk;
+    stack u8[Li2_SIGN_LEN] sig;
+
+    reg u8 byte;
+    reg u64 i;
+    reg u32 status;
+
+    i = #set0();
+	while(i < Li2_PK_LEN) {
+		byte = (u8)[ptr_pk + i];
+		pk[(int) i] = byte;
+		i += 1;
+	}
+
+    i = #set0();
+    while(i < Li2_SIGN_LEN) {
+		byte = (u8)[ptr_sig + i];
+		sig[(int) i] = byte;
+		i += 1;
+	}
+
+    status = verify_inner(sig, ptr_m, m_len, pk);
     return status;
 }

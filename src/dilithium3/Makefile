@@ -1,4 +1,4 @@
-all: keygen.s sign.s verify.s
+all: main.s
 
 %.s: %.jazz *.jazz ../common/*.jazz ../common/twiddle_factors.jazz
 	jasminc -pasm $< >$@
