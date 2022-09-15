@@ -2,6 +2,7 @@ require "variant_params.jazz"
 require "hashing.jazz"
 require "packing.jazz"
 require "expandA.jazz"
+require "expandMask.jazz"
 require "../common/fft.jazz"
 require "polyvec.jazz"
 
