@@ -2,4 +2,4 @@ require "poly.jazz"
 require "rounding.jazz"
 
 // Define functions based on params
-require "../common/derived_polyvec.jazz"
+require "../common/polyvec_end.jazz"

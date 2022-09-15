@@ -1,6 +1,8 @@
-require "variant_params.jazz"
-require "packing.jazz"
 require "../common/fips202.jazz"
+
+require "params.jazz"
+require "packing.jazz"
+
 
 inline
 fn expandMaskPoly(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u16 kappa)
@@ -62,4 +64,4 @@ fn expandMaskPoly(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u1
 	return f;
 }
 
-require "../common/derived_expandMask.jazz"
+require "../common/expandMask_end.jazz"

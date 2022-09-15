@@ -1,4 +1,5 @@
 require "params.jazz"
+require "montgomery.jazz"
 
 fn poly_add(reg ptr u32[Li2_polydeg] f g sum)
 	-> reg ptr u32[Li2_polydeg]

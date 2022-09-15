@@ -1,10 +1,11 @@
 require "../common/fips202.jazz"
+
 require "expandA.jazz"
 require "expandS.jazz"
 require "polyvec.jazz"
 require "packing.jazz"
 require "hashing.jazz"
-require "variant_params.jazz"
+require "params.jazz"
 
 inline
 fn keygen(reg ptr u8[32] random_zeta)

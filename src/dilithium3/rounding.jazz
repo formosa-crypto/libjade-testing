@@ -1,4 +1,4 @@
-require "variant_params.jazz"
+require "params.jazz"
 
 fn power2round(reg u32 r)
 	-> reg u32, reg u32
@@ -70,15 +70,11 @@ fn make_hint(reg u32 a0, reg u32 a1) -> reg u32 {
 
 	result = 0;
 	
-	if(a0 >s Li2_gamma2) {
+	if a0 >s Li2_gamma2 {
 		result = 1;
-	}
-
-	if(a0 <s -Li2_gamma2) {
+	} else if a0 <s -Li2_gamma2 {
 		result = 1;
-	}
-
-	if(a0 == -Li2_gamma2) {
+	} else if a0 == -Li2_gamma2 {
 		if(a1 != 0) {
 			result = 1;
 		}

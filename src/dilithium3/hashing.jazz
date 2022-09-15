@@ -1,5 +1,6 @@
 require "../common/fips202.jazz"
-require "variant_params.jazz"
+
+require "params.jazz"
 
 //param int SHAKE256_RATE = 136;
 

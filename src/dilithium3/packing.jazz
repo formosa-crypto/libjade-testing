@@ -1,5 +1,6 @@
-require "variant_params.jazz"
 require "../common/montgomery.jazz"
+
+require "params.jazz"
 
 inline
 fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)

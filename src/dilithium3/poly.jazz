@@ -1,5 +1,4 @@
-require "packing.jazz"
+require "../common/poly.jazz"
+require "params.jazz"
 require "rounding.jazz"
-require "variant_params.jazz"
-
-require "../common/derived_poly.jazz"
+require "../common/poly_end.jazz"

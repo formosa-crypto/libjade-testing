@@ -1,5 +1,6 @@
 require "../common/expandA.jazz"
-require "variant_params.jazz"
+
+require "params.jazz"
 
 inline
 fn expandA(stack u8[32] rho) -> stack u32[Li2_k * Li2_l * Li2_polydeg]
