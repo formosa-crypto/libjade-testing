@@ -12,15 +12,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 
 	i = 0;
 	while(i < Li2_polydeg / 4) {
-		// I already know I'm gonna typo this somewhere...
-		// There's an argument to just use for-loop here...
-		// Having i be inline int will greatly simplify the code
-		// But compile time will probably be no good?
-
-		// XXX: [Amber] I think we should not use a for loop here.
-		// I see no benefit and it will blow up the size of the code.
-
-		//buf[5*i+0] = t1[4*i+0] >> 0;
+		// buf[5*i+0] = t1[4*i+0] >> 0;
 
 		addr = 4;
 		addr *= i;
@@ -31,7 +23,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 		addr *= i;
 		buf[(int) addr] = c;
 
-		//buf[5*i+1] = (t1[4*i+0] >> 8) | (t1[4*i+1] << 2);
+		// buf[5*i+1] = (t1[4*i+0] >> 8) | (t1[4*i+1] << 2);
 
 		addr = 4;
 		addr *= i;
@@ -51,7 +43,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 		c = (8u) x;
 		buf[(int) addr] = c;
 
-		//buf[5*i+2] = (t1[4*i+1] >> 6) | (t1[4*i+2] << 4);
+		// buf[5*i+2] = (t1[4*i+1] >> 6) | (t1[4*i+2] << 4);
 
 		addr = 4;
 		addr *= i;
@@ -72,7 +64,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 		c = (8u) x;
 		buf[(int) addr] = c;
 
-		//buf[5*i+3] = (t1[4*i+2] >> 4) | (t1[4*i+3] << 6);
+		// buf[5*i+3] = (t1[4*i+2] >> 4) | (t1[4*i+3] << 6);
 
 		addr = 4;
 		addr *= i;
@@ -93,7 +85,7 @@ fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 		c = (8u) x;
 		buf[(int) addr] = c;
 
-		//buf[5*i+4] = (t1[4*i+3] >> 2);
+		// buf[5*i+4] = (t1[4*i+3] >> 2);
 
 		addr = 4;
 		addr *= i;

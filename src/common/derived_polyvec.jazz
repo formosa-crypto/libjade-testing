@@ -1,4 +1,5 @@
 require "fft.jazz"
+require "poly.jazz"
 
 fn reduce32_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
 	-> reg ptr u32[Li2_l * Li2_polydeg]

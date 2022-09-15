@@ -1,6 +1,3 @@
-require "../common/fips202.jazz"
-require "../common/montgomery.jazz"
-require "../common/poly.jazz"
 require "packing.jazz"
 require "rounding.jazz"
 require "variant_params.jazz"

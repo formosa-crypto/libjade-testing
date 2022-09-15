@@ -28,9 +28,6 @@ fn unpack_hints(reg ptr u8[Li2_omega + Li2_k] hints_buf, reg ptr u32[Li2_k * Li2
     // register allocation failing (when it should be able to succeed) when
     // this function was inlined.
 
-    // TODO: This function seems to be very complex.  Write a test for it.
-    // TODO: LEFT HERE.  Function seems to be broken. Fix it.
-
     reg u64 i j;
     reg u8 done fail status;
     reg bool tmp;
