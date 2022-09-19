@@ -1,4 +1,4 @@
-require "../src/dilithium3/sign.jazz"
+require "../src/dilithium3/lib.jazz"
 require "../src/dilithium3/params.jazz"
 
 export

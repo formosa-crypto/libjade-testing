@@ -1,5 +1,4 @@
-require "../src/dilithium3/polyvec.jazz"
-require "../src/dilithium3/poly.jazz"
+require "../src/dilithium3/common.jazz"
 require "fft_export.jazz"
 
 export

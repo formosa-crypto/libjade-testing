@@ -1,3 +1,0 @@
-require "params.jazz"
-
-require "../common/expandA_end.jazz"

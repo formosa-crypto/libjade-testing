@@ -1,9 +1,5 @@
-require "expandA.jazz"
-require "expandS.jazz"
-require "expandMask.jazz"
-require "polyvec.jazz"
+require "common.jazz"
 require "packing.jazz"
-require "hashing.jazz"
 require "params.jazz"
 
 require "../common/keygen_end.jazz"

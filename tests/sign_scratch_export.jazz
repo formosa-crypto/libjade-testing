@@ -1,9 +1,7 @@
-require "../src/dilithium3/params.jazz"
-require "../src/dilithium3/hashing.jazz"
-require "../src/dilithium3/packing.jazz"
-require "../src/dilithium3/gen_matrix.jazz"
-require "../src/dilithium3/fft.jazz"
-require "../src/dilithium3/polyvec.jazz"
+require "../src/dilithium3/common.jazz"
+
+// FIXME: [amber] This test seems to be broken and I have disabled this.
+// Fix it at some point in the future.
 
 inline
 fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)

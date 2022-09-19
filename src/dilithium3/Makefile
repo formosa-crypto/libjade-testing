@@ -1,4 +1,4 @@
-all: main.s
+all: lib.s
 
 %.s: %.jazz *.jazz ../common/*.jazz ../common/twiddle_factors.jazz
 	jasminc -pasm $< >$@

@@ -1,9 +1,13 @@
+require "../common/poly.jazz"
 require "../common/fips202.jazz"
+require "../common/expandS.jazz"
 
 require "params.jazz"
+require "rounding.jazz"
 require "packing.jazz"
 
 
+// TODO: Make this a generic "Gamma219" function
 inline
 fn expandMask_poly(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u16 kappa)
 	-> reg ptr u32[Li2_polydeg]
@@ -64,4 +68,16 @@ fn expandMask_poly(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u
 	return f;
 }
 
+inline
+fn expandS_poly(stack u8[64] rho_prime, inline int i, reg ptr u32[Li2_polydeg] buf)
+	-> reg ptr u32[Li2_polydeg] {
+    buf = expandSEta4_poly(rho_prime, i, buf);
+	return buf;
+}
+
+require "../common/expandA_end.jazz"
+require "../common/expandS_end.jazz"
+require "../common/hashing_end.jazz"
+require "../common/poly_end.jazz"
+require "../common/polyvec_end.jazz"
 require "../common/expandMask_end.jazz"
