@@ -1,0 +1,20 @@
+require "../common/params.jazz"
+
+param int Li2_PK_LEN = 1312;
+param int Li2_SK_LEN = 2528;
+param int Li2_SIGN_LEN = 2420;
+
+param int Li2_k = 4;
+param int Li2_l = 4;
+param int Li2_gamma1 = (1 << 17);
+param int Li2_gamma2 = (Li2_q - 1) / 88;
+param int Li2_tau = 39;
+param int Li2_eta = 2;
+param int Li2_omega = 80;
+
+// naming taken from C ref
+// actual lengths are K times the above...
+param int Li2_pack_zlen = Li2_polydeg * 18 / 8;
+param int Li2_pack_hstart = 32 + Li2_l * Li2_pack_zlen;
+
+require "../common/params_end.jazz"

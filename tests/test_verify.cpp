@@ -15,7 +15,7 @@ using std::memcmp;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	int verify_jazz(
+	int diltihium3_verify_jazz(
             uint8_t signature[pqcrystals_dilithium3_BYTES],
 			uint8_t* msg,
 			uint64_t m_len,
@@ -47,7 +47,7 @@ static int test_functional() {
 	pqcrystals_dilithium3_ref_signature(sig1, &siglen, m, 1000, sk);
 	memcpy(sig2, sig1, pqcrystals_dilithium3_BYTES);
     int ref = pqcrystals_dilithium3_ref_verify(sig1, siglen, m, 1000, pk);
-    int jazz = verify_jazz(sig2, m, 1000, pk);
+    int jazz = diltihium3_verify_jazz(sig2, m, 1000, pk);
 
 	if (ref != jazz) {
 		std::cout << std::hex << "ref:  0x" << ref << std::endl;

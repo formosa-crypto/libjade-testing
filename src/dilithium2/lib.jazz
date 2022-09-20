@@ -7,17 +7,17 @@ require "../common/sign_end.jazz"
 require "../common/verify_end.jazz"
 
 export
-fn dilithium3_keygen_jazz(reg u64 pk_ptr, reg u64 sk_ptr, reg u64 randomness) {
+fn dilithium2_keygen_jazz(reg u64 pk_ptr, reg u64 sk_ptr, reg u64 randomness) {
 	keygen(pk_ptr, sk_ptr, randomness);
 }
 
 export
-fn dilithium3_sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) {
+fn dilithium2_sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) {
 	sign(ptr_signature, ptr_m, m_len, ptr_sk);
 }
 
 export
-fn dilithium3_verify_jazz(reg u64 ptr_sig, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_pk) -> reg u32 {
+fn dilithium2_verify_jazz(reg u64 ptr_sig, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_pk) -> reg u32 {
     reg u32 status;
     status = verify(ptr_sig, ptr_m, m_len, ptr_pk);
     return status;

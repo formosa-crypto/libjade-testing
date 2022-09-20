@@ -21,9 +21,9 @@ using std::runtime_error;
 using std::to_string;
 using std::array;
 
-#define PRINT(X) cout << (#X) << " = " << (X) << endl
-
 extern "C" {
+	#include "macros.h"
+
 	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void unpack_t1_jazz(int32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void polyz_unpack_jazz(int32_t p[N], uint8_t buf[POLYZ_PACKEDBYTES]);
@@ -65,7 +65,7 @@ void test_pack_t1() {
 	}
 
 	uint8_t buf_ref[POLYT1_PACKEDBYTES];
-	pqcrystals_dilithium3_ref_polyt1_pack(buf_ref, &p);
+	POLYT1_PACK_REF(buf_ref, &p);
 
 	uint8_t buf_jazz[POLYT1_PACKEDBYTES];
 	pack_t1_jazz(uint_p, buf_jazz);
@@ -83,7 +83,7 @@ void test_unpack_t1() {
 	}
 
 	poly p_ref;
-	pqcrystals_dilithium3_ref_polyt1_unpack(&p_ref, buf);
+	POLYT1_UNPACK_REF(&p_ref, buf);
 
 	poly p_jazz;
 	unpack_t1_jazz(p_jazz.coeffs, buf);
@@ -104,7 +104,7 @@ void test_pack_z() {
 		p.coeffs[i] = sample_z_component();
 
 	uint8_t buf_ref[POLYZ_PACKEDBYTES];
-	pqcrystals_dilithium3_ref_polyz_pack(buf_ref, &p);
+	POLYZ_PACK(buf_ref, &p);
 
 	uint8_t buf_jazz[POLYZ_PACKEDBYTES];
 	polyz_pack_jazz(buf_jazz, p.coeffs);

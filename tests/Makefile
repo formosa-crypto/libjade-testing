@@ -1,9 +1,18 @@
-CXXFLAGS = -O0 -Wall -Wextra -Wpedantic -std=c++17 -DDILITHIUM_MODE=3
-LDFLAGS = -I ../dilithium/ref -L../dilithium/ref -lpqcrystals_dilithium3_ref -lpqcrystals_fips202_ref
-
 VARIANT ?= dilithium3
-TESTS ?= test_keygen \
-         test_fft \
+ifeq "${VARIANT}" "dilithium2"
+	MODE := 2
+endif
+ifeq "${VARIANT}" "dilithium3"
+	MODE := 3
+endif
+ifeq "${VARIANT}" "dilithium5"
+	MODE := 5
+endif
+
+CXXFLAGS = -g -Og -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
+LDFLAGS = -I ../dilithium/ref -L../dilithium/ref -lpqcrystals_dilithium${MODE}_ref -lpqcrystals_fips202_ref
+
+TESTS ?= test_fft \
          test_gen_matrix \
          test_packing \
          test_keygen_firsthalf \
@@ -13,6 +22,8 @@ TESTS ?= test_keygen \
          test_expandmask \
          test_sign \
          test_rounding
+# TODO: test_keygen
+
 LIB ?= ../src/${VARIANT}/lib.s
 
 tests: $(TESTS)
@@ -45,7 +56,7 @@ test_%: test_%.cpp %_export.s
 	jasminc -pasm $< > $@
 
 clean:
-	$(MAKE) --directory=../dilithium/ref libpqcrystals_dilithium3_ref.so clean
+	$(MAKE) --directory=../dilithium/ref clean
 	$(MAKE) --directory=../src/common clean
 	$(MAKE) --directory=../src/dilithium3 clean
 	rm -f $(TESTS)

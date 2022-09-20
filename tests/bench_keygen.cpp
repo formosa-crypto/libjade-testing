@@ -22,7 +22,7 @@ using std::pair;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void keygen_jazz(uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES],
+	void diltihium3_keygen_jazz(uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES],
 			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES],
 			uint8_t randomness[SEEDBYTES]);
 }
@@ -34,7 +34,7 @@ uint8_t sampleByte() {
 	return distrib(gen);
 }
 
-pair<double, int> bench_keygen_jazz() {
+pair<double, int> bench_diltihium3_keygen_jazz() {
 	int accumulator = 0;
 
 	auto start = high_resolution_clock::now();
@@ -47,7 +47,7 @@ pair<double, int> bench_keygen_jazz() {
 
 		uint8_t pk_jazz[pqcrystals_dilithium3_PUBLICKEYBYTES];
 		uint8_t sk_jazz[pqcrystals_dilithium3_SECRETKEYBYTES];
-		keygen_jazz(pk_jazz, sk_jazz, randomness);
+		diltihium3_keygen_jazz(pk_jazz, sk_jazz, randomness);
 
 		accumulator ^= pk_jazz[0] ^ sk_jazz[1];
 	}
@@ -85,14 +85,14 @@ pair<double, int> bench_keygen_ref() {
 
 int main() {
 
-	auto results_jazz = bench_keygen_jazz();
+	auto results_jazz = bench_diltihium3_keygen_jazz();
 	PRINT(results_jazz.first);
 	PRINT(results_jazz.second);
 	auto results_ref = bench_keygen_ref();
 	PRINT(results_ref.first);
 	PRINT(results_ref.second);
 
-	results_jazz = bench_keygen_jazz();
+	results_jazz = bench_diltihium3_keygen_jazz();
 	PRINT(results_jazz.first);
 	PRINT(results_jazz.second);
 	results_ref = bench_keygen_ref();

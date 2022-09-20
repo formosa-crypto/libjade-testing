@@ -14,9 +14,6 @@ param int Li2_omega = 55;
 
 // naming taken from C ref
 // actual lengths are K times the above...
-param int Li2_pack_t1len = 10 * Li2_polydeg / 8;
-param int Li2_pack_t0len = 416;
-param int Li2_pack_t0loc = Li2_SK_LEN - Li2_k * Li2_pack_t0len;
 param int Li2_pack_zlen = Li2_polydeg * 20 / 8;
 param int Li2_pack_hstart = 32 + Li2_l * Li2_pack_zlen;
 

@@ -20,7 +20,7 @@ using std::make_pair;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void sign_jazz(uint8_t signature[pqcrystals_dilithium3_BYTES],
+	void diltihium3_sign_jazz(uint8_t signature[pqcrystals_dilithium3_BYTES],
 			uint8_t* msg,
 			uint64_t m_len,
 			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES]);
@@ -33,7 +33,7 @@ uint8_t sampleByte() {
 	return distrib(gen);
 }
 
-pair<double, int> bench_sign_jazz() {
+pair<double, int> bench_diltihium3_sign_jazz() {
 	//forced side effect
 	int accumulator = 0;
 
@@ -49,7 +49,7 @@ pair<double, int> bench_sign_jazz() {
 			m[i] = sampleByte();
 
 		uint8_t signature_jazz[pqcrystals_dilithium3_BYTES];
-		sign_jazz(signature_jazz, m, 1000, sk);
+		diltihium3_sign_jazz(signature_jazz, m, 1000, sk);
 		accumulator ^= signature_jazz[0];
 	}
 	auto end = high_resolution_clock::now();
@@ -88,14 +88,14 @@ pair<double, int> bench_sign_ref() {
 }
 
 int main() {
-	auto results_jazz = bench_sign_jazz();
+	auto results_jazz = bench_diltihium3_sign_jazz();
 	PRINT(results_jazz.first);
 	PRINT(results_jazz.second);
 	auto results_ref = bench_sign_ref();
 	PRINT(results_ref.first);
 	PRINT(results_ref.second);
 
-	results_jazz = bench_sign_jazz();
+	results_jazz = bench_diltihium3_sign_jazz();
 	PRINT(results_jazz.first);
 	PRINT(results_jazz.second);
 	results_ref = bench_sign_ref();

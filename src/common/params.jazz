@@ -7,3 +7,7 @@ param int Li2_expd = 8192;
 // poly degrees
 param int Li2_polydeg = 256;
 param int Li2_log2polydeg = 8;
+
+// byte-length of a packed t0/t1 polynomial
+param int Li2_pack_t1len = 10 * Li2_polydeg / 8;
+param int Li2_pack_t0len = 13 * Li2_polydeg / 8;

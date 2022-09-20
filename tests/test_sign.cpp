@@ -3,8 +3,9 @@
 #include <cstring>
 
 extern "C" {
-#include "../dilithium/ref/api.h"
-#include "../dilithium/ref/params.h"
+	#include "../dilithium/ref/api.h"
+	#include "../dilithium/ref/params.h"
+	#include "macros.h"
 }
 
 using std::cout;
@@ -12,13 +13,11 @@ using std::endl;
 using std::vector;
 using std::memcmp;
 
-#define PRINT(X) cout << (#X) << " = " << (X) << endl
-
 extern "C" {
-	void sign_jazz(uint8_t signature[pqcrystals_dilithium3_BYTES],
-			uint8_t* msg,
-			uint64_t m_len,
-			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES]);
+	void SIGN_JAZZ(uint8_t signature[pqcrystals_dilithium3_BYTES],
+	               uint8_t* msg,
+	               uint64_t m_len,
+	               uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -38,7 +37,7 @@ int main() {
 		randomness[i] = sampleByte();
 		*/
 
-	pqcrystals_dilithium3_ref_keypair(pk, sk);
+	KEYGEN_REF(pk, sk);
 
 	uint8_t m[1000];
 	for(int i = 0; i < 1000; ++i)
@@ -48,11 +47,11 @@ int main() {
 	uint8_t signature_ref[pqcrystals_dilithium3_BYTES];
 	uint8_t signature_jazz[pqcrystals_dilithium3_BYTES];
 
-	sign_jazz(signature_jazz, m, 1000, sk);
+	SIGN_JAZZ(signature_jazz, m, 1000, sk);
 
 	size_t siglen;
 
-	pqcrystals_dilithium3_ref_signature(signature_ref, &siglen, m, 1000, sk);
+	SIGN_REF(signature_ref, &siglen, m, 1000, sk);
 
 	PRINT(memcmp(signature_ref, signature_jazz, pqcrystals_dilithium3_BYTES));
 

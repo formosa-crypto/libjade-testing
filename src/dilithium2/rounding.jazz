@@ -1,0 +1,25 @@
+require "params.jazz"
+
+// high bits = a0, low bits = a1
+fn decompose(reg u32 a) -> reg u32, reg u32 {
+	// TODO: unimplemented
+    reg u32 a_cpy;
+    a = -1;
+    a_cpy = a;
+    return a, a_cpy;
+}
+
+fn make_hint(reg u32 a0 a1) -> reg u32 {
+	// TODO: unimplemented
+    a0 = -1;
+    return a0;
+}
+
+inline
+fn use_hint(reg u32 a hint)
+	-> reg u32
+{
+	// TODO: unimplemented
+    a = -1;
+    return a;
+}

@@ -1,0 +1,111 @@
+require "../common/montgomery.jazz"
+require "../common/packing.jazz"
+
+require "params.jazz"
+
+inline
+fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
+	-> reg ptr u8[Li2_pack_t1len]
+{
+	// TODO: unimplemented
+	return buf;
+}
+
+inline
+fn polyt1_unpack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
+	-> reg ptr u32[Li2_polydeg]
+{
+	// TODO: unimplemented
+	return t1;
+}
+
+fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_pack_s1len] dest)
+	-> reg ptr u8[Li2_pack_s1len]
+{
+	// TODO: unimplemented
+	return dest;
+}
+
+fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
+	-> reg ptr u8[Li2_pack_s2len]
+{
+	// TODO: unimplemented
+    return dest;
+}
+
+//Unpacks a component of either s1 or s2
+fn polyeta_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_etalen] a)
+	-> reg ptr u32[Li2_polydeg]
+{
+	// TODO: unimplemented
+	return r;
+}
+
+param int max_t0 = Li2_expd / 2;
+
+inline
+fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
+	-> reg ptr u8[Li2_pack_t0len]
+{
+    // TODO: unimplemented
+	return dest;
+}
+
+fn polyt0_unpack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] src)
+	-> reg ptr u32[Li2_polydeg]
+{
+	// TODO: unimplemented
+	return t0;
+}
+
+
+inline
+fn polyz_pack(reg ptr u8[Li2_pack_zlen] r, reg ptr u32[Li2_polydeg] a)
+	-> reg ptr u8[Li2_pack_zlen]
+{
+	// TODO: unimplemented
+	return r;
+}
+
+
+inline
+fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
+	-> reg ptr u32[Li2_polydeg]
+{
+	// TODO: unimplemented
+    return r;
+}
+
+
+inline
+fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
+	-> stack u32[Li2_l * Li2_polydeg], //s1
+	stack u32[Li2_k * Li2_polydeg], //s2
+	stack u32[Li2_k * Li2_polydeg] //t0
+{
+    // TODO: unimplemented
+    stack u32[Li2_l * Li2_polydeg] s1;
+	stack u32[Li2_k * Li2_polydeg] s2;
+	stack u32[Li2_k * Li2_polydeg] t0;
+    return s1, s2, t0;
+}
+
+inline
+fn pack_signature(reg ptr u8[32] c_tilde,
+		reg ptr u32[Li2_l * Li2_polydeg] z,
+		reg ptr u32[Li2_k * Li2_polydeg] h)
+	-> stack u8[Li2_SIGN_LEN]
+{
+    // TODO: unimplemented
+    stack u8[Li2_SIGN_LEN] signature;
+	return signature;
+}
+
+inline
+fn pack_w1(reg ptr u32[Li2_k * Li2_polydeg] w1)
+	-> stack u8[Li2_pack_w1len]
+{
+    // TODO: unimplemented
+    stack u8[Li2_pack_w1len] buf;
+	return buf;
+}
