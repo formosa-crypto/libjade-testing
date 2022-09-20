@@ -92,6 +92,7 @@ fn sign_inner(reg u64 ptr_m,
 	stack u32 status;
 	// temporary bools used for while loop condition
 	reg bool tmpbool;
+	reg bool zf;
 	reg u8 tmpboolu8;
 
 	// extra intermediate values
@@ -123,11 +124,28 @@ fn sign_inner(reg u64 ptr_m,
 	attempt = 1;
 	status = -1;
 	while {
-		// TODO: Fill in the "real" maximum attempt count per variant
-		tmpbool = attempt >= 500;
+		// The probability of a single attempt failing is, according to
+		// Equation (5) from the spec approximate to
+		//
+		//   Pr[reject] = 1 - exp[ -256*beta * (l/gamma1 + k/gamma2) ]
+		//
+		// We can rewrite this equation in order to find the number of attempts
+		// for which the probability becomes so small that we should not
+		// expect that it ever happens:
+		//
+		//                       128
+		//   #attempts = - ---------------
+		//                 log2 Pr[reject]
+		//
+		// The resulting value for the maximum number of attempts is set in
+		// the Li2_max_attempts param.
+		//
+		// XXX: For dilithium5, max_attempts = 295
+		tmpbool = attempt > Li2_max_attempts;
 		tmpboolu8 = #SETcc(tmpbool);
 		tmpboolu8 |= done;
-	} (tmpboolu8 == 0) {
+		_, _, _, _, zf = #TEST_8(tmpboolu8, tmpboolu8);
+	} (zf) {
 		attempt += 1;
 
 		reg_nonce = nonce;

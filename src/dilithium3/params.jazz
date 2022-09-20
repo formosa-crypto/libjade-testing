@@ -11,6 +11,7 @@ param int Li2_gamma2 = (Li2_q - 1) / 32;
 param int Li2_tau = 49;
 param int Li2_eta = 4;
 param int Li2_omega = 55;
+param int Li2_max_attempts = 406;
 
 // naming taken from C ref
 // actual lengths are K times the above...
