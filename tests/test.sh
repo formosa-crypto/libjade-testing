@@ -6,7 +6,7 @@
 # Date: 14 Sep 2022
 
 export LD_LIBRARY_PATH="$HOME/jasmin-dilithium/dilithium/ref:$LD_LIBRARY_PATH"
-export TESTS="test_keygen test_fft test_packing test_hashing test_sign_fragments test_expandmask test_sign"
+export TESTS="test_keygen test_fft test_packing test_hashing test_sign_fragments test_expandmask test_sign test_rounding"
 
 make --directory=/home/dsprenkels/jasmin-dilithium/dilithium/ref libpqcrystals_dilithium{2,3,5}_ref.so libpqcrystals_fips202_ref.so || exit 125
 make --trace || exit 1

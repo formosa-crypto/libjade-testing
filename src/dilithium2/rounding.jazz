@@ -1,13 +1,14 @@
 require "params.jazz"
+require "../common/rounding.jazz"
 
-// high bits = a0, low bits = a1
+inline
 fn decompose(reg u32 a) -> reg u32, reg u32 {
-	// TODO: unimplemented
-    reg u32 a_cpy;
-    a = -1;
-    a_cpy = a;
-    return a, a_cpy;
+	reg u32 a0;
+	reg u32 a1;
+	a0, a1 = decompose_gamma2_88(a);
+	return a0, a1;
 }
+
 
 fn make_hint(reg u32 a0 a1) -> reg u32 {
 	// TODO: unimplemented

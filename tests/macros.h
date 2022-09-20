@@ -9,10 +9,11 @@
 #define SIGN_JAZZ dilithium2_sign_jazz
 #define PUBLICKEYBYTES pqcrystals_dilithium2_PUBLICKEYBYTES
 #define SECRETKEYBYTES pqcrystals_dilithium2_SECRETKEYBYTES
-
 #define POLYT1_PACK_REF pqcrystals_dilithium2_ref_polyt1_pack
 #define POLYT1_UNPACK_REF pqcrystals_dilithium2_ref_polyt1_unpack
 #define POLYZ_PACK pqcrystals_dilithium2_ref_polyz_pack
+#define DECOMPOSE_REF pqcrystals_dilithium2_ref_decompose
+#define DECOMPOSE_JAZZ decompose_gamma2_88_jazz
 
 #elif DILITHIUM_MODE == 3
 
@@ -23,10 +24,11 @@
 #define SIGN_JAZZ dilithium3_sign_jazz
 #define PUBLICKEYBYTES pqcrystals_dilithium3_PUBLICKEYBYTES
 #define SECRETKEYBYTES pqcrystals_dilithium3_SECRETKEYBYTES
-
 #define POLYT1_PACK_REF pqcrystals_dilithium3_ref_polyt1_pack
 #define POLYT1_UNPACK_REF pqcrystals_dilithium3_ref_polyt1_unpack
 #define POLYZ_PACK pqcrystals_dilithium3_ref_polyz_pack
+#define DECOMPOSE_REF pqcrystals_dilithium3_ref_decompose
+#define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
 
 #elif DILITHIUM_MODE == 5
 
@@ -37,10 +39,11 @@
 #define SIGN_JAZZ dilithium5_sign_jazz
 #define PUBLICKEYBYTES pqcrystals_dilithium5_PUBLICKEYBYTES
 #define SECRETKEYBYTES pqcrystals_dilithium5_SECRETKEYBYTES
-
 #define POLYT1_PACK_REF pqcrystals_dilithium5_ref_polyt1_pack
 #define POLYT1_UNPACK_REF pqcrystals_dilithium5_ref_polyt1_unpack
 #define POLYZ_PACK pqcrystals_dilithium5_ref_polyz_pack
+#define DECOMPOSE_REF pqcrystals_dilithium5_ref_decompose
+#define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
 
 #else
 
