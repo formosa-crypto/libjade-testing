@@ -14,10 +14,10 @@ using std::vector;
 using std::memcmp;
 
 extern "C" {
-	void SIGN_JAZZ(uint8_t signature[pqcrystals_dilithium3_BYTES],
-	               uint8_t* msg,
-	               uint64_t m_len,
-	               uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES]);
+	int32_t SIGN_JAZZ(uint8_t signature[pqcrystals_dilithium3_BYTES],
+	                  uint8_t* msg,
+	                  uint64_t m_len,
+	                  uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -47,7 +47,8 @@ int main() {
 	uint8_t signature_ref[pqcrystals_dilithium3_BYTES];
 	uint8_t signature_jazz[pqcrystals_dilithium3_BYTES];
 
-	SIGN_JAZZ(signature_jazz, m, 1000, sk);
+	int32_t status = SIGN_JAZZ(signature_jazz, m, 1000, sk);
+	std::cout << std::hex << "status: 0x"  << status << "\n";
 
 	size_t siglen;
 

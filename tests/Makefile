@@ -53,6 +53,7 @@ test_%: test_%.cpp %_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $*_export.s test_$*.cpp -o $@ $(LDFLAGS)
 
 %.s: %.jazz ../src/**/*.jazz
+	$(MAKE) --directory=../src/common
 	jasminc -pasm $< > $@
 
 clean:

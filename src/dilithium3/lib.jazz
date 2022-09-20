@@ -12,8 +12,12 @@ fn dilithium3_keygen_jazz(reg u64 pk_ptr, reg u64 sk_ptr, reg u64 randomness) {
 }
 
 export
-fn dilithium3_sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) {
-	sign(ptr_signature, ptr_m, m_len, ptr_sk);
+fn dilithium3_sign_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) -> reg u32 {
+    stack u32 status;
+    reg u32 status_reg;
+    status = sign(ptr_signature, ptr_m, m_len, ptr_sk);
+    status_reg = status;
+    return status_reg;
 }
 
 export
