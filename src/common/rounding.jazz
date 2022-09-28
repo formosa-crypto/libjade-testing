@@ -28,14 +28,13 @@ fn power2round(reg u32 r)
 
 // high bits = a0, low bits = a1
 fn decompose_gamma2_88(reg u32 a) -> reg u32, reg u32 {
-	reg u64 a0;
-	reg u32 a0_32;
-	reg u32 a1;
-	reg u32 v;
+	reg u64 a0 a1;
+	reg u32 a0_32 a1_32;
+	reg u64 v;
 	reg u64 v64;
 
 	// a1  = (a + 127) >> 7;
-	a1 = a;
+	a1 = (64u) a;
 	a1 += 127;
 	a1 >>= 7;
 
@@ -65,7 +64,8 @@ fn decompose_gamma2_88(reg u32 a) -> reg u32, reg u32 {
 	a0 -= v64;
 
 	a0_32 = (32u) a0;
-	return a0_32, a1;
+	a1_32 = (32u) a1;
+	return a0_32, a1_32;
 }
 
 // high bits = a0, low bits = a1
