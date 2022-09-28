@@ -2,23 +2,12 @@ require "fips202.jazz"
 require "packing.jazz"
 require "params.jazz"
 
-// TODO: simplify expandMask_poly functions with preamble/epilogue subroutines
-
 inline
-fn expandMask_poly_gamma1_217(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u16 kappa)
-	-> reg ptr u32[Li2_polydeg]
-{
+fn expandMask_poly_shake_init(stack u64[25] state, reg ptr u8[64] rho_prime, stack u16 kappa)
+	-> stack u64[25] {
 	reg u64 i;
 	reg u8 c;
 	reg u16 v;
-	stack u64[25] state;
-	stack u8[(Li2_pack_zlen_gamma1_217 / SHAKE256_RATE) * SHAKE256_RATE + SHAKE256_RATE] y_packed;
-	stack u64 y_loc;
-	stack u64 output_squeeze_counter;
-	reg u64 addr;
-
-	//there's an argument to call shake256_absorb66
-	//that however introduces an extra copy
 
 	state = st0(state);
 	i = 0;
@@ -40,8 +29,24 @@ fn expandMask_poly_gamma1_217(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_pri
 	state[u8 66] ^= 0x1f;
 	state[u8 SHAKE256_RATE - 1] ^= 0x80;
 
-	y_loc = 0;
+	return state;
+}
 
+inline
+fn expandMask_poly_gamma1_217(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u16 kappa)
+	-> reg ptr u32[Li2_polydeg]
+{
+	reg u64 i;
+	reg u8 c;
+	stack u64[25] state;
+	stack u8[(Li2_pack_zlen_gamma1_217 / SHAKE256_RATE) * SHAKE256_RATE + SHAKE256_RATE] y_packed;
+	stack u64 y_loc;
+	stack u64 output_squeeze_counter;
+	reg u64 addr;
+
+	state = expandMask_poly_shake_init(state, rho_prime, kappa);
+
+	y_loc = 0;
 	output_squeeze_counter = 0;
 	while(output_squeeze_counter < (Li2_pack_zlen_gamma1_217 / SHAKE256_RATE + 1)) {
 		state = __keccakf1600_ref(state);
@@ -70,38 +75,15 @@ fn expandMask_poly_gamma1_219(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_pri
 {
 	reg u64 i;
 	reg u8 c;
-	reg u16 v;
 	stack u64[25] state;
 	stack u8[(Li2_pack_zlen_gamma1_219 / SHAKE256_RATE) * SHAKE256_RATE + SHAKE256_RATE] y_packed;
 	stack u64 y_loc;
 	stack u64 output_squeeze_counter;
 	reg u64 addr;
 
-	//there's an argument to call shake256_absorb66
-	//that however introduces an extra copy
-
-	state = st0(state);
-	i = 0;
-	while(i < 64) {
-		c = rho_prime[(int) i];
-		state[u8 (int) i] = c;
-		i += 1;
-	}
-
-	v = kappa;
-	v &= 255;
-	c = (8u) v;
-	state[u8 64] = c;
-
-	v = kappa;
-	v >>= 8;
-	c = (8u) v;
-	state[u8 65] = c;
-	state[u8 66] ^= 0x1f;
-	state[u8 SHAKE256_RATE - 1] ^= 0x80;
+	state = expandMask_poly_shake_init(state, rho_prime, kappa);
 
 	y_loc = 0;
-
 	output_squeeze_counter = 0;
 	while(output_squeeze_counter < (Li2_pack_zlen_gamma1_219 / SHAKE256_RATE + 1)) {
 		state = __keccakf1600_ref(state);
