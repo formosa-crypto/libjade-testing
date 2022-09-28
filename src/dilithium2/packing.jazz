@@ -72,7 +72,7 @@ inline
 fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
 	-> reg ptr u32[Li2_polydeg]
 {
-	// TODO: unimplemented
+	r = polyz_unpack_gamma1_217(r, a);
     return r;
 }
 

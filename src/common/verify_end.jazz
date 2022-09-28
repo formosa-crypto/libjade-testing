@@ -147,8 +147,6 @@ fn verify_inner(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr 
        
     inline int ii;
 
-    reg u32 xorhash; // XXX
-
     status = 0xFF;
     sSig = sig;
     sPk = pk;

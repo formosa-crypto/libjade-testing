@@ -14,6 +14,8 @@
 #define POLYZ_PACK pqcrystals_dilithium2_ref_polyz_pack
 #define DECOMPOSE_REF pqcrystals_dilithium2_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_88_jazz
+#define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium2_ref_poly_uniform_gamma1
+#define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_217_jazz
 
 #elif DILITHIUM_MODE == 3
 
@@ -29,6 +31,8 @@
 #define POLYZ_PACK pqcrystals_dilithium3_ref_polyz_pack
 #define DECOMPOSE_REF pqcrystals_dilithium3_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
+#define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium3_ref_poly_uniform_gamma1
+#define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_219_jazz
 
 #elif DILITHIUM_MODE == 5
 
@@ -44,6 +48,8 @@
 #define POLYZ_PACK pqcrystals_dilithium5_ref_polyz_pack
 #define DECOMPOSE_REF pqcrystals_dilithium5_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
+#define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium5_ref_poly_uniform_gamma1
+#define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_219_jazz
 
 #else
 

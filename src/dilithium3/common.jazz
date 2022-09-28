@@ -1,70 +1,16 @@
-require "../common/poly.jazz"
-require "../common/fips202.jazz"
+require "../common/expandMask.jazz"
 require "../common/expandS.jazz"
+require "../common/fips202.jazz"
+require "../common/poly.jazz"
 
 require "params.jazz"
 require "rounding.jazz"
 require "packing.jazz"
 
-
-// TODO: Make this a generic "Gamma219" function
 inline
 fn expandMask_poly(reg ptr u32[Li2_polydeg] f, reg ptr u8[64] rho_prime, stack u16 kappa)
-	-> reg ptr u32[Li2_polydeg]
-{
-	reg u64 i;
-	reg u8 c;
-	reg u16 v;
-	stack u64[25] state;
-	stack u8[(Li2_pack_zlen / SHAKE256_RATE) * SHAKE256_RATE + SHAKE256_RATE] y_packed;
-	stack u64 y_loc;
-	stack u64 output_squeeze_counter;
-	reg u64 addr;
-
-	//there's an argument to call shake256_absorb66
-	//that however introduces an extra copy
-
-	state = st0(state);
-	i = 0;
-	while(i < 64) {
-		c = rho_prime[(int) i];
-		state[u8 (int) i] = c;
-		i += 1;
-	}
-
-	v = kappa;
-	v &= 255;
-	c = (8u) v;
-	state[u8 64] = c;
-
-	v = kappa;
-	v >>= 8;
-	c = (8u) v;
-	state[u8 65] = c;
-	state[u8 66] ^= 0x1f;
-	state[u8 SHAKE256_RATE - 1] ^= 0x80;
-
-	y_loc = 0;
-
-	output_squeeze_counter = 0;
-	while(output_squeeze_counter < (Li2_pack_zlen / SHAKE256_RATE + 1)) {
-		state = __keccakf1600_ref(state);
-
-		i = 0;
-		while(i < SHAKE256_RATE) {
-			addr = i;
-			c = state[u8 (int) addr];
-			addr = y_loc;
-			y_packed[(int) addr] = c;
-			y_loc += 1;
-			i += 1;
-		}
-
-		output_squeeze_counter += 1;
-	}
-
-	f = polyz_unpack(f, y_packed[0 : Li2_pack_zlen]);
-
+	-> reg ptr u32[Li2_polydeg] {
+	f = expandMask_poly_gamma1_219(f, rho_prime, kappa);
 	return f;
 }
 

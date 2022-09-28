@@ -11,3 +11,7 @@ param int Li2_log2polydeg = 8;
 // byte-length of a packed t0/t1 polynomial
 param int Li2_pack_t1len = 10 * Li2_polydeg / 8;
 param int Li2_pack_t0len = 13 * Li2_polydeg / 8;
+
+// packed length of z for some specific gamma1
+param int Li2_pack_zlen_gamma1_217 = Li2_polydeg * 18 / 8;
+param int Li2_pack_zlen_gamma1_219 = Li2_polydeg * 20 / 8;
