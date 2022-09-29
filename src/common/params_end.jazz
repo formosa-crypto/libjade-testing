@@ -12,4 +12,4 @@ param int Li2_pack_w1len = Li2_k * Li2_polydeg / 2;
 param int Li2_pack_s1len = Li2_l * Li2_pack_etalen;
 param int Li2_pack_s2len = Li2_k * Li2_pack_etalen;
 param int Li2_pack_s2loc = 96 + Li2_pack_s1len;
-param int Li2_pack_t0loc = Li2_SK_LEN - Li2_k * Li2_pack_t0len;
+param int Li2_pack_t0loc = Li2_pack_s2loc + Li2_pack_s2len;

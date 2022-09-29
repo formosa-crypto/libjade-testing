@@ -3,22 +3,6 @@ require "../common/packing.jazz"
 
 require "params.jazz"
 
-inline
-fn polyt1_pack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
-	-> reg ptr u8[Li2_pack_t1len]
-{
-	// TODO: unimplemented
-	return buf;
-}
-
-inline
-fn polyt1_unpack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
-	-> reg ptr u32[Li2_polydeg]
-{
-	// TODO: unimplemented
-	return t1;
-}
-
 fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_pack_s1len] dest)
 	-> reg ptr u8[Li2_pack_s1len]
 {
@@ -56,24 +40,6 @@ fn polyeta_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_etalen] a)
 	// TODO: unimplemented
 	return r;
 }
-
-param int max_t0 = Li2_expd / 2;
-
-inline
-fn polyt0_pack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] dest)
-	-> reg ptr u8[Li2_pack_t0len]
-{
-    // TODO: unimplemented
-	return dest;
-}
-
-fn polyt0_unpack(reg ptr u32[Li2_polydeg] t0, reg ptr u8[Li2_pack_t0len] src)
-	-> reg ptr u32[Li2_polydeg]
-{
-	// TODO: unimplemented
-	return t0;
-}
-
 
 inline
 fn polyz_pack(reg ptr u8[Li2_pack_zlen] r, reg ptr u32[Li2_polydeg] a)
