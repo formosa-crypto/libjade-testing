@@ -15,3 +15,7 @@ param int Li2_pack_t0len = 13 * Li2_polydeg / 8;
 // packed length of z for some specific gamma1
 param int Li2_pack_zlen_gamma1_217 = Li2_polydeg * 18 / 8;
 param int Li2_pack_zlen_gamma1_219 = Li2_polydeg * 20 / 8;
+
+// packed length of mod-eta arrays
+param int Li2_pack_eta_2_len = 96;
+param int Li2_pack_eta_4_len = 128;

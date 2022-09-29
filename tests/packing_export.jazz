@@ -1,3 +1,4 @@
+require "../src/common/packing.jazz"
 require "../src/dilithium3/packing.jazz"
 
 //void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
@@ -101,6 +102,56 @@ fn polyz_pack_jazz(reg u64 rp, reg u64 ap) {
 		(u8) [rp + i] = c;
 	}
 
+}
+
+export
+fn polyeta_2_pack_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_eta_2_len] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+	reg u64 i;
+
+	i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [ap + 4 * i];
+		a[(int) i] = v;
+		i += 1;
+	}
+
+	r = polyeta_2_pack(a, r);
+
+	i = #set0_64();
+	while (i < Li2_pack_eta_2_len) {
+		c = r[(int) i];
+		(u8) [rp + i] = c;
+		i += 1;
+	}
+}
+
+export
+fn polyeta_4_pack_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_eta_4_len] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+	reg u64 i;
+
+	i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [ap + 4 * i];
+		a[(int) i] = v;
+		i += 1;
+	}
+
+	r = polyeta_4_pack(a, r);
+
+	i = #set0_64();
+	while (i < Li2_pack_eta_4_len) {
+		c = r[(int) i];
+		(u8) [rp + i] = c;
+		i += 1;
+	}
 }
 
 export

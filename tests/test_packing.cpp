@@ -6,11 +6,12 @@
 #include <array>
 
 extern "C" {
-#include "../dilithium/ref/api.h"
-#include "../dilithium/ref/params.h"
-#include "../dilithium/ref/poly.h"
-#include "../dilithium/ref/polyvec.h"
-#include "../dilithium/ref/packing.h"
+	#include "macros.h"
+	#include "../dilithium/ref/api.h"
+	#include "../dilithium/ref/params.h"
+	#include "../dilithium/ref/poly.h"
+	#include "../dilithium/ref/polyvec.h"
+	#include "../dilithium/ref/packing.h"
 }
 
 using std::cout;
@@ -22,12 +23,11 @@ using std::to_string;
 using std::array;
 
 extern "C" {
-	#include "macros.h"
-
 	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void unpack_t1_jazz(int32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void polyz_unpack_jazz(int32_t p[N], uint8_t buf[POLYZ_PACKEDBYTES]);
 	void polyz_pack_jazz(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
+	void POLY_ETA_PACK_JAZZ(uint8_t buf[POLYETA_PACKEDBYTES], int32_t p[N]);
 	void polyeta_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void polyt0_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void pack_signature_jazz(uint8_t c_tilde[32],
@@ -142,6 +142,27 @@ void test_unpack_z() {
 	}
 }
 
+void test_pack_eta() {
+	poly p_ref;
+	uint8_t buf_ref[POLYETA_PACKEDBYTES];
+	uint8_t buf_jazz[POLYETA_PACKEDBYTES];
+
+	for (size_t i = 0; i < POLYETA_PACKEDBYTES; i++) {
+		buf_ref[i] = sampleByte();
+	}
+	polyeta_unpack(&p_ref, buf_ref);
+	POLY_ETA_PACK_JAZZ(buf_jazz, p_ref.coeffs);
+
+	for (size_t i = 0; i < POLYETA_PACKEDBYTES; i++) {
+		if (buf_jazz[i] != buf_ref[i]) {
+			PRINT(i);
+			PRINT((int)buf_jazz[i]);
+			PRINT((int)buf_ref[i]);
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
+}
+
 void test_unpack_eta() {
 	poly p_ref;
 	int32_t p_jazz[N];
@@ -245,6 +266,7 @@ int main() {
 	test_pack_t1();
 	test_unpack_t1();
 	test_unpack_z();
+	test_pack_eta();
 	test_unpack_eta();
 	test_unpack_t0();
 	test_pack_z();

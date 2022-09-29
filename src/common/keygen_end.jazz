@@ -59,34 +59,16 @@ fn keygen_inner(reg ptr u8[32] random_zeta)
 
 	s1, s2 = expandS(rho_prime);
 
-	//saving these before they get modified in-place
-	sk[96 : Li2_pack_s1len] = pack_s1(
-		s1, sk[96 : Li2_pack_s1len]);
-	sk[Li2_pack_s2loc : Li2_pack_s2len] = pack_s2(
-		s2, sk[Li2_pack_s2loc : Li2_pack_s2len]);
+	// save secret key
+	sk[96 : Li2_pack_s1len] = pack_s1(s1, sk[96 : Li2_pack_s1len]);
+	sk[Li2_pack_s2loc : Li2_pack_s2len] = pack_s2(s2, sk[Li2_pack_s2loc : Li2_pack_s2len]);
 
-	// write s1 in eta-x form
-	i = 0;
-	while(i < Li2_l * Li2_polydeg) {
-		v32 = Li2_eta;
-		v32 -= s1[(int) i];
-		s1[(int) i] = v32;
-		i += 1;
-	}
 	s1 = fft_vec(s1);
 
 	fft_matA = expandA(rho);
 	t = mult_mat_vec(fft_matA, s1);
 	t = reduce32_veck(t);
 	t = ifft_to_mont_vec(t);
-
-	i = 0;
-	while(i < Li2_k * Li2_polydeg) {
-		v32 = Li2_eta;
-		v32 -= s2[(int) i];
-		s2[(int) i] = v32;
-		i += 1;
-	}
 
 	t = sum_vecs(t, s2);
 

@@ -46,6 +46,8 @@ int main() {
 	for(int i = 0; i < PUBLICKEYBYTES; ++i) {
 		if(pk_ref[i] != pk_jazz[i]) {
 			PRINT(i);
+			PRINT((int)pk_ref[i]);
+			PRINT((int)pk_jazz[i]);
 			break;
 		}
 	}
@@ -53,6 +55,8 @@ int main() {
 	for(int i = 96; i < SECRETKEYBYTES; ++i) {
 		if(sk_ref[i] != sk_jazz[i]) {
 			PRINT(i);
+			PRINT((int)sk_ref[i]);
+			PRINT((int)sk_jazz[i]);
 			break;
 		}
 	}

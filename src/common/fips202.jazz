@@ -221,26 +221,6 @@ fn shake256_absorb32(stack u8[32] in) -> stack u64[25]
   return state;
 }
 
-// And sometimes 66...
-inline
-fn shake256_absorb66(stack u8[66] in) -> stack u64[25]
-{
-  //param int SHAKE256_RATE = 136;
-  reg u8 c;
-  inline int i;
-  stack u64[25] state;
-
-  state = st0(state);
-  for i = 0 to 66 {
-    c = in[i];
-    state[u8 i] ^= c;
-  }
-  state[u8 66] ^= 0x1f;
-  state[u8 SHAKE256_RATE - 1] ^= 0x80;
-
-  return state;
-}
-
 //Maybe should allow squeezing partial blocks
 //for performance?
 inline

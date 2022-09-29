@@ -162,39 +162,30 @@ fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_pack_s1len] dest)
 {
 	reg u8 value;
 
-	reg u32 lower higher;
-	reg u32 temp;
+	reg u32 eta lo hi;
+	reg u32 coeff;
 
-	reg u64 i;
+	reg u64 i addr;
 
-	reg u64 addr;
+	eta = Li2_eta;
+	i = #set0_64();
+	while (i < Li2_l * Li2_polydeg) {
+		coeff = s1[(int) i];
+		lo = eta;
+		lo -= coeff;
 
-	i = 0;
-	while(i < Li2_l * Li2_polydeg) {
+		coeff = s1[(int) i + 1];
+		hi = eta;
+		hi -= coeff;
+
+		hi <<= 4;
+		hi += lo;
+		value = (8u) hi;
+
 		addr = i;
 		addr >>= 1;
-
-		temp = s1[(int) i];
-		i += 1;
-		//higher = eta_minus_x(temp);
-		higher = temp;
-
-		temp = s1[(int) i];
-		i += 1;
-		//lower = eta_minus_x(temp);
-		lower = temp;
-
-		/* Why is this not correct?
-		   higher <<= 4;
-		   higher += lower;
-		   value = (8u) higher;
-		 */
-
-		lower <<= 4;
-		lower += higher;
-		value = (8u) lower;
-
 		dest[(int) addr] = value;
+		i += 2;
 	}
 	return dest;
 }
@@ -204,33 +195,30 @@ fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 {
 	reg u8 value;
 
-	reg u32 lower higher;
-	reg u32 temp;
+	reg u32 eta lo hi;
+	reg u32 coeff;
 
-	reg u64 i;
+	reg u64 i addr;
 
-	reg u64 addr;
+	eta = Li2_eta;
+	i = #set0_64();
+	while (i < Li2_k * Li2_polydeg) {
+		coeff = s1[(int) i];
+		lo = eta;
+		lo -= coeff;
 
-	i = 0;
-	while(i < Li2_k * Li2_polydeg) {
+		coeff = s1[(int) i + 1];
+		hi = eta;
+		hi -= coeff;
+
+		hi <<= 4;
+		hi += lo;
+		value = (8u) hi;
+
 		addr = i;
 		addr >>= 1;
-
-		temp = s1[(int) i];
-		i += 1;
-		//higher = eta_minus_x(temp);
-		higher = temp;
-
-		temp = s1[(int) i];
-		i += 1;
-		//lower = eta_minus_x(temp);
-		lower = temp;
-
-		lower <<= 4;
-		lower += higher;
-		value = (8u) lower;
-
 		dest[(int) addr] = value;
+		i += 2;
 	}
 	return dest;
 }

@@ -22,15 +22,31 @@ fn polyt1_unpack(reg ptr u32[Li2_polydeg] t1, reg ptr u8[Li2_pack_t1len] buf)
 fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_pack_s1len] dest)
 	-> reg ptr u8[Li2_pack_s1len]
 {
-	// TODO: unimplemented
+	inline int ii;
+	reg ptr u8[Li2_pack_etalen] buf;
+	reg ptr u32[Li2_polydeg] poly;
+
+	for ii = 0 to Li2_l {
+		buf = dest[Li2_pack_etalen * ii : Li2_pack_etalen];
+		poly = s1[Li2_polydeg * ii : Li2_polydeg];
+		dest[Li2_pack_etalen * ii : Li2_pack_etalen] = polyeta_2_pack(poly, buf);
+	}
 	return dest;
 }
 
 fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 	-> reg ptr u8[Li2_pack_s2len]
 {
-	// TODO: unimplemented
-    return dest;
+	inline int ii;
+	reg ptr u8[Li2_pack_etalen] buf;
+	reg ptr u32[Li2_polydeg] poly;
+
+	for ii = 0 to Li2_k {
+		buf = dest[Li2_pack_etalen * ii : Li2_pack_etalen];
+		poly = s1[Li2_polydeg * ii : Li2_polydeg];
+		dest[Li2_pack_etalen * ii : Li2_pack_etalen] = polyeta_2_pack(poly, buf);
+	}
+	return dest;
 }
 
 //Unpacks a component of either s1 or s2

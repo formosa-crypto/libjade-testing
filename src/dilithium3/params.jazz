@@ -15,6 +15,7 @@ param int Li2_max_attempts = 406;
 
 // naming taken from C ref
 // actual lengths are K times the above...
+param int Li2_pack_etalen = 128;
 param int Li2_pack_zlen = Li2_pack_zlen_gamma1_219;
 param int Li2_pack_hstart = 32 + Li2_l * Li2_pack_zlen;
 

@@ -1,5 +1,8 @@
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
+// TODO: We can remove all the ref macros, because they are already defined
+// in the respective Dilithium headers
+
 #if DILITHIUM_MODE == 2
 
 #define SEEDED_KEYGEN_REF pqcrystals_dilithium2_ref_seeded_keypair
@@ -16,6 +19,8 @@
 #define DECOMPOSE_JAZZ decompose_gamma2_88_jazz
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium2_ref_poly_uniform_gamma1
 #define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_217_jazz
+
+#define POLY_ETA_PACK_JAZZ polyeta_2_pack_jazz
 
 #elif DILITHIUM_MODE == 3
 
@@ -34,6 +39,8 @@
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium3_ref_poly_uniform_gamma1
 #define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_219_jazz
 
+#define POLY_ETA_PACK_JAZZ polyeta_4_pack_jazz
+
 #elif DILITHIUM_MODE == 5
 
 #define SEEDED_KEYGEN_REF pqcrystals_dilithium5_ref_seeded_keypair
@@ -50,6 +57,8 @@
 #define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium5_ref_poly_uniform_gamma1
 #define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_219_jazz
+
+#define POLY_ETA_PACK_JAZZ polyeta_2_pack_jazz
 
 #else
 
