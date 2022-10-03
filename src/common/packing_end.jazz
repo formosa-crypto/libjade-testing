@@ -38,3 +38,77 @@ fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
 
 	return s1, s2, t0;
 }
+
+inline
+fn pack_signature(reg ptr u8[32] c_tilde,
+		reg ptr u32[Li2_l * Li2_polydeg] z,
+		reg ptr u32[Li2_k * Li2_polydeg] h)
+	-> stack u8[Li2_SIGN_LEN]
+{
+	stack u8[Li2_SIGN_LEN] signature;
+	reg u8 c;
+	reg ptr u8[Li2_pack_zlen] z_buf;
+	reg ptr u32[Li2_polydeg] z_to_pack;
+	reg u64 i;
+	inline int ii;
+	stack u8 k;
+	stack u64 j;
+	reg u64 reg_j;
+	reg u64 addr;
+	reg u32 coeff;
+
+	i = 0;
+	while(i < 32) {
+		c = c_tilde[(int) i];
+		signature[(int) i] = c;
+		i += 1;
+	}
+
+	for ii = 0 to Li2_l {
+		z_buf = signature[32 + Li2_pack_zlen * ii : Li2_pack_zlen];
+		z_to_pack = z[ii * Li2_polydeg : Li2_polydeg];
+		z_buf = polyz_pack(z_buf, z_to_pack);
+		signature[32 + Li2_pack_zlen * ii : Li2_pack_zlen] = z_buf;
+	}
+
+	i = 0;
+	while(i < Li2_omega + Li2_k) {
+		signature[(int) (Li2_pack_hstart + i)] = 0;
+		i += 1;
+	}
+	/*
+	TODO: Ethan left this: figure out why it is here.
+	k = 0;
+	for(i = 0; i < K; ++i) {
+		for(j = 0; j < N; ++j)
+			if(h->vec[i].coeffs[j] != 0)
+				sig[k++] = j;
+		sig[OMEGA + i] = k;
+	}
+	*/
+
+	k = 0;
+	i = 0;
+	while(i < Li2_k) {
+		j = 0;
+		while(j < Li2_polydeg) {
+			addr = Li2_polydeg;
+			addr *= i;
+			reg_j = j;
+			addr += reg_j;
+			coeff = h[(int) addr];
+			if(coeff != 0) {
+				reg_j = j;
+				c = (8u) reg_j;
+				addr = (64u) k;
+				signature[(int) (Li2_pack_hstart + addr)] = c;
+				k += 1;
+			}
+			j += 1;
+		}
+		signature[(int) (Li2_pack_hstart + Li2_omega + i)] = k;
+		i += 1;
+	}
+
+	return signature;
+}

@@ -26,7 +26,7 @@ extern "C" {
 	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void unpack_t1_jazz(int32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void polyz_unpack_jazz(int32_t p[N], uint8_t buf[POLYZ_PACKEDBYTES]);
-	void polyz_pack_jazz(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
+	void POLY_Z_PACK_JAZZ(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
 	void POLY_ETA_PACK_JAZZ(uint8_t buf[POLYETA_PACKEDBYTES], int32_t p[N]);
 	void POLY_ETA_UNPACK_JAZZ(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void polyt0_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
@@ -65,7 +65,7 @@ void test_pack_t1() {
 	}
 
 	uint8_t buf_ref[POLYT1_PACKEDBYTES];
-	POLYT1_PACK_REF(buf_ref, &p);
+	polyt1_pack(buf_ref, &p);
 
 	uint8_t buf_jazz[POLYT1_PACKEDBYTES];
 	pack_t1_jazz(uint_p, buf_jazz);
@@ -83,7 +83,7 @@ void test_unpack_t1() {
 	}
 
 	poly p_ref;
-	POLYT1_UNPACK_REF(&p_ref, buf);
+	polyt1_unpack(&p_ref, buf);
 
 	poly p_jazz;
 	unpack_t1_jazz(p_jazz.coeffs, buf);
@@ -104,10 +104,10 @@ void test_pack_z() {
 		p.coeffs[i] = sample_z_component();
 
 	uint8_t buf_ref[POLYZ_PACKEDBYTES];
-	POLYZ_PACK(buf_ref, &p);
+	polyz_pack(buf_ref, &p);
 
 	uint8_t buf_jazz[POLYZ_PACKEDBYTES];
-	polyz_pack_jazz(buf_jazz, p.coeffs);
+	POLY_Z_PACK_JAZZ(buf_jazz, p.coeffs);
 
 	for(int i = 0; i < POLYZ_PACKEDBYTES; ++i) {
 		if(buf_ref[i] != buf_jazz[i]) {
