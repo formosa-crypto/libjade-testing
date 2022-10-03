@@ -58,17 +58,6 @@ fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
 }
 
 inline
-fn pack_signature(reg ptr u8[32] c_tilde,
-		reg ptr u32[Li2_l * Li2_polydeg] z,
-		reg ptr u32[Li2_k * Li2_polydeg] h)
-	-> stack u8[Li2_SIGN_LEN]
-{
-    // TODO: unimplemented
-    stack u8[Li2_SIGN_LEN] signature;
-	return signature;
-}
-
-inline
 fn pack_w1(reg ptr u32[Li2_k * Li2_polydeg] w1)
 	-> stack u8[Li2_pack_w1len]
 {
