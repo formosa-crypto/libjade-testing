@@ -1,0 +1,40 @@
+inline
+fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
+	-> stack u32[Li2_l * Li2_polydeg], //s1
+	stack u32[Li2_k * Li2_polydeg], //s2
+	stack u32[Li2_k * Li2_polydeg] //t0
+{
+	stack u32[Li2_l * Li2_polydeg] s1;
+	stack u32[Li2_k * Li2_polydeg] s2;
+	stack u32[Li2_k * Li2_polydeg] t0;
+
+	reg ptr u32[Li2_polydeg] poly_to_unpack;
+    reg ptr u8[Li2_pack_etalen] sx_in_sk;
+    reg ptr u8[Li2_pack_t0len] t0_in_sk;
+
+	inline int ii;
+
+	// unpack sk where needed
+	for ii = 0 to Li2_l {
+		poly_to_unpack = s1[ii * Li2_polydeg : Li2_polydeg];
+        sx_in_sk = sk[96 + ii * Li2_pack_etalen : Li2_pack_etalen];
+		poly_to_unpack = polyeta_unpack(poly_to_unpack, sx_in_sk);
+		s1[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
+	}
+
+	for ii = 0 to Li2_k {
+		poly_to_unpack = s2[ii * Li2_polydeg : Li2_polydeg];
+        sx_in_sk = sk[Li2_pack_s2loc + ii * Li2_pack_etalen : Li2_pack_etalen];
+		poly_to_unpack = polyeta_unpack(poly_to_unpack, sx_in_sk);
+		s2[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
+	}
+
+	for ii = 0 to Li2_k {
+		poly_to_unpack = t0[ii * Li2_polydeg : Li2_polydeg];
+        t0_in_sk = sk[Li2_SK_LEN - (Li2_k - ii) * Li2_pack_t0len : Li2_pack_t0len];
+		poly_to_unpack = polyt0_unpack(poly_to_unpack, t0_in_sk);
+		t0[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
+	}
+
+	return s1, s2, t0;
+}

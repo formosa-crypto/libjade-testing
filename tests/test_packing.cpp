@@ -28,7 +28,7 @@ extern "C" {
 	void polyz_unpack_jazz(int32_t p[N], uint8_t buf[POLYZ_PACKEDBYTES]);
 	void polyz_pack_jazz(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
 	void POLY_ETA_PACK_JAZZ(uint8_t buf[POLYETA_PACKEDBYTES], int32_t p[N]);
-	void polyeta_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
+	void POLY_ETA_UNPACK_JAZZ(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void polyt0_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void pack_signature_jazz(uint8_t c_tilde[32],
 			int32_t z[L * N], int32_t h[K * N], uint8_t sig[CRYPTO_BYTES]);
@@ -173,7 +173,7 @@ void test_unpack_eta() {
 	}
 
 	polyeta_unpack(&p_ref, buf); 
-	polyeta_unpack_jazz(p_jazz, buf);
+	POLY_ETA_UNPACK_JAZZ(p_jazz, buf);
 
 	for(int i = 0; i < N; ++i) {
 		if(p_ref.coeffs[i] != p_jazz[i]) {

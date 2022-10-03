@@ -155,19 +155,40 @@ fn polyeta_4_pack_jazz(reg u64 rp, reg u64 ap) {
 }
 
 export
-fn polyeta_unpack_jazz(reg u64 rp, reg u64 ap) {
+fn polyeta_2_unpack_jazz(reg u64 rp, reg u64 ap) {
 	stack u32[Li2_polydeg] r;
-	stack u8[Li2_pack_etalen] a;
+	stack u8[Li2_pack_eta_2_len] a;
 	reg u8 c;
 	reg u32 v;
 	inline int i;
 
-	for i = 0 to Li2_pack_etalen {
+	for i = 0 to Li2_pack_eta_2_len {
 		c = (u8) [ap + i];
 		a[i] = c;
 	}
 
-	r = polyeta_unpack(r, a);
+	r = polyeta_2_unpack(r, a);
+
+	for i = 0 to Li2_polydeg {
+		v = r[i];
+		(u32) [rp + 4 * i] = v;
+	}
+}
+
+export
+fn polyeta_4_unpack_jazz(reg u64 rp, reg u64 ap) {
+	stack u32[Li2_polydeg] r;
+	stack u8[Li2_pack_eta_4_len] a;
+	reg u8 c;
+	reg u32 v;
+	inline int i;
+
+	for i = 0 to Li2_pack_eta_4_len {
+		c = (u8) [ap + i];
+		a[i] = c;
+	}
+
+	r = polyeta_4_unpack(r, a);
 
 	for i = 0 to Li2_polydeg {
 		v = r[i];

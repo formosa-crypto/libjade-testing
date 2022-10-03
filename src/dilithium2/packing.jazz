@@ -37,7 +37,7 @@ fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 fn polyeta_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_etalen] a)
 	-> reg ptr u32[Li2_polydeg]
 {
-	// TODO: unimplemented
+	r = polyeta_2_unpack(r, a);
 	return r;
 }
 
@@ -49,27 +49,12 @@ fn polyz_pack(reg ptr u8[Li2_pack_zlen] r, reg ptr u32[Li2_polydeg] a)
 	return r;
 }
 
-
 inline
 fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
 	-> reg ptr u32[Li2_polydeg]
 {
 	r = polyz_unpack_gamma1_217(r, a);
     return r;
-}
-
-
-inline
-fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
-	-> stack u32[Li2_l * Li2_polydeg], //s1
-	stack u32[Li2_k * Li2_polydeg], //s2
-	stack u32[Li2_k * Li2_polydeg] //t0
-{
-    // TODO: unimplemented
-    stack u32[Li2_l * Li2_polydeg] s1;
-	stack u32[Li2_k * Li2_polydeg] s2;
-	stack u32[Li2_k * Li2_polydeg] t0;
-    return s1, s2, t0;
 }
 
 inline
@@ -91,3 +76,5 @@ fn pack_w1(reg ptr u32[Li2_k * Li2_polydeg] w1)
     stack u8[Li2_pack_w1len] buf;
 	return buf;
 }
+
+require "../common/packing_end.jazz"

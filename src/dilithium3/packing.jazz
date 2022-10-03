@@ -69,42 +69,10 @@ fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 	return dest;
 }
 
-//Unpacks a component of either s1 or s2
 fn polyeta_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_etalen] a)
 	-> reg ptr u32[Li2_polydeg]
 {
-	reg u64 i;
-	reg u32 x;
-	reg u64 addr;
-	
-	i = 0;
-	while(i < Li2_polydeg / 2) {
-
-		// r->coeffs[2*i+0] = a[i] & 0x0F;
-		x = (32u) a[(int) i];
-		x &= 0x0F;
-		// r->coeffs[2*i+0] = ETA - r->coeffs[2*i+0];
-		x = -x;
-		x += Li2_eta;
-
-		addr = i;
-		addr *= 2;
-		r[(int) addr] = x;
-
-	    // r->coeffs[2*i+1] = a[i] >> 4;
-		x = (32u) a[(int) i];
-		x >>= 4;
-		// r->coeffs[2*i+1] = ETA - r->coeffs[2*i+1];
-		x = -x;
-		x += Li2_eta;
-
-		addr = i;
-		addr *= 2;
-		addr += 1;
-		r[(int) addr] = x;
-
-		i += 1;
-	}
+	r = polyeta_4_unpack(r, a);
 	return r;
 }
 
@@ -185,46 +153,6 @@ fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
 	return r;
 }
 
-
-inline
-fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
-	-> stack u32[Li2_l * Li2_polydeg], //s1
-	stack u32[Li2_k * Li2_polydeg], //s2
-	stack u32[Li2_k * Li2_polydeg] //t0
-{
-	stack u32[Li2_l * Li2_polydeg] s1;
-	stack u32[Li2_k * Li2_polydeg] s2;
-	stack u32[Li2_k * Li2_polydeg] t0;
-
-	// temp vars.
-	inline int ii;
-	reg ptr u32[Li2_polydeg] poly_to_unpack;
-
-	// unpack sk where needed
-	for ii = 0 to Li2_l {
-		poly_to_unpack = s1[ii * Li2_polydeg : Li2_polydeg];
-		poly_to_unpack = polyeta_unpack(poly_to_unpack,
-			sk[96 + ii * Li2_pack_etalen : Li2_pack_etalen]);
-		s1[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
-	}
-
-	for ii = 0 to Li2_k {
-		poly_to_unpack = s2[ii * Li2_polydeg : Li2_polydeg];
-		poly_to_unpack = polyeta_unpack(poly_to_unpack,
-			sk[Li2_pack_s2loc + ii * Li2_pack_etalen : Li2_pack_etalen]);
-		s2[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
-	}
-
-	for ii = 0 to Li2_k {
-		poly_to_unpack = t0[ii * Li2_polydeg : Li2_polydeg];
-		poly_to_unpack = polyt0_unpack(poly_to_unpack,
-			sk[Li2_SK_LEN - (Li2_k - ii) * Li2_pack_t0len : Li2_pack_t0len]);
-		t0[ii * Li2_polydeg : Li2_polydeg] = poly_to_unpack;
-	}
-
-	return s1, s2, t0;
-}
-
 inline
 fn pack_signature(reg ptr u8[32] c_tilde,
 		reg ptr u32[Li2_l * Li2_polydeg] z,
@@ -263,6 +191,7 @@ fn pack_signature(reg ptr u8[32] c_tilde,
 		i += 1;
 	}
 	/*
+	TODO: Ethan left this: figure out why it is here.
 	k = 0;
 	for(i = 0; i < K; ++i) {
 		for(j = 0; j < N; ++j)
@@ -318,7 +247,7 @@ fn pack_w1(reg ptr u32[Li2_k * Li2_polydeg] w1)
 		val = w1[(int) addr];
 		c1 = (8u) val;
 
-		/* why not this??
+		/* TODO: (note from Ethan): why not this??
 		c0 <<= 4;
 		c0 += c1;
 		*/
@@ -332,3 +261,5 @@ fn pack_w1(reg ptr u32[Li2_k * Li2_polydeg] w1)
 	}
 	return buf;
 }
+
+require "../common/packing_end.jazz"

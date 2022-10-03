@@ -21,6 +21,7 @@
 #define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_217_jazz
 
 #define POLY_ETA_PACK_JAZZ polyeta_2_pack_jazz
+#define POLY_ETA_UNPACK_JAZZ polyeta_2_unpack_jazz
 
 #elif DILITHIUM_MODE == 3
 
@@ -40,6 +41,7 @@
 #define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_219_jazz
 
 #define POLY_ETA_PACK_JAZZ polyeta_4_pack_jazz
+#define POLY_ETA_UNPACK_JAZZ polyeta_4_unpack_jazz
 
 #elif DILITHIUM_MODE == 5
 
@@ -59,6 +61,7 @@
 #define POLY_UNIFORM_GAMMA1_JAZZ expandMask_poly_gamma1_219_jazz
 
 #define POLY_ETA_PACK_JAZZ polyeta_2_pack_jazz
+#define POLY_ETA_UNPACK_JAZZ polyeta_2_unpack_jazz
 
 #else
 

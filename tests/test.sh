@@ -18,6 +18,7 @@ readonly DEFAULT_TESTS=(
 )
 export TESTS=("${TESTS[@]:-${DEFAULT_TESTS[@]}}")
 LOGFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.log)
+ASMFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.s)
 
 make --directory=/home/dsprenkels/jasmin-dilithium/dilithium/ref libpqcrystals_dilithium{2,3,5}_ref.so libpqcrystals_fips202_ref.so || exit 125
 make --trace "${TESTS[@]}" || exit 1
@@ -27,7 +28,8 @@ for test_name in "${TESTS[@]}"; do
 done
 
 echo >&2 "Tests done!"
-(set -x; jasminc -wea "../src/${VARIANT:-dilithium2}/lib.jazz" >/dev/null 2>"$LOGFILE")
+(set -x; jasminc -intel -wea -pasm "../src/${VARIANT:-dilithium2}/lib.jazz" >"$ASMFILE" 2>"$LOGFILE")
 echo "$(grep -c -F 'extra assignment introduced' "$LOGFILE") extra assignment warnings in $LOGFILE"
+echo "$(wc -l <"$ASMFILE") lines in $ASMFILE"
 
 exit 0

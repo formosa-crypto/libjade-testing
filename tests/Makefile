@@ -54,7 +54,7 @@ test_%: test_%.cpp %_export.s
 
 %.s: %.jazz ../src/**/*.jazz
 	$(MAKE) --directory=../src/common
-	jasminc -pasm $< > $@
+	jasminc -pasm $< >$@
 
 clean:
 	$(MAKE) --directory=../dilithium/ref clean
