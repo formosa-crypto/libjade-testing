@@ -14,7 +14,7 @@ fn pack_s1(reg ptr u32[Li2_l * Li2_polydeg] s1, reg ptr u8[Li2_pack_s1len] dest)
 	reg u64 i addr;
 
 	eta = Li2_eta;
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < Li2_l * Li2_polydeg) {
 		coeff = s1[(int) i];
 		lo = eta;
@@ -47,7 +47,7 @@ fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 	reg u64 i addr;
 
 	eta = Li2_eta;
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < Li2_k * Li2_polydeg) {
 		coeff = s1[(int) i];
 		lo = eta;

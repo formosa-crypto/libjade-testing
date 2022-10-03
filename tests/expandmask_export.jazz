@@ -12,7 +12,7 @@ fn expandMask_poly_gamma1_219_jazz(reg u64 rho_prime_ptr, reg u16 nonce, reg u64
 	reg u8 c;
 	reg u32 v;
 
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < 64) {
 		c = (u8)[rho_prime_ptr + i];
 		rho_prime[(int) i] = c;
@@ -22,7 +22,7 @@ fn expandMask_poly_gamma1_219_jazz(reg u64 rho_prime_ptr, reg u16 nonce, reg u64
 
 	y_elem = expandMask_poly_gamma1_219(y_elem, rho_prime, nonce);
 
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < Li2_polydeg) {
 		v = y_elem[(int) i];
 		(u32) [ptr_y + 4 * i] = v;
@@ -40,7 +40,7 @@ fn expandMask_poly_gamma1_217_jazz(reg u64 rho_prime_ptr, reg u16 nonce, reg u64
 	reg u8 c;
 	reg u32 v;
 
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < 64) {
 		c = (u8)[rho_prime_ptr + i];
 		rho_prime[(int) i] = c;
@@ -50,7 +50,7 @@ fn expandMask_poly_gamma1_217_jazz(reg u64 rho_prime_ptr, reg u16 nonce, reg u64
 
 	y_elem = expandMask_poly_gamma1_217(y_elem, rho_prime, nonce);
 
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < Li2_polydeg) {
 		v = y_elem[(int) i];
 		(u32) [ptr_y + 4 * i] = v;

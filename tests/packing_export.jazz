@@ -22,7 +22,7 @@ fn pack_t1_jazz(reg u64 poly_ptr, reg u64 buf_ptr)
 	buf = polyt1_pack(t1, buf);
 
 	//save
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_pack_t1len)
 	{
 		c = buf[(int) i];
@@ -41,7 +41,7 @@ fn unpack_t1_jazz(reg u64 t1_ptr, reg u64 buf_ptr) {
 	reg u64 i;
 
 	//load
-	i = 0;
+	?{}, i = #set0_64();
 	while (i < Li2_pack_t1len) {
 		byte = (u8)[buf_ptr + i];
 		buf[(int) i] = byte;
@@ -51,7 +51,7 @@ fn unpack_t1_jazz(reg u64 t1_ptr, reg u64 buf_ptr) {
 	t1 = polyt1_unpack(t1, buf);
 
 	//save
-	i = 0;
+	?{}, i = #set0_64();
 	while (i < Li2_polydeg) {
 		coeff = t1[(int) i];
 		(u32)[t1_ptr + 4 * i] = coeff;
@@ -112,7 +112,7 @@ fn polyeta_2_pack_jazz(reg u64 rp, reg u64 ap) {
 	reg u32 v;
 	reg u64 i;
 
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < Li2_polydeg) {
 		v = (u32) [ap + 4 * i];
 		a[(int) i] = v;
@@ -121,7 +121,7 @@ fn polyeta_2_pack_jazz(reg u64 rp, reg u64 ap) {
 
 	r = polyeta_2_pack(a, r);
 
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < Li2_pack_eta_2_len) {
 		c = r[(int) i];
 		(u8) [rp + i] = c;
@@ -137,7 +137,7 @@ fn polyeta_4_pack_jazz(reg u64 rp, reg u64 ap) {
 	reg u32 v;
 	reg u64 i;
 
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < Li2_polydeg) {
 		v = (u32) [ap + 4 * i];
 		a[(int) i] = v;
@@ -146,7 +146,7 @@ fn polyeta_4_pack_jazz(reg u64 rp, reg u64 ap) {
 
 	r = polyeta_4_pack(a, r);
 
-	i = #set0_64();
+	?{}, i = #set0_64();
 	while (i < Li2_pack_eta_4_len) {
 		c = r[(int) i];
 		(u8) [rp + i] = c;

@@ -19,7 +19,7 @@ fn compute_rho_prime(reg ptr u8[32] k, reg ptr u8[64] mu)
 	reg u64 mu_loc;
 
 	state = st0(state);
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < 32) {
 		c = k[(int) i];
 		state[u8 (int) i] = c;	
@@ -38,7 +38,7 @@ fn compute_rho_prime(reg ptr u8[32] k, reg ptr u8[64] mu)
 
     state = __keccakf1600_ref(state);
 
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < 64) {
 		c = state[u8 (int) i];
 		rho_prime[(int) i] = c;
@@ -215,7 +215,7 @@ fn sign(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) -> 
 	// spilling this
 	s_ptr_signature = ptr_signature;
 	
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_SK_LEN) {
 		c = (u8)[ptr_sk + i];
 		sk[(int) i] = c;
@@ -226,7 +226,7 @@ fn sign(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) -> 
 
 	sig_addr = s_ptr_signature;
 	
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_SIGN_LEN) {
 		c = signature[(int) i];
 		(u8) [sig_addr + i] = c;

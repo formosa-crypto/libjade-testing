@@ -8,7 +8,7 @@ fn reduce32_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
 	reg u64 i;
 	reg u32 val res;
 
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_l * Li2_polydeg) {
 		val = vec[(int) i];
 		res = reduce32(val);
@@ -25,7 +25,7 @@ fn reduce32_veck(reg ptr u32[Li2_k * Li2_polydeg] vec)
 	reg u64 i;
 	reg u32 val res;
 
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_k * Li2_polydeg) {
 		val = vec[(int) i];
 		res = reduce32(val);
@@ -106,7 +106,7 @@ fn power2round_vec(reg ptr u32[Li2_k * Li2_polydeg] v)
 	reg u64 i;
 	reg u32 x y1 y2;
 
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_k * Li2_polydeg) {
 		x = v[(int) i];
 		y1, y2 = power2round(x);
@@ -241,7 +241,7 @@ fn pointwise_mont_mult(reg ptr u32[Li2_polydeg] f g fg)
 	reg u32 v32;
 	reg u64 result gv_64;
 	reg u32 prod_redc;
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_polydeg) {
 		v32 = f[(int) i];
 		result = (64s) v32;
@@ -264,7 +264,7 @@ fn deep_copy_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec)
 	reg u64 i;
 	reg u32 entry;
 
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_l * Li2_polydeg) {
 		entry = vec[(int) i];
 		dest[(int) i] = entry;
@@ -278,11 +278,11 @@ fn decompose_vec(reg ptr u32[Li2_k * Li2_polydeg] vec)
 	-> stack u32[Li2_k * Li2_polydeg], stack u32[Li2_k * Li2_polydeg]
 {
 	stack u32[Li2_k * Li2_polydeg] vec0 vec1;
-	stack u64 i;
+	reg u64 i;
 	reg u64 addr;
 	reg u32 a a0 a1;
 
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_k * Li2_polydeg) {
 		addr = i;
 		a = vec[(int) addr];
