@@ -46,19 +46,16 @@ fn pack_signature(reg ptr u8[32] c_tilde,
 	-> stack u8[Li2_SIGN_LEN]
 {
 	stack u8[Li2_SIGN_LEN] signature;
-	reg u8 c;
 	reg ptr u8[Li2_pack_zlen] z_buf;
 	reg ptr u32[Li2_polydeg] z_to_pack;
-	reg u64 i;
-	inline int ii;
-	stack u8 k;
-	stack u64 j;
-	reg u64 reg_j;
-	reg u64 addr;
-	reg u32 coeff;
 
-	i = 0;
-	while(i < 32) {
+	inline int ii;
+	reg u64 i j k addr;
+	reg u32 coeff;
+	reg u8 c;
+
+	?{}, i = #set0_64();
+	while (i < 32) {
 		c = c_tilde[(int) i];
 		signature[(int) i] = c;
 		i += 1;
@@ -71,42 +68,30 @@ fn pack_signature(reg ptr u8[32] c_tilde,
 		signature[32 + Li2_pack_zlen * ii : Li2_pack_zlen] = z_buf;
 	}
 
-	i = 0;
-	while(i < Li2_omega + Li2_k) {
+	// Clear the hints buffer
+	?{}, i = #set0_64();
+	while (i < Li2_omega + Li2_k) {
 		signature[(int) (Li2_pack_hstart + i)] = 0;
 		i += 1;
 	}
-	/*
-	TODO: Ethan left this: figure out why it is here.
-	k = 0;
-	for(i = 0; i < K; ++i) {
-		for(j = 0; j < N; ++j)
-			if(h->vec[i].coeffs[j] != 0)
-				sig[k++] = j;
-		sig[OMEGA + i] = k;
-	}
-	*/
 
-	k = 0;
-	i = 0;
-	while(i < Li2_k) {
-		j = 0;
-		while(j < Li2_polydeg) {
-			addr = Li2_polydeg;
-			addr *= i;
-			reg_j = j;
-			addr += reg_j;
+	// Write hints
+	?{}, k = #set0_64(); // The amounts of hints that were written
+	?{}, i = #set0_64();
+	while (i < Li2_k) {
+		?{}, j = #set0_64();
+		while (j < Li2_polydeg) {
+			addr = i;
+			addr <<= Li2_log2polydeg;
+			addr += j;
 			coeff = h[(int) addr];
-			if(coeff != 0) {
-				reg_j = j;
-				c = (8u) reg_j;
-				addr = (64u) k;
-				signature[(int) (Li2_pack_hstart + addr)] = c;
+			if coeff != 0 {
+				signature[(int) (Li2_pack_hstart + k)] = (8u) j;
 				k += 1;
 			}
 			j += 1;
 		}
-		signature[(int) (Li2_pack_hstart + Li2_omega + i)] = k;
+		signature[(int) (Li2_pack_hstart + Li2_omega + i)] = (8u) k;
 		i += 1;
 	}
 
