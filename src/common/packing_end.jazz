@@ -1,4 +1,21 @@
 inline
+fn pack_w1(reg ptr u32[Li2_k * Li2_polydeg] w1)
+	-> stack u8[Li2_pack_w1len]
+{
+	inline int ii;
+	stack u8[Li2_pack_w1len] dest;
+	reg ptr u8[Li2_pack_highbitslen] buf;
+	reg ptr u32[Li2_polydeg] poly;
+
+	for ii = 0 to Li2_k {
+		buf = dest[Li2_pack_highbitslen * ii : Li2_pack_highbitslen];
+		poly = w1[Li2_polydeg * ii : Li2_polydeg];
+		dest[Li2_pack_highbitslen * ii : Li2_pack_highbitslen] = polyw1_pack(poly, buf);
+	}
+	return dest;
+}
+
+inline
 fn unpack_sk(reg ptr u8[Li2_SK_LEN] sk)
 	-> stack u32[Li2_l * Li2_polydeg], //s1
 	stack u32[Li2_k * Li2_polydeg], //s2

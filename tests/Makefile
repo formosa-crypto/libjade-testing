@@ -21,8 +21,8 @@ TESTS ?= test_fft \
          test_sign_fragments \
          test_expandmask \
          test_sign \
-         test_rounding
-# TODO: test_keygen
+         test_rounding \
+         test_keygen
 
 LIB ?= ../src/${VARIANT}/lib.s
 

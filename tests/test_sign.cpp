@@ -14,10 +14,13 @@ using std::vector;
 using std::memcmp;
 
 extern "C" {
-	int32_t SIGN_JAZZ(uint8_t signature[pqcrystals_dilithium3_BYTES],
+	int SIGN_REF(uint8_t *sig, size_t *siglen,
+                 const uint8_t *m, size_t mlen,
+                 const uint8_t *sk);
+	int32_t SIGN_JAZZ(uint8_t signature[CRYPTO_BYTES],
 	                  uint8_t* msg,
 	                  uint64_t m_len,
-	                  uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES]);
+	                  uint8_t sk[SECRETKEYBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -28,44 +31,47 @@ uint8_t sampleByte() {
 }
 
 int main() {
-	uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
-	uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
-
-	/*
-	uint8_t randomness[32] = { 0 };
-	for(int i = 0; i < 32; ++i)
-		randomness[i] = sampleByte();
-		*/
+	uint8_t pk[PUBLICKEYBYTES];
+	uint8_t sk[SECRETKEYBYTES];
+	size_t siglen;
 
 	KEYGEN_REF(pk, sk);
 
 	uint8_t m[1000];
-	for(int i = 0; i < 1000; ++i)
+	for(size_t i = 0; i < 1000; i++) {
 		m[i] = sampleByte();
+	}
 
-
-	uint8_t signature_ref[pqcrystals_dilithium3_BYTES];
-	uint8_t signature_jazz[pqcrystals_dilithium3_BYTES];
+	uint8_t signature_ref[CRYPTO_BYTES];
+	uint8_t signature_jazz[CRYPTO_BYTES];
 
 	int32_t status = SIGN_JAZZ(signature_jazz, m, 1000, sk);
-	std::cout << std::hex << "status: 0x"  << status << "\n";
-
-	size_t siglen;
+	std::cout << std::hex << "status: 0x"  << status << "\n" << std::dec;
 
 	SIGN_REF(signature_ref, &siglen, m, 1000, sk);
 
-	PRINT(memcmp(signature_ref, signature_jazz, pqcrystals_dilithium3_BYTES));
+	for (size_t i = 0; i < CRYPTO_BYTES; i++) {
+		if (signature_jazz[i] != signature_ref[i]) {
+			PRINT(i);
+			PRINT((int)signature_jazz[i]);
+			PRINT((int)signature_ref[i]);
+			break;
+		}
+	}
 
+	PRINT(memcmp(signature_ref, signature_jazz, CRYPTO_BYTES));
 	PRINT(memcmp(signature_ref, signature_jazz, 32));
 
-	int z_total_len = L * N * 20 / 8;
-	int h_start = 32 + z_total_len;
-
+	const int z_total_len = L * POLYZ_PACKEDBYTES;
+	const int h_start = 32 + z_total_len;
 	PRINT(memcmp(signature_ref + 32, signature_jazz + 32, z_total_len));
 
 	PRINT(memcmp(signature_ref + h_start,
 				signature_jazz + h_start,
-				pqcrystals_dilithium3_BYTES - h_start));
+				CRYPTO_BYTES - h_start));
+
+	PRINT(VERIFY_REF(signature_ref, siglen, m, 1000, pk));
+	PRINT(VERIFY_REF(signature_jazz, siglen, m, 1000, pk));
 
 	return 0;
 }

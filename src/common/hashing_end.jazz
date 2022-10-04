@@ -194,17 +194,16 @@ fn hash_mu_w1(reg ptr u8[64] mu, reg ptr u8[Li2_pack_w1len] w1_packed)
 	reg u8 c;
 	reg u64 offset;
 	reg u64 w1_loc;
-	reg u64 space_required;
 
 	state = st0(state);
-	offset = 0;
+	?{}, offset = #set0_64();
 	while(offset < 64) {
 		c = mu[(int) offset];
 		state[u8 (int) offset] ^= c;
 		offset += 1;
 	}
 
-	w1_loc = 0;
+	?{}, w1_loc = #set0_64();
 	while(w1_loc < Li2_pack_w1len - SHAKE256_RATE) {
 		while(offset < SHAKE256_RATE) {
 			c = w1_packed[(int) w1_loc];
@@ -228,7 +227,7 @@ fn hash_mu_w1(reg ptr u8[64] mu, reg ptr u8[Li2_pack_w1len] w1_packed)
 
 	state = __keccakf1600_ref(state);
 
-	offset = 0;
+	?{}, offset = #set0_64();
 	while(offset < 32) {
 		c = state[u8 (int) offset];
 		c_tilde[(int) offset] = c;

@@ -239,6 +239,56 @@ fn polyt0_unpack_jazz(reg u64 p_t0, reg u64 p_src) {
 }
 
 export
+fn polyw1_pack_gamma2_88_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_highbitslen_gamma2_88] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+	reg u64 i;
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [ap + 4 * i];
+		a[(int) i] = v;
+		i += 1;
+	}
+
+	r = polyw1_pack_gamma2_88(a, r);
+
+	?{}, i = #set0_64();
+	while (i < Li2_pack_highbitslen_gamma2_88) {
+		c = r[(int) i];
+		(u8) [rp + i] = c;
+		i += 1;
+	}
+}
+
+export
+fn polyw1_pack_gamma2_32_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_highbitslen_gamma2_32] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+	reg u64 i;
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [ap + 4 * i];
+		a[(int) i] = v;
+		i += 1;
+	}
+
+	r = polyw1_pack_gamma2_32(a, r);
+
+	?{}, i = #set0_64();
+	while (i < Li2_pack_highbitslen_gamma2_32) {
+		c = r[(int) i];
+		(u8) [rp + i] = c;
+		i += 1;
+	}
+}
+
+export
 fn pack_signature_jazz(reg u64 p_ctilde, reg u64 pz, reg u64 ph, reg u64 psign) {
 	stack u8[32] c_tilde;
 	stack u32[Li2_l * Li2_polydeg] z;

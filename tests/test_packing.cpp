@@ -12,6 +12,7 @@ extern "C" {
 	#include "../dilithium/ref/poly.h"
 	#include "../dilithium/ref/polyvec.h"
 	#include "../dilithium/ref/packing.h"
+	#include "../dilithium/ref/rounding.h"
 }
 
 using std::cout;
@@ -29,6 +30,7 @@ extern "C" {
 	void POLY_Z_PACK_JAZZ(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
 	void POLY_ETA_PACK_JAZZ(uint8_t buf[POLYETA_PACKEDBYTES], int32_t p[N]);
 	void POLY_ETA_UNPACK_JAZZ(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
+	void POLY_W1_PACK_JAZZ(uint8_t buf[POLYW1_PACKEDBYTES], int32_t p[N]);
 	void polyt0_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void pack_signature_jazz(uint8_t c_tilde[32],
 			int32_t z[L * N], int32_t h[K * N], uint8_t sig[CRYPTO_BYTES]);
@@ -53,6 +55,15 @@ uint32_t sample_z_component() {
 	static std::mt19937 gen(rd());
 	static std::uniform_int_distribution<> distrib(0,  (1 << 20) - 1);
 	return distrib(gen);
+}
+
+uint32_t sample_w1_component() {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<> distrib(0,  Q);
+	int32_t a = distrib(gen);
+	int32_t a0 = 0;
+	return decompose(&a0, a);
 }
 
 void test_pack_t1() {
@@ -185,6 +196,27 @@ void test_unpack_eta() {
 	}
 }
 
+void test_pack_w1() {
+	poly p_ref;
+	uint8_t buf_ref[POLYW1_PACKEDBYTES];
+	uint8_t buf_jazz[POLYW1_PACKEDBYTES];
+
+	for (size_t i = 0; i < N; i++) {
+		p_ref.coeffs[i] = sample_w1_component();
+	}
+	polyw1_pack(buf_ref, &p_ref);
+	POLY_W1_PACK_JAZZ(buf_jazz, p_ref.coeffs);
+
+	for (size_t i = 0; i < POLYW1_PACKEDBYTES; i++) {
+		if (buf_jazz[i] != buf_ref[i]) {
+			PRINT(i);
+			PRINT((int)buf_jazz[i]);
+			PRINT((int)buf_ref[i]);
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
+}
+
 void test_unpack_t0() {
 	poly p_ref;
 	int32_t p_jazz[N];
@@ -264,12 +296,13 @@ void test_pack_signature() {
 
 int main() {
 	test_pack_t1();
-	test_unpack_t1();
-	test_unpack_z();
+	// test_unpack_t1();
+	// test_unpack_z();
 	test_pack_eta();
 	test_unpack_eta();
+	test_pack_w1();
 	test_unpack_t0();
 	test_pack_z();
-	test_pack_signature();
+	// test_pack_signature();
 	return 0;
 }

@@ -9,13 +9,6 @@ fn decompose(reg u32 a) -> reg u32, reg u32 {
 	return a0, a1;
 }
 
-
-fn make_hint(reg u32 a0 a1) -> reg u32 {
-	// TODO: unimplemented
-    a0 = -1;
-    return a0;
-}
-
 inline
 fn use_hint(reg u32 a hint)
 	-> reg u32
@@ -24,3 +17,5 @@ fn use_hint(reg u32 a hint)
     a = -1;
     return a;
 }
+
+require "../common/rounding_end.jazz"

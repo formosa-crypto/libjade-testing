@@ -10,6 +10,7 @@
 #define KEYGEN_REF pqcrystals_dilithium2_ref_keypair
 #define SIGN_REF pqcrystals_dilithium2_ref_signature
 #define SIGN_JAZZ dilithium2_sign_jazz
+#define VERIFY_REF pqcrystals_dilithium2_ref_verify
 #define PUBLICKEYBYTES pqcrystals_dilithium2_PUBLICKEYBYTES
 #define SECRETKEYBYTES pqcrystals_dilithium2_SECRETKEYBYTES
 #define DECOMPOSE_REF pqcrystals_dilithium2_ref_decompose
@@ -19,6 +20,8 @@
 #define POLY_ETA_PACK_JAZZ polyeta_2_pack_jazz
 #define POLY_ETA_UNPACK_JAZZ polyeta_2_unpack_jazz
 #define POLY_Z_PACK_JAZZ polyz_pack_gamma1_217_jazz
+#define POLY_W1_PACK_JAZZ polyw1_pack_gamma2_88_jazz
+#define COMPUTE_MU_JAZZ dilithium2_compute_mu_jazz
 
 #elif DILITHIUM_MODE == 3
 
@@ -27,6 +30,7 @@
 #define KEYGEN_REF pqcrystals_dilithium3_ref_keypair
 #define SIGN_REF pqcrystals_dilithium3_ref_signature
 #define SIGN_JAZZ dilithium3_sign_jazz
+#define VERIFY_REF pqcrystals_dilithium3_ref_verify
 #define PUBLICKEYBYTES pqcrystals_dilithium3_PUBLICKEYBYTES
 #define SECRETKEYBYTES pqcrystals_dilithium3_SECRETKEYBYTES
 #define DECOMPOSE_REF pqcrystals_dilithium3_ref_decompose
@@ -36,7 +40,8 @@
 #define POLY_ETA_PACK_JAZZ polyeta_4_pack_jazz
 #define POLY_ETA_UNPACK_JAZZ polyeta_4_unpack_jazz
 #define POLY_Z_PACK_JAZZ polyz_pack_gamma1_219_jazz
-
+#define POLY_W1_PACK_JAZZ polyw1_pack_gamma2_32_jazz
+#define COMPUTE_MU_JAZZ dilithium3_compute_mu_jazz
 
 #elif DILITHIUM_MODE == 5
 
@@ -45,6 +50,7 @@
 #define KEYGEN_REF pqcrystals_dilithium5_ref_keypair
 #define SIGN_REF pqcrystals_dilithium5_ref_signature
 #define SIGN_JAZZ dilithium5_sign_jazz
+#define VERIFY_REF pqcrystals_dilithium5_ref_verify
 #define PUBLICKEYBYTES pqcrystals_dilithium5_PUBLICKEYBYTES
 #define SECRETKEYBYTES pqcrystals_dilithium5_SECRETKEYBYTES
 #define DECOMPOSE_REF pqcrystals_dilithium5_ref_decompose
@@ -54,7 +60,8 @@
 #define POLY_ETA_PACK_JAZZ polyeta_2_pack_jazz
 #define POLY_ETA_UNPACK_JAZZ polyeta_2_unpack_jazz
 #define POLY_Z_PACK_JAZZ polyz_pack_gamma1_219_jazz
-
+#define POLY_W1_PACK_JAZZ polyw1_pack_gamma2_32_jazz
+#define COMPUTE_MU_JAZZ dilithium5_compute_mu_jazz
 
 #else
 
