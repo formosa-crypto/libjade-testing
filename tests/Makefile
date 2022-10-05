@@ -22,26 +22,27 @@ TESTS ?= test_fft \
          test_expandmask \
          test_sign \
          test_rounding \
-         test_keygen
+         test_keygen \
+         test_verify
 
 LIB ?= ../src/${VARIANT}/lib.s
 
 tests: $(TESTS)
 
-test_keygen: test_keygen.cpp ${LIB} ../dilithium/ref/randombytes.o
-	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ${LIB} test_keygen.cpp -o $@ $(LDFLAGS)
+test_keygen: test_keygen.cpp $(LIB) ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $(LIB) test_keygen.cpp -o $@ $(LDFLAGS)
 
-test_sign: test_sign.cpp ${LIB} ../dilithium/ref/randombytes.o
-	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ${LIB} test_sign.cpp -o $@ $(LDFLAGS)
+test_sign: test_sign.cpp $(LIB) ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $(LIB) test_sign.cpp -o $@ $(LDFLAGS)
 
-test_verify: test_verify.cpp ${LIB} ../dilithium/ref/randombytes.o
-	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ${LIB} test_verify.cpp -o $@ $(LDFLAGS)
+test_verify: test_verify.cpp $(LIB) ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $(LIB) test_verify.cpp -o $@ $(LDFLAGS)
 
-bench_keygen: bench_keygen.cpp ${LIB} ../dilithium/ref/randombytes.o
-	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ${LIB} bench_keygen.cpp -o $@ $(LDFLAGS)
+bench_keygen: bench_keygen.cpp $(LIB) ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $(LIB) bench_keygen.cpp -o $@ $(LDFLAGS)
 
-bench_sign: bench_sign.cpp ${LIB} ../dilithium/ref/randombytes.o
-	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o ${LIB} bench_sign.cpp -o $@ $(LDFLAGS)
+bench_sign: bench_sign.cpp $(LIB) ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $(LIB) bench_sign.cpp -o $@ $(LDFLAGS)
 
 bench_fft: bench_fft.cpp fft_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o fft_export.s bench_fft.cpp -o $@ $(LDFLAGS)
@@ -52,8 +53,11 @@ bench_hashing: bench_hashing.cpp hashing_export.s
 test_%: test_%.cpp %_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $*_export.s test_$*.cpp -o $@ $(LDFLAGS)
 
-%.s: %.jazz ../src/**/*.jazz
+.PHONY: common_phony
+common_phony:
 	$(MAKE) --directory=../src/common
+
+%.s: %.jazz ../src/**/*.jazz common_phony
 	jasminc -pasm $< >$@
 
 clean:

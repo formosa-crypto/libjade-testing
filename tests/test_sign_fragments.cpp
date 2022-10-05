@@ -67,8 +67,8 @@ void compute_mu_ref(uint8_t *out,
 }
 
 void test_compute_mu(int mlen) {
-	uint8_t pk[PUBLICKEYBYTES];
-	uint8_t sk[SECRETKEYBYTES];
+	uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+	uint8_t sk[CRYPTO_SECRETKEYBYTES];
 
 	KEYGEN_REF(pk, sk);
 

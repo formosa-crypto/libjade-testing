@@ -20,7 +20,7 @@ extern "C" {
 	int32_t SIGN_JAZZ(uint8_t signature[CRYPTO_BYTES],
 	                  uint8_t* msg,
 	                  uint64_t m_len,
-	                  uint8_t sk[SECRETKEYBYTES]);
+	                  uint8_t sk[CRYPTO_SECRETKEYBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -31,8 +31,8 @@ uint8_t sampleByte() {
 }
 
 int main() {
-	uint8_t pk[PUBLICKEYBYTES];
-	uint8_t sk[SECRETKEYBYTES];
+	uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+	uint8_t sk[CRYPTO_SECRETKEYBYTES];
 	size_t siglen;
 
 	KEYGEN_REF(pk, sk);

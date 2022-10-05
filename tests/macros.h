@@ -11,8 +11,7 @@
 #define SIGN_REF pqcrystals_dilithium2_ref_signature
 #define SIGN_JAZZ dilithium2_sign_jazz
 #define VERIFY_REF pqcrystals_dilithium2_ref_verify
-#define PUBLICKEYBYTES pqcrystals_dilithium2_PUBLICKEYBYTES
-#define SECRETKEYBYTES pqcrystals_dilithium2_SECRETKEYBYTES
+#define VERIFY_JAZZ dilithium2_verify_jazz
 #define DECOMPOSE_REF pqcrystals_dilithium2_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_88_jazz
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium2_ref_poly_uniform_gamma1
@@ -31,8 +30,7 @@
 #define SIGN_REF pqcrystals_dilithium3_ref_signature
 #define SIGN_JAZZ dilithium3_sign_jazz
 #define VERIFY_REF pqcrystals_dilithium3_ref_verify
-#define PUBLICKEYBYTES pqcrystals_dilithium3_PUBLICKEYBYTES
-#define SECRETKEYBYTES pqcrystals_dilithium3_SECRETKEYBYTES
+#define VERIFY_JAZZ dilithium3_verify_jazz
 #define DECOMPOSE_REF pqcrystals_dilithium3_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium3_ref_poly_uniform_gamma1
@@ -51,8 +49,7 @@
 #define SIGN_REF pqcrystals_dilithium5_ref_signature
 #define SIGN_JAZZ dilithium5_sign_jazz
 #define VERIFY_REF pqcrystals_dilithium5_ref_verify
-#define PUBLICKEYBYTES pqcrystals_dilithium5_PUBLICKEYBYTES
-#define SECRETKEYBYTES pqcrystals_dilithium5_SECRETKEYBYTES
+#define VERIFY_JAZZ dilithium5_verify_jazz
 #define DECOMPOSE_REF pqcrystals_dilithium5_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium5_ref_poly_uniform_gamma1

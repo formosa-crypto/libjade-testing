@@ -17,12 +17,13 @@ readonly DEFAULT_TESTS=(
     test_rounding
     test_verify
 )
+readonly MAKE="make -j"
 export TESTS=("${TESTS[@]:-${DEFAULT_TESTS[@]}}")
 LOGFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.log)
 ASMFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.s)
 
-make --directory=/home/dsprenkels/jasmin-dilithium/dilithium/ref libpqcrystals_dilithium{2,3,5}_ref.so libpqcrystals_fips202_ref.so || exit 125
-make --trace "${TESTS[@]}" || exit 1
+$MAKE --directory=/home/dsprenkels/jasmin-dilithium/dilithium/ref libpqcrystals_dilithium{2,3,5}_ref.so libpqcrystals_fips202_ref.so || exit 125
+$MAKE "${TESTS[@]}" || exit 1
 
 for test_name in "${TESTS[@]}"; do
     (set -x; "./$test_name" || echo -e "\033[1;31mtest failed: $test_name\033[0m")
