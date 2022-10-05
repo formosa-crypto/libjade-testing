@@ -21,6 +21,7 @@
 #define POLY_Z_PACK_JAZZ polyz_pack_gamma1_217_jazz
 #define POLY_W1_PACK_JAZZ polyw1_pack_gamma2_88_jazz
 #define COMPUTE_MU_JAZZ dilithium2_compute_mu_jazz
+#define USE_HINT_JAZZ use_hint_gamma2_88_jazz
 
 #elif DILITHIUM_MODE == 3
 
@@ -40,6 +41,7 @@
 #define POLY_Z_PACK_JAZZ polyz_pack_gamma1_219_jazz
 #define POLY_W1_PACK_JAZZ polyw1_pack_gamma2_32_jazz
 #define COMPUTE_MU_JAZZ dilithium3_compute_mu_jazz
+#define USE_HINT_JAZZ use_hint_gamma2_32_jazz
 
 #elif DILITHIUM_MODE == 5
 
@@ -59,6 +61,7 @@
 #define POLY_Z_PACK_JAZZ polyz_pack_gamma1_219_jazz
 #define POLY_W1_PACK_JAZZ polyw1_pack_gamma2_32_jazz
 #define COMPUTE_MU_JAZZ dilithium5_compute_mu_jazz
+#define USE_HINT_JAZZ use_hint_gamma2_32_jazz
 
 #else
 

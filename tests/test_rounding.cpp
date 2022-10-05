@@ -25,6 +25,7 @@ extern "C" {
 	void DECOMPOSE_JAZZ(int32_t a, int32_t* a0, int32_t* a1);
 	uint32_t make_hint_jazz(int32_t a0, int32_t a1);
 	void power2round_jazz(int32_t a, int32_t* a0, int32_t* a1);
+	int32_t USE_HINT_JAZZ(int32_t a, int32_t hint);
 }
 
 int32_t sample() {
@@ -53,7 +54,7 @@ void test_power2round() {
 
 int main() {
 	for(int i = 0; i < 10000; ++i) {
-		int32_t a, a0_ref, a1_ref, a0_jazz, a1_jazz;
+		int32_t a, a_ref, a0_ref, a1_ref, a_jazz, a0_jazz, a1_jazz;
 
 		a = sample();
 		DECOMPOSE_JAZZ(a, &a0_jazz, &a1_jazz);
@@ -114,7 +115,6 @@ int main() {
 		// 	}
 		// }
 
-		// unsigned int hint_ref = make_hint(a0_ref, a1_ref);
 		// uint32_t hint_jazz = make_hint_jazz(a0_jazz, a1_jazz);
 
 		// if(hint_ref != hint_jazz) {
@@ -124,5 +124,15 @@ int main() {
 		// 	PRINT(hint_jazz);
 		// 	throw runtime_error("test failed at " + to_string(__LINE__));
 		// }
+
+		unsigned int hint_ref = make_hint(a0_ref, a1_ref);
+		a_ref = use_hint(hint_ref, a);
+		a_jazz = USE_HINT_JAZZ(hint_ref, a);
+		if (a_ref != a_jazz) {
+			PRINT(a1_ref);
+			PRINT(a_jazz);
+			PRINT(a_ref);
+			throw runtime_error("test failed at line " + to_string(__LINE__));
+		}
 	}
 }

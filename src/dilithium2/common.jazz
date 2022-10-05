@@ -19,9 +19,9 @@ inline
 fn use_hint(reg u32 a hint)
 	-> reg u32
 {
-	// TODO: unimplemented
-    a = -1;
-    return a;
+	reg u32 a1;
+	a1 = use_hint_gamma2_88(a, hint);
+	return a1;
 }
 
 inline
@@ -44,4 +44,3 @@ require "../common/expandS_end.jazz"
 require "../common/hashing_end.jazz"
 require "../common/poly_end.jazz"
 require "../common/polyvec_end.jazz"
-require "../common/rounding_end.jazz"

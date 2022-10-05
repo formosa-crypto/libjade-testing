@@ -15,23 +15,12 @@ fn decompose(reg u32 a) -> reg u32, reg u32 {
 	return a0, a1;
 }
 
-// use_hint for level-3 parameters
-// TODO: Add other parameter sets
 inline
 fn use_hint(reg u32 a hint)
 	-> reg u32
 {
-	reg u32 a0;
 	reg u32 a1;
-	a0, a1 = decompose(a);
-	if (hint == 0) {}
-	else if (a0 >s 0) {
-		a1 += 1;
-		a1 &= 15;
-	} else {
-		a1 -= 1;
-		a1 &= 15;
-	}
+	a1 = use_hint_gamma2_32(a, hint);
 	return a1;
 }
 
@@ -55,4 +44,3 @@ require "../common/expandS_end.jazz"
 require "../common/hashing_end.jazz"
 require "../common/poly_end.jazz"
 require "../common/polyvec_end.jazz"
-require "../common/rounding_end.jazz"

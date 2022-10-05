@@ -57,9 +57,16 @@ fn power2round_jazz(reg u32 r, reg u64 ph pl)
 // 	return result;
 // }
 
-// export
-// fn use_hint_jazz(reg u32 a hint) -> reg u32 {
-// 	reg u32 result;
-// 	result = use_hint(a, hint);
-// 	return result;
-// }
+export
+fn use_hint_gamma2_88_jazz(reg u32 a hint) -> reg u32 {
+	reg u32 result;
+	result = use_hint_gamma2_88(a, hint);
+	return result;
+}
+
+export
+fn use_hint_gamma2_32_jazz(reg u32 a hint) -> reg u32 {
+	reg u32 result;
+	result = use_hint_gamma2_32(a, hint);
+	return result;
+}

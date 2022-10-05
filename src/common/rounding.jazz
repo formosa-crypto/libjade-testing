@@ -107,3 +107,41 @@ fn decompose_gamma2_32(reg u32 a) -> reg u32, reg u32 {
 	a0_32 = (32u) a0;
 	return a0_32, a1;
 }
+
+fn use_hint_gamma2_88(reg u32 a hint)
+	-> reg u32
+{
+	reg u32 a0 a1 c32;
+	reg bool zf cf;
+	
+	a0, a1 = decompose_gamma2_88(a);
+	if (hint == 0) {}
+	else if (a0 >s 0) {
+		?{}, c32 = #set0_32();
+		a1 += 1;
+		zf = a1 == 44;
+		a1 = c32 if zf;
+	} else {
+		c32 = 43;
+		_, cf, _, _, _, a1 = #SUB_32(a1, 1);
+		a1 = c32 if cf;
+	}
+	return a1;
+}
+
+fn use_hint_gamma2_32(reg u32 a hint)
+	-> reg u32
+{
+	reg u32 a0;
+	reg u32 a1;
+	a0, a1 = decompose_gamma2_32(a);
+	if (hint == 0) {}
+	else if (a0 >s 0) {
+		a1 += 1;
+		a1 &= 15;
+	} else {
+		a1 -= 1;
+		a1 &= 15;
+	}
+	return a1;
+}
