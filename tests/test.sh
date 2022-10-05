@@ -22,7 +22,7 @@ export TESTS=("${TESTS[@]:-${DEFAULT_TESTS[@]}}")
 LOGFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.log)
 ASMFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.s)
 
-$MAKE --directory=./dilithium/ref libpqcrystals_dilithium{2,3,5}_ref.so libpqcrystals_fips202_ref.so || exit 125
+$MAKE --directory=../dilithium/ref libpqcrystals_dilithium{2,3,5}_ref.so libpqcrystals_fips202_ref.so || exit 125
 $MAKE "${TESTS[@]}" || exit 1
 
 for test_name in "${TESTS[@]}"; do
