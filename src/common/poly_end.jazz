@@ -1,3 +1,5 @@
+require "rounding_end.jazz"
+
 inline
 fn poly_make_hint(reg ptr u32[Li2_polydeg] f0 f1 hints)
 	-> stack u32, reg ptr u32[Li2_polydeg]

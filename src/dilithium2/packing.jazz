@@ -33,7 +33,6 @@ fn pack_s2(reg ptr u32[Li2_k * Li2_polydeg] s1, reg ptr u8[Li2_pack_s2len] dest)
 	return dest;
 }
 
-//Unpacks a component of either s1 or s2
 fn polyeta_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_etalen] a)
 	-> reg ptr u32[Li2_polydeg]
 {
@@ -58,7 +57,9 @@ fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
 }
 
 inline
-fn polyw1_pack(reg ptr u32[Li2_polydeg] w1, reg ptr u8[Li2_pack_highbitslen] w1_buf) -> reg ptr u8[Li2_pack_highbitslen] {
+fn polyw1_pack(reg ptr u32[Li2_polydeg] w1, reg ptr u8[Li2_pack_highbitslen] w1_buf)
+	-> reg ptr u8[Li2_pack_highbitslen]
+{
 	w1_buf = polyw1_pack_gamma2_88(w1, w1_buf);
 	return w1_buf;
 }
