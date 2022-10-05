@@ -113,7 +113,7 @@ fn cmp_ctilde(stack u8[32] c_tilde1 c_tilde2) -> reg u8 {
 
 inline
 fn verify_inner(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr u8[Li2_PK_LEN] pk) -> reg u32 {
-    // TODO: [dsprenkels] Go through the code and check for all operators
+    // TODO: Go through the code and check for all operators
     // whether they should be signed or unsigned.
 
     stack u32 status;
