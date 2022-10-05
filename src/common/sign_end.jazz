@@ -139,8 +139,6 @@ fn sign_inner(reg u64 ptr_m,
 		//
 		// The resulting value for the maximum number of attempts is set in
 		// the Li2_max_attempts param.
-		//
-		// XXX: For dilithium5, max_attempts = 295
 		tmpbool = attempt > Li2_max_attempts;
 		tmpboolu8 = #SETcc(tmpbool);
 		tmpboolu8 |= done;

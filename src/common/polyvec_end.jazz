@@ -208,6 +208,7 @@ fn dot_prod_vecs(stack u32[Li2_l * Li2_polydeg] v1 v2, reg ptr u32[Li2_polydeg] 
 		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
 		term_prod = poly_mult(v1_term, v2_term, term_prod);
 		dotprod = poly_accumulate(term_prod, dotprod);
+		dotprod = poly_reduce32(dotprod);
 	}
 
 	return dotprod;

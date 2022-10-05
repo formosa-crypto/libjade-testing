@@ -3,7 +3,7 @@ param int Li2_q = 8380417;
 // Dropped bits from t
 param int Li2_d = 13;
 // exp(d)
-param int Li2_expd = 8192;
+param int Li2_expd = 1 << Li2_d;
 // poly degrees
 param int Li2_polydeg = 256;
 param int Li2_log2polydeg = 8;
@@ -23,3 +23,6 @@ param int Li2_pack_eta_4_len = 128;
 // packed length of mod-gamma2 arrays
 param int Li2_pack_highbitslen_gamma2_88 = 192;
 param int Li2_pack_highbitslen_gamma2_32 = 128;
+
+// byte-lenth of a seed
+param int Li2_seedbytes = 32;
