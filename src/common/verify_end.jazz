@@ -1,3 +1,4 @@
+inline
 fn poly_shiftl(reg ptr u32[Li2_polydeg] f) -> reg ptr u32[Li2_polydeg] {
     reg u64 i;
     reg u32 coeff;
@@ -122,18 +123,17 @@ fn verify_inner(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr 
     reg u8 k l hints_popcount hints_popcount_fail done;
     reg u64 hint_index;
 
-    stack ptr u8[Li2_SIGN_LEN] sig_stackptr; 
-    reg ptr u8[Li2_SIGN_LEN] sig_regptr;
-    stack ptr u8[Li2_PK_LEN] pk_stackptr; 
-    reg ptr u8[Li2_PK_LEN] pk_regptr;
+    reg ptr u8[Li2_SIGN_LEN] rSig;
+    stack u8[Li2_SIGN_LEN] sSig; 
+    reg ptr u8[Li2_PK_LEN] rPk;
+    stack u8[Li2_PK_LEN] sPk; 
 
+    stack u64[25] keccak_state;
     stack u8[32] tr c_tilde c_tilde2;
     stack u8[64] mu;
 
     stack u32[Li2_k * Li2_l * Li2_polydeg] fft_matA;
-    reg ptr u32[Li2_k * Li2_l * Li2_polydeg] fft_matA_rsp;
 	stack u32[Li2_polydeg] challenge t1_elem ct1_elem;
-	reg ptr u32[Li2_polydeg] challenge_rsp t1_elem_rsp;
     stack u32[Li2_l * Li2_polydeg] z;
     stack u32[Li2_k * Li2_polydeg] az w1 hints;
 
@@ -148,20 +148,21 @@ fn verify_inner(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr 
     inline int ii;
 
     status = 0xFF;
-    sig_stackptr = sig;
-    pk_stackptr = pk;
+    sSig = sig;
+    sPk = pk;
 
     // Sample A
     fft_matA = expandA(pk[0:32]);
 
     // Compute mu
+    keccak_state = st0(keccak_state);
     tr = shake256_of_pk(pk, tr);
     mu = hash_tr_m(tr, m_len, m);
 
     // Unpack z
-    sig_regptr = sig_stackptr;
+    rSig = sSig;
     for ii = 0 to Li2_l {
-		z_buf = sig_regptr[32 + ii * Li2_pack_zlen : Li2_pack_zlen];
+		z_buf = rSig[32 + ii * Li2_pack_zlen : Li2_pack_zlen];
 		z_to_unpack = z[ii * Li2_polydeg : Li2_polydeg];
 		z_to_unpack = polyz_unpack(z_to_unpack, z_buf);
         z[ii * Li2_polydeg : Li2_polydeg] = z_to_unpack;
@@ -170,39 +171,34 @@ fn verify_inner(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr 
     if (z_normcheck_fail == 0) {
         z = fft_vec(z);
 
-        sig_regptr = sig_stackptr;
-        hints_buf = sig_regptr[Li2_pack_hstart : Li2_omega + Li2_k];
+        rSig = sSig;
+        hints_buf = rSig[Li2_pack_hstart : Li2_omega + Li2_k];
         hints, hints_popcount_fail = unpack_hints(hints_buf, hints);
         if (hints_popcount_fail == 0) {
 
             // Compute A * z
-            fft_matA_rsp = fft_matA;
             az = mult_mat_vec(fft_matA, z);
 
             // Sample challenge
-            sig_regptr = sig_stackptr;
+            rSig = sSig;
             ?{}, i = #set0_64();
             while (i < 32) {
-                byte = sig_regptr[(int) i];
+                byte = rSig[(int) i];
                 c_tilde[(int) i] = byte;
                 i += 1;
             }
-            challenge_rsp = challenge;
-            challenge_rsp = sampleInBall(challenge_rsp, c_tilde);
+            challenge = sampleInBall(challenge, c_tilde);
             
             // Compute c*t1 and add to w1
-            challenge_rsp = fft(challenge_rsp);
+            challenge = fft(challenge);
             
             for ii = 0 to Li2_k {
-                pk_regptr = pk_stackptr;
-                t1_elem_rsp = t1_elem;
-                t1_buf = pk_regptr[32 + ii * Li2_pack_t1len : Li2_pack_t1len];
-                t1_elem_rsp = polyt1_unpack(t1_elem_rsp, t1_buf);
-                t1_elem_rsp = poly_shiftl(t1_elem_rsp);
-                t1_elem = fft(t1_elem_rsp);
-                challenge_rsp = challenge;
-                t1_elem_rsp = t1_elem;
-                ct1_elem = pointwise_mont_mult(challenge_rsp, t1_elem_rsp, ct1_elem);
+                rPk = sPk;
+                t1_buf = rPk[32 + ii * Li2_pack_t1len : Li2_pack_t1len];
+                t1_elem = polyt1_unpack(t1_elem, t1_buf);
+                t1_elem = poly_shiftl(t1_elem);
+                t1_elem = fft(t1_elem);
+                ct1_elem = pointwise_mont_mult(challenge, t1_elem, ct1_elem);
                 az_elem = az[ii * Li2_polydeg : Li2_polydeg];
                 w1_elem = w1[ii * Li2_polydeg : Li2_polydeg];
                 w1_elem = poly_subtract(az_elem, ct1_elem, w1_elem);
@@ -227,9 +223,7 @@ fn verify_inner(reg ptr u8[Li2_SIGN_LEN] sig, reg u64 m, reg u64 m_len, reg ptr 
 inline
 fn verify(reg u64 ptr_sig, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_pk) -> reg u32 {
     stack u8[Li2_PK_LEN] pk;
-    reg ptr u8[Li2_PK_LEN] pk_rsp;
     stack u8[Li2_SIGN_LEN] sig;
-    reg ptr u8[Li2_SIGN_LEN] sig_rsp;
 
     reg u8 byte;
     reg u64 i;
@@ -249,8 +243,6 @@ fn verify(reg u64 ptr_sig, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_pk) -> reg 
 		i += 1;
 	}
 
-    sig_rsp = sig;
-    pk_rsp = pk;
-    status = verify_inner(sig_rsp, ptr_m, m_len, pk_rsp);
+    status = verify_inner(sig, ptr_m, m_len, pk);
     return status;
 }

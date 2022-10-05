@@ -15,6 +15,7 @@ readonly DEFAULT_TESTS=(
     test_expandmask
     test_sign
     test_rounding
+    test_verify
 )
 export TESTS=("${TESTS[@]:-${DEFAULT_TESTS[@]}}")
 LOGFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.log)
