@@ -206,9 +206,8 @@ fn dot_prod_vecs(stack u32[Li2_l * Li2_polydeg] v1 v2, reg ptr u32[Li2_polydeg] 
 	for i = 0 to Li2_l {
 		v1_term = v1[Li2_polydeg * i : Li2_polydeg];
 		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
-		term_prod = poly_mult(v1_term, v2_term, term_prod);
+		term_prod = poly_pointwise_montgomery(v1_term, v2_term, term_prod);
 		dotprod = poly_accumulate(term_prod, dotprod);
-		dotprod = poly_reduce32(dotprod);
 	}
 
 	return dotprod;
@@ -355,7 +354,7 @@ fn mult_scalar_vec(reg ptr u32[Li2_polydeg] f,
 	for ii = 0 to Li2_l {
 		fg = fvec[ii * Li2_polydeg : Li2_polydeg];
 		g = vec[ii * Li2_polydeg : Li2_polydeg];
-		fg = poly_mult(f, g, fg);
+		fg = poly_pointwise_montgomery(f, g, fg);
 		fvec[ii * Li2_polydeg : Li2_polydeg] = fg;
 	}
 
@@ -375,7 +374,7 @@ fn mult_scalar_veck(reg ptr u32[Li2_polydeg] f,
 	for ii = 0 to Li2_k {
 		fg = fvec[ii * Li2_polydeg : Li2_polydeg];
 		g = vec[ii * Li2_polydeg : Li2_polydeg];
-		fg = poly_mult(f, g, fg);
+		fg = poly_pointwise_montgomery(f, g, fg);
 		fvec[ii * Li2_polydeg : Li2_polydeg] = fg;
 	}
 

@@ -16,6 +16,7 @@ readonly DEFAULT_TESTS=(
     test_sign
     test_rounding
     test_verify
+    # test_sign_scratch
 )
 readonly MAKE="make -j"
 export TESTS=("${TESTS[@]:-${DEFAULT_TESTS[@]}}")

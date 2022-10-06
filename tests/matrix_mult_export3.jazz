@@ -2,7 +2,7 @@ require "../src/dilithium3/common.jazz"
 require "fft_export.jazz"
 
 export
-fn mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
+fn dilithium3_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
 	stack u32[Li2_k * Li2_l * Li2_polydeg] mat;
 	stack u32[Li2_l * Li2_polydeg] vec;
 	stack u32[Li2_k * Li2_polydeg] prod;
@@ -35,7 +35,7 @@ fn mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
 }
 
 export
-fn dot_prod_jazz(reg u64 ptr_v1 ptr_v2 ptr_prod) {
+fn dilithium3_dot_prod_jazz(reg u64 ptr_v1 ptr_v2 ptr_prod) {
 	stack u32[Li2_l * Li2_polydeg] v1 v2;
 	stack u32[Li2_polydeg] prod;
 
@@ -62,7 +62,7 @@ fn dot_prod_jazz(reg u64 ptr_v1 ptr_v2 ptr_prod) {
 }
 
 export
-fn poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
+fn dilithium3_poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
 {
 	stack u32[Li2_polydeg] f sum;
 
@@ -89,7 +89,7 @@ fn poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
 }
 
 export
-fn probe_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
+fn dilithium3_probe_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
 	stack u32[Li2_k * Li2_l * Li2_polydeg] mat;
 	stack u32[Li2_l * Li2_polydeg] vec;
 	stack u32[Li2_k * Li2_polydeg] prod;
@@ -134,6 +134,32 @@ fn probe_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
 	while(i < Li2_k * Li2_polydeg) {
 		v = prod[(int) i];
 		(u32) [ptr_prod + 4 * i] = v;
+		i += 1;
+	}
+}
+
+export
+fn poly_pointwise_montgomery_jazz(reg u64 f_ptr, reg u64 g_ptr, reg u64 prod_ptr) {
+	stack u32[Li2_polydeg] f g prod;
+
+	reg u32 v;
+	reg u64 i;
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [f_ptr + 4 * i];
+		f[(int) i] = v;
+		v = (u32) [g_ptr + 4 * i];
+		g[(int) i] = v;
+		i += 1;
+	}
+
+	prod = poly_pointwise_montgomery(f, g, prod);
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = prod[(int) i];
+		(u32) [prod_ptr + 4 * i] = v;
 		i += 1;
 	}
 }

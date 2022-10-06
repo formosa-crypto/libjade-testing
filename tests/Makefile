@@ -9,7 +9,7 @@ ifeq "${VARIANT}" "dilithium5"
 	MODE := 5
 endif
 
-CXXFLAGS = -g -Og -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
+CXXFLAGS = -g -Og -ftrapv -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
 LDFLAGS = -I ../dilithium/ref -L../dilithium/ref -lpqcrystals_dilithium${MODE}_ref -lpqcrystals_fips202_ref
 
 TESTS ?= test_fft \
@@ -37,6 +37,9 @@ test_sign: test_sign.cpp $(LIB) ../dilithium/ref/randombytes.o
 
 test_verify: test_verify.cpp $(LIB) ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $(LIB) test_verify.cpp -o $@ $(LDFLAGS)
+
+test_matrix_mult: test_matrix_mult.cpp matrix_mult_export3.s matrix_mult_export5.s
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $^ -o $@ $(LDFLAGS)
 
 bench_keygen: bench_keygen.cpp $(LIB) ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $(LIB) bench_keygen.cpp -o $@ $(LDFLAGS)
