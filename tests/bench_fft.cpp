@@ -25,6 +25,7 @@ using std::uniform_int_distribution;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
+using std::chrono::nanoseconds;
 using std::make_pair;
 using std::pair;
 
@@ -46,53 +47,22 @@ array<int32_t, N> random_poly(bool want_neg = false) {
 	return arr;
 }
 
-pair<double, int> bench_fft_jazz() {
-	int accumulator = 0;
-
-	auto start = high_resolution_clock::now();
-	for(int i = 0; i < (1 << 18); ++i) {
+static double bench(void fn(int32_t*), int iterations=100000) {
+	double total_time = 0.0;
+	for(int i = 0; i < iterations; ++i) {
 		auto arr = random_poly();
-		fft_jazz(arr.data());
-		accumulator += arr[0];
-		accumulator %= 1000;
+		auto start = high_resolution_clock::now();
+		fn(arr.data());
+		auto end = high_resolution_clock::now();
+		auto duration = duration_cast<nanoseconds>(end - start);
+		total_time += duration.count() / (double)iterations;
 	}
 
-	auto end = high_resolution_clock::now();
-	auto duration = duration_cast<milliseconds>(end - start);
-
-	return make_pair(duration.count(), accumulator);
-}
-
-pair<double, int> bench_fft_ref() {
-	int accumulator = 0;
-
-	auto start = high_resolution_clock::now();
-	for(int i = 0; i < (1 << 18); ++i) {
-		auto arr = random_poly();
-		ntt(arr.data());
-		accumulator += arr[0];
-		accumulator %= 1000;
-	}
-
-	auto end = high_resolution_clock::now();
-	auto duration = duration_cast<milliseconds>(end - start);
-
-	return make_pair(duration.count(), accumulator);
+	return total_time;
 }
 
 int main() {
-	auto results_jazz = bench_fft_jazz();
-	PRINT(results_jazz.first);
-	PRINT(results_jazz.second);
-	auto results_ref = bench_fft_ref();
-	PRINT(results_ref.first);
-	PRINT(results_ref.second);
-
-	results_jazz = bench_fft_jazz();
-	PRINT(results_jazz.first);
-	PRINT(results_jazz.second);
-	results_ref = bench_fft_ref();
-	PRINT(results_ref.first);
-	PRINT(results_ref.second);
+	std::cout << "fft_jazz: " << bench(fft_jazz) << " ns\n";
+	std::cout << "fft_ref: " << bench(ntt) << " ns\n";
 	return 0;
 }

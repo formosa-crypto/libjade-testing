@@ -14,6 +14,14 @@ ARCH ?= ref
 CXXFLAGS = -g -Og -ftrapv -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
 LDFLAGS = -I ../dilithium/ref -L../dilithium/ref -lpqcrystals_dilithium${MODE}_ref -lpqcrystals_fips202_ref
 
+ifeq "${ARCH}" "ref"
+	CXXFLAGS += '-DDILITHIUM_ARCH_REF'
+endif
+ifeq "${ARCH}" "avx2"
+	CXXFLAGS += '-DDILITHIUM_ARCH_AVX2'
+endif
+
+
 TESTS ?= test_fft \
          test_gen_matrix \
          test_packing \
@@ -25,7 +33,11 @@ TESTS ?= test_fft \
          test_sign \
          test_rounding \
          test_keygen \
-         test_verify
+         test_verify \
+         bench_fft \
+         bench_hashing \
+         bench_keygen \
+         bench_sign
 
 LIB ?= ../src/${VARIANT}/${ARCH}/lib.s
 
