@@ -6,12 +6,12 @@
 #if DILITHIUM_MODE == 2
 
 #define SEEDED_KEYGEN_REF pqcrystals_dilithium2_ref_seeded_keypair
-#define SEEDED_KEYGEN_JAZZ dilithium2_keygen_jazz
+#define SEEDED_KEYGEN_JAZZ dilithium2_ref_keygen_jazz
 #define KEYGEN_REF pqcrystals_dilithium2_ref_keypair
 #define SIGN_REF pqcrystals_dilithium2_ref_signature
-#define SIGN_JAZZ dilithium2_sign_jazz
+#define SIGN_JAZZ dilithium2_ref_sign_jazz
 #define VERIFY_REF pqcrystals_dilithium2_ref_verify
-#define VERIFY_JAZZ dilithium2_verify_jazz
+#define VERIFY_JAZZ dilithium2_ref_verify_jazz
 #define DECOMPOSE_REF pqcrystals_dilithium2_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_88_jazz
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium2_ref_poly_uniform_gamma1
@@ -26,12 +26,12 @@
 #elif DILITHIUM_MODE == 3
 
 #define SEEDED_KEYGEN_REF pqcrystals_dilithium3_ref_seeded_keypair
-#define SEEDED_KEYGEN_JAZZ dilithium3_keygen_jazz
+#define SEEDED_KEYGEN_JAZZ dilithium3_ref_keygen_jazz
 #define KEYGEN_REF pqcrystals_dilithium3_ref_keypair
 #define SIGN_REF pqcrystals_dilithium3_ref_signature
-#define SIGN_JAZZ dilithium3_sign_jazz
+#define SIGN_JAZZ dilithium3_ref_sign_jazz
 #define VERIFY_REF pqcrystals_dilithium3_ref_verify
-#define VERIFY_JAZZ dilithium3_verify_jazz
+#define VERIFY_JAZZ dilithium3_ref_verify_jazz
 #define DECOMPOSE_REF pqcrystals_dilithium3_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium3_ref_poly_uniform_gamma1
@@ -46,12 +46,12 @@
 #elif DILITHIUM_MODE == 5
 
 #define SEEDED_KEYGEN_REF pqcrystals_dilithium5_ref_seeded_keypair
-#define SEEDED_KEYGEN_JAZZ dilithium5_keygen_jazz
+#define SEEDED_KEYGEN_JAZZ dilithium5_ref_keygen_jazz
 #define KEYGEN_REF pqcrystals_dilithium5_ref_keypair
 #define SIGN_REF pqcrystals_dilithium5_ref_signature
-#define SIGN_JAZZ dilithium5_sign_jazz
+#define SIGN_JAZZ dilithium5_ref_sign_jazz
 #define VERIFY_REF pqcrystals_dilithium5_ref_verify
-#define VERIFY_JAZZ dilithium5_verify_jazz
+#define VERIFY_JAZZ dilithium5_ref_verify_jazz
 #define DECOMPOSE_REF pqcrystals_dilithium5_ref_decompose
 #define DECOMPOSE_JAZZ decompose_gamma2_32_jazz
 #define POLY_UNIFORM_GAMMA1_REF pqcrystals_dilithium5_ref_poly_uniform_gamma1

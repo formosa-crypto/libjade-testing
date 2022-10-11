@@ -1,4 +1,4 @@
-require "../src/dilithium3/common.jazz"
+require "../src/dilithium3/ref/common.jazz"
 
 export
 fn sampleInBall_jazz(reg u64 ptr_f, reg u64 ptr_seed) {

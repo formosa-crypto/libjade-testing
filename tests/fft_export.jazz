@@ -1,6 +1,6 @@
 require "../src/common/fft.jazz"
 require "../src/common/montgomery.jazz"
-require "../src/dilithium3/common.jazz"
+require "../src/dilithium3/ref/common.jazz"
 
 export
 fn fft_jazz(reg u64 vec)

@@ -1,4 +1,4 @@
-require "../src/dilithium3/gen_matrix.jazz"
+require "../src/dilithium3/ref/gen_matrix.jazz"
 
 export
 fn gen_matrix_entry_jazz(reg u64 out) {

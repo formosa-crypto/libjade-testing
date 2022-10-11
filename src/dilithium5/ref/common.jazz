@@ -1,8 +1,8 @@
-require "../common/expandMask.jazz"
-require "../common/expandS.jazz"
-require "../common/fips202.jazz"
-require "../common/poly.jazz"
-require "../common/rounding.jazz"
+require "../../common/expandMask.jazz"
+require "../../common/expandS.jazz"
+require "../../common/fips202.jazz"
+require "../../common/poly.jazz"
+require "../../common/rounding.jazz"
 
 require "params.jazz"
 require "packing.jazz"
@@ -38,9 +38,9 @@ fn expandS_poly(stack u8[64] rho_prime, reg u16 elem_idx, reg ptr u32[Li2_polyde
 	return buf;
 }
 
-require "../common/expandA_end.jazz"
-require "../common/expandMask_end.jazz"
-require "../common/expandS_end.jazz"
-require "../common/hashing_end.jazz"
-require "../common/poly_end.jazz"
-require "../common/polyvec_end.jazz"
+require "../../common/expandA_end.jazz"
+require "../../common/expandMask_end.jazz"
+require "../../common/expandS_end.jazz"
+require "../../common/hashing_end.jazz"
+require "../../common/poly_end.jazz"
+require "../../common/polyvec_end.jazz"

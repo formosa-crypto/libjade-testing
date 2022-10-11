@@ -1,5 +1,5 @@
-require "../common/montgomery.jazz"
-require "../common/packing.jazz"
+require "../../common/montgomery.jazz"
+require "../../common/packing.jazz"
 
 require "params.jazz"
 
@@ -44,7 +44,7 @@ inline
 fn polyz_pack(reg ptr u8[Li2_pack_zlen] r, reg ptr u32[Li2_polydeg] a)
 	-> reg ptr u8[Li2_pack_zlen]
 {
-	r = polyz_pack_gamma1_219(r, a);
+	r = polyz_pack_gamma1_217(r, a);
 	return r;
 }
 
@@ -52,7 +52,7 @@ inline
 fn polyz_unpack(reg ptr u32[Li2_polydeg] r, reg ptr u8[Li2_pack_zlen] a)
 	-> reg ptr u32[Li2_polydeg]
 {
-	r = polyz_unpack_gamma1_219(r, a);
+	r = polyz_unpack_gamma1_217(r, a);
     return r;
 }
 
@@ -60,8 +60,8 @@ inline
 fn polyw1_pack(reg ptr u32[Li2_polydeg] w1, reg ptr u8[Li2_pack_highbitslen] w1_buf)
 	-> reg ptr u8[Li2_pack_highbitslen]
 {
-	w1_buf = polyw1_pack_gamma2_32(w1, w1_buf);
+	w1_buf = polyw1_pack_gamma2_88(w1, w1_buf);
 	return w1_buf;
 }
 
-require "../common/packing_end.jazz"
+require "../../common/packing_end.jazz"

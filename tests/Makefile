@@ -9,6 +9,8 @@ ifeq "${VARIANT}" "dilithium5"
 	MODE := 5
 endif
 
+ARCH ?= ref
+
 CXXFLAGS = -g -Og -ftrapv -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
 LDFLAGS = -I ../dilithium/ref -L../dilithium/ref -lpqcrystals_dilithium${MODE}_ref -lpqcrystals_fips202_ref
 
@@ -25,7 +27,7 @@ TESTS ?= test_fft \
          test_keygen \
          test_verify
 
-LIB ?= ../src/${VARIANT}/lib.s
+LIB ?= ../src/${VARIANT}/${ARCH}/lib.s
 
 tests: $(TESTS)
 
@@ -58,9 +60,9 @@ test_%: test_%.cpp %_export.s
 
 .PHONY: common_phony
 common_phony:
-	$(MAKE) --directory=../src/common
+	$(MAKE) --directory=../src/$(IMPL)/common
 
-%.s: %.jazz ../src/**/*.jazz common_phony
+%.s: %.jazz ../src/*/*/*.jazz common_phony
 	jasminc -pasm $< >$@
 
 clean:
