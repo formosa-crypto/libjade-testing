@@ -5,7 +5,9 @@
 # Author: Amber Sprenkels <amber@electricdusk.com>
 # Date: 14 Sep 2022
 
-export LD_LIBRARY_PATH="$HOME/jasmin-dilithium/dilithium/ref:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH
+LD_LIBRARY_PATH="$(dirname "$0")/../dilithium/ref:$LD_LIBRARY_PATH"
+LD_LIBRARY_PATH="$(dirname "$0")/../dilithium/avx2:$LD_LIBRARY_PATH"
 readonly DEFAULT_TESTS=(
     test_keygen
     test_fft
@@ -16,14 +18,18 @@ readonly DEFAULT_TESTS=(
     test_sign
     test_rounding
     test_verify
-    # test_sign_scratch
+    # bench_fft
+    # bench_hashing
 )
-readonly MAKE="make -j"
+readonly MAKE="make"
 export TESTS=("${TESTS[@]:-${DEFAULT_TESTS[@]}}")
 LOGFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.log)
 ASMFILE=$(mktemp --tmpdir jasmin.XXXXXXXXXX.s)
 
-$MAKE --directory=../dilithium/ref libpqcrystals_dilithium{2,3,5}_ref.so libpqcrystals_fips202_ref.so || exit 125
+# export ARCH=avx2
+
+$MAKE -j --directory="$(dirname "$0")/../dilithium/ref" libpqcrystals_dilithium{2,3,5}_ref.so libpqcrystals_fips202_ref.so || exit 125
+$MAKE -j --directory="$(dirname "$0")/../dilithium/avx2" libpqcrystals_dilithium{2,3,5}_avx2.so libpqcrystals_fips202_avx2.so libpqcrystals_fips202x4_avx2.so || exit 125
 $MAKE "${TESTS[@]}" || exit 1
 
 for test_name in "${TESTS[@]}"; do

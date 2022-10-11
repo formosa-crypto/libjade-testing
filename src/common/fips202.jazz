@@ -191,17 +191,20 @@ fn shake256_absorb32(stack u8[32] in) -> stack u64[25]
   reg u8 c;
   inline int i;
   stack u64[25] state;
+  reg ptr u64[25] state_rsp;
 
-  state = st0(state);
+  state_rsp = state;
+  state_rsp = st0(state_rsp);
   // TODO: Inefficient to load one byte at a time. Optimize this.
   for i = 0 to 32 {
     c = in[i];
-    state[u8 i] ^= c;
+    state_rsp[u8 i] ^= c;
   }
 
-  state[u8 32] ^= 0x1f;
-  state[u8 SHAKE256_RATE - 1] ^= 0x80;
+  state_rsp[u8 32] ^= 0x1f;
+  state_rsp[u8 SHAKE256_RATE - 1] ^= 0x80;
 
+  state = state_rsp;
   return state;
 }
 

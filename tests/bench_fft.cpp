@@ -7,9 +7,17 @@
 #include <tuple>
 
 extern "C" {
+#ifdef DILITHIUM_ARCH_REF
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
-#include "../dilithium/ref/ntt.h"
+#include "../dilithium/ref/poly.h"
+#elif DILITHIUM_ARCH_AVX2
+#include "../dilithium/avx2/api.h"
+#include "../dilithium/avx2/params.h"
+#include "../dilithium/avx2/poly.h"
+#else
+#error "None of DILITHIUM_ARCH_REF or DILITHIUM_ARCH_AVX2 is set"
+#endif
 }
 
 using std::cout;
@@ -24,45 +32,46 @@ using std::mt19937;
 using std::uniform_int_distribution;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
-using std::chrono::milliseconds;
 using std::chrono::nanoseconds;
 using std::make_pair;
 using std::pair;
 
-#define PRINT(X) cout << (#X) << " = " << (X) << endl
+constexpr const int repetitions = 1000000;
 
 extern "C" {
 	void fft_jazz(int32_t f[N]);
 	void ifft_to_mont_jazz(int32_t f[N]);
 }
 
-
-array<int32_t, N> random_poly(bool want_neg = false) {
+poly random_poly(bool want_neg = false) {
 	random_device rd;
 	mt19937 gen(rd());
 	uniform_int_distribution<> distrib(want_neg ? (1 - Q) : 0, Q - 1);
-	array<int32_t, N> arr;
+	poly poly;
 	for(int i = 0; i < N; ++i)
-		arr[i] = distrib(gen);
-	return arr;
+		poly.coeffs[i] = distrib(gen);
+	return poly;
 }
 
-static double bench(void fn(int32_t*), int iterations=100000) {
+static double bench(void fn(poly*)) {
 	double total_time = 0.0;
-	for(int i = 0; i < iterations; ++i) {
-		auto arr = random_poly();
+	for(int i = 0; i < repetitions; ++i) {
+		auto poly = random_poly();
 		auto start = high_resolution_clock::now();
-		fn(arr.data());
+		fn(&poly);
 		auto end = high_resolution_clock::now();
 		auto duration = duration_cast<nanoseconds>(end - start);
-		total_time += duration.count() / (double)iterations;
+		total_time += duration.count() / (double)repetitions;
 	}
-
 	return total_time;
 }
 
+static void wrap_fft_jazz(poly *poly) {
+	fft_jazz(poly->coeffs);
+}
+
 int main() {
-	std::cout << "fft_jazz: " << bench(fft_jazz) << " ns\n";
-	std::cout << "fft_ref: " << bench(ntt) << " ns\n";
+	std::cout << "fft_jazz: " << bench(wrap_fft_jazz) << " ns\n";
+	std::cout << "fft_ref: " << bench(poly_ntt) << " ns\n";
 	return 0;
 }
