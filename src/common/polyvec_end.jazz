@@ -197,6 +197,7 @@ fn dot_prod_vecs(stack u32[Li2_l * Li2_polydeg] v1 v2, reg ptr u32[Li2_polydeg] 
 	-> reg ptr u32[Li2_polydeg]
 {	
 	stack u32[Li2_polydeg] term_prod;
+	reg ptr u32[Li2_polydeg] term_prod_rsp;
 
 	reg ptr u32[Li2_polydeg] v1_term v2_term;
 
@@ -206,7 +207,9 @@ fn dot_prod_vecs(stack u32[Li2_l * Li2_polydeg] v1 v2, reg ptr u32[Li2_polydeg] 
 	for i = 0 to Li2_l {
 		v1_term = v1[Li2_polydeg * i : Li2_polydeg];
 		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
-		term_prod = poly_pointwise_montgomery(v1_term, v2_term, term_prod);
+		term_prod_rsp = term_prod;
+		term_prod_rsp = poly_pointwise_montgomery(v1_term, v2_term, term_prod_rsp);
+		term_prod = term_prod_rsp;
 		dotprod = poly_accumulate(term_prod, dotprod);
 	}
 
@@ -219,15 +222,15 @@ fn mult_mat_vec(reg ptr u32[Li2_k * Li2_l * Li2_polydeg] mat,
 	-> stack u32[Li2_k * Li2_polydeg]
 {
 	stack u32[Li2_k * Li2_polydeg] out;
-	reg ptr u32[Li2_polydeg] prod;
+	reg ptr u32[Li2_polydeg] out_rsp;
+	
 	inline int i;
-
 	for i = 0 to Li2_k {
-		prod = out[Li2_polydeg * i : Li2_polydeg];
-		prod = dot_prod_vecs(
-			mat[Li2_l * Li2_polydeg * i : Li2_l * Li2_polydeg], 
-			vec, prod);
-		out[Li2_polydeg * i : Li2_polydeg] = prod;
+		out_rsp = out[Li2_polydeg * i : Li2_polydeg];
+		out_rsp = dot_prod_vecs(
+			mat[Li2_l * Li2_polydeg * i : Li2_l * Li2_polydeg],
+			vec, out_rsp);
+		out[Li2_polydeg * i : Li2_polydeg] = out_rsp;
 	}
 
 	return out;
