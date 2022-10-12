@@ -1,7 +1,7 @@
-require "../src/dilithium3/ref/common.jazz"
+require "../src/{DILITHIUM_VARIANT}/{DILITHIUM_ARCH}/common.jazz"
 
 export
-fn dilithium3_sampleInBall_jazz(reg u64 ptr_f, reg u64 ptr_seed) {
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_sampleInBall_jazz(reg u64 ptr_f, reg u64 ptr_seed) {
 	stack u32[Li2_polydeg] f;
 	reg ptr u32[Li2_polydeg] f_rsp;
 	stack u8[32] seed;

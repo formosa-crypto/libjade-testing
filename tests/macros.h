@@ -8,36 +8,48 @@
 #define SEEDED_KEYGEN_JAZZ dilithium2_ref_keygen_jazz
 #define SIGN_JAZZ dilithium2_ref_sign_jazz
 #define VERIFY_JAZZ dilithium2_ref_verify_jazz
+#define MULT_MAT_VEC_JAZZ dilithium2_ref_mult_mat_vec_jazz
+#define SAMPLE_IN_BALL_JAZZ dilithium2_ref_sampleInBall_jazz
 
 #elif DILITHIUM_MODE == 2 && defined(DILITHIUM_ARCH_AVX2)
 
 #define SEEDED_KEYGEN_JAZZ dilithium2_avx2_keygen_jazz
 #define SIGN_JAZZ dilithium2_avx2_sign_jazz
 #define VERIFY_JAZZ dilithium2_avx2_verify_jazz
+#define MULT_MAT_VEC_JAZZ dilithium2_avx2_mult_mat_vec_jazz
+#define SAMPLE_IN_BALL_JAZZ dilithium2_avx2_sampleInBall_jazz
 
 #elif DILITHIUM_MODE == 3 && defined(DILITHIUM_ARCH_REF)
 
 #define SEEDED_KEYGEN_JAZZ dilithium3_ref_keygen_jazz
 #define SIGN_JAZZ dilithium3_ref_sign_jazz
 #define VERIFY_JAZZ dilithium3_ref_verify_jazz
+#define MULT_MAT_VEC_JAZZ dilithium3_ref_mult_mat_vec_jazz
+#define SAMPLE_IN_BALL_JAZZ dilithium3_ref_sampleInBall_jazz
 
 #elif DILITHIUM_MODE == 3 && defined(DILITHIUM_ARCH_AVX2)
 
 #define SEEDED_KEYGEN_JAZZ dilithium3_avx2_keygen_jazz
 #define SIGN_JAZZ dilithium3_avx2_sign_jazz
 #define VERIFY_JAZZ dilithium3_avx2_verify_jazz
+#define MULT_MAT_VEC_JAZZ dilithium3_avx2_mult_mat_vec_jazz
+#define SAMPLE_IN_BALL_JAZZ dilithium3_avx2_sampleInBall_jazz
 
 #elif DILITHIUM_MODE == 5 && defined(DILITHIUM_ARCH_REF)
 
 #define SEEDED_KEYGEN_JAZZ dilithium5_ref_keygen_jazz
 #define SIGN_JAZZ dilithium5_ref_sign_jazz
 #define VERIFY_JAZZ dilithium5_ref_verify_jazz
+#define MULT_MAT_VEC_JAZZ dilithium5_ref_mult_mat_vec_jazz
+#define SAMPLE_IN_BALL_JAZZ dilithium5_ref_sampleInBall_jazz
 
 #elif DILITHIUM_MODE == 5 && defined(DILITHIUM_ARCH_AVX2)
 
 #define SEEDED_KEYGEN_JAZZ dilithium5_avx2_keygen_jazz
 #define SIGN_JAZZ dilithium5_avx2_sign_jazz
 #define VERIFY_JAZZ dilithium5_avx2_verify_jazz
+#define MULT_MAT_VEC_JAZZ dilithium5_avx2_mult_mat_vec_jazz
+#define SAMPLE_IN_BALL_JAZZ dilithium5_avx2_sampleInBall_jazz
 
 #endif
 

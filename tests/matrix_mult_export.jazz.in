@@ -1,8 +1,7 @@
-require "../src/dilithium3/ref/common.jazz"
-require "fft_export.jazz"
+require "../src/{DILITHIUM_VARIANT}/{DILITHIUM_ARCH}/common.jazz"
 
 export
-fn dilithium3_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
 	stack u32[Li2_k * Li2_l * Li2_polydeg] mat;
 	stack u32[Li2_l * Li2_polydeg] vec;
 	stack u32[Li2_k * Li2_polydeg] prod;
@@ -35,7 +34,7 @@ fn dilithium3_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_pr
 }
 
 export
-fn dilithium3_dot_prod_jazz(reg u64 ptr_v1 ptr_v2 ptr_prod) {
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_dot_prod_jazz(reg u64 ptr_v1 ptr_v2 ptr_prod) {
 	stack u32[Li2_l * Li2_polydeg] v1 v2;
 	stack u32[Li2_polydeg] prod;
 
@@ -62,7 +61,7 @@ fn dilithium3_dot_prod_jazz(reg u64 ptr_v1 ptr_v2 ptr_prod) {
 }
 
 export
-fn dilithium3_poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
 {
 	stack u32[Li2_polydeg] f sum;
 
@@ -89,7 +88,7 @@ fn dilithium3_poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
 }
 
 export
-fn dilithium3_probe_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_probe_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
 	stack u32[Li2_k * Li2_l * Li2_polydeg] mat;
 	stack u32[Li2_l * Li2_polydeg] vec;
 	stack u32[Li2_k * Li2_polydeg] prod;

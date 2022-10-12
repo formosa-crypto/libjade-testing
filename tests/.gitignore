@@ -3,3 +3,6 @@
 !*.*
 *.s
 
+# Auto-generated files
+hashing_export.jazz
+matrix_mult_export.jazz

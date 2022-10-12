@@ -1,10 +1,11 @@
+#include <chrono>
+#include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <random>
-#include <cstring>
-#include <chrono>
-#include <tuple>
 
 extern "C" {
+#include "macros.h"
 #ifdef DILITHIUM_ARCH_REF
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
@@ -31,7 +32,7 @@ using std::chrono::nanoseconds;
 constexpr const int repetitions = 1000000;
 
 extern "C" {
-	void sampleInBall_jazz(int32_t f[256], const uint8_t seed[32]);
+	void SAMPLE_IN_BALL_JAZZ(int32_t f[N], const uint8_t seed[SEEDBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -44,26 +45,27 @@ uint8_t sampleByte() {
 static double bench(void fn(poly*, const uint8_t*)) {
 	double total_time = 0.0;
 	for(int i = 0; i < repetitions; ++i) {
-		uint8_t seed[32];
+		uint8_t seed[SEEDBYTES];
 		poly poly;
-		for (size_t j = 0; j < 32; j++) {
+		for (size_t j = 0; j < SEEDBYTES; j++) {
 			seed[j] = sampleByte();
 		}
-		auto start = high_resolution_clock::now();
+		auto start = __rdtsc();
 		fn(&poly, seed);
-		auto end = high_resolution_clock::now();
-		auto duration = duration_cast<nanoseconds>(end - start);
-		total_time += duration.count() / (double)repetitions;
+		auto end = __rdtsc();
+		auto delta = end - start;
+		total_time += delta / (double)repetitions;
 	}
 	return total_time;
 }
 
 static void wrap_sampleInBall_jazz(poly *poly, const uint8_t *seed) {
-	sampleInBall_jazz(poly->coeffs, seed);
+	SAMPLE_IN_BALL_JAZZ(poly->coeffs, seed);
 }
 
 int main() {
-	std::cout << "sampleInBall_jazz: " << bench(wrap_sampleInBall_jazz) << " ns\n";
-	std::cout << "sampleInBall_ref: " << bench(poly_challenge) << " ns\n";
+	std::cout << std::fixed << std::setprecision(2);
+	std::cout << "sampleInBall_jazz: " << bench(wrap_sampleInBall_jazz) << " kcc\n";
+	std::cout << "sampleInBall_ref: " << bench(poly_challenge) << " kcc\n";
 	return 0;
 }

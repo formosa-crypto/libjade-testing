@@ -9,14 +9,15 @@ export LD_LIBRARY_PATH
 LD_LIBRARY_PATH="$(dirname "$0")/../dilithium/ref:$LD_LIBRARY_PATH"
 LD_LIBRARY_PATH="$(dirname "$0")/../dilithium/avx2:$LD_LIBRARY_PATH"
 readonly DEFAULT_TESTS=(
-    test_keygen
-    test_fft
-    test_packing
-    test_hashing
-    test_sign_fragments
     test_expandmask
-    test_sign
+    test_fft
+    test_hashing
+    test_keygen
+    test_matrix_mult
+    test_packing
     test_rounding
+    test_sign
+    test_sign_fragments
     test_verify
     # bench_fft
     # bench_hashing
@@ -38,7 +39,12 @@ for test_name in "${TESTS[@]}"; do
 done
 
 echo >&2 "Tests done!"
-(set -x; jasminc -intel -wea -pasm "../src/${ARCH:-ref}/${VARIANT:-dilithium2}/lib.jazz" >"$ASMFILE" 2>"$LOGFILE")
+(
+    set -x
+    if ! jasminc -intel -wea -pasm "../src/${VARIANT:-dilithium2}/${ARCH:-ref}/lib.jazz" >"$ASMFILE" 2>"$LOGFILE"; then
+        cat "$LOGFILE" >&2
+    fi
+)
 echo "$(grep -c -F 'extra assignment introduced' "$LOGFILE") extra assignment warnings in $LOGFILE"
 echo "$(wc -l <"$ASMFILE") lines in $ASMFILE"
 

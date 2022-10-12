@@ -1,8 +1,8 @@
+#include <chrono>
+#include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <random>
-#include <cstring>
-#include <chrono>
-#include <tuple>
 
 extern "C" {
 #include "../dilithium/ref/api.h"
@@ -88,6 +88,7 @@ pair<double, int> bench_sign_ref() {
 }
 
 int main() {
+	std::cout << std::fixed << std::setprecision(2);
 	auto results_jazz = bench_diltihium3_sign_jazz();
 	PRINT(results_jazz.first);
 	PRINT(results_jazz.second);

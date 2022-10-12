@@ -11,24 +11,23 @@ endif
 
 ARCH ?= ref
 
-CXXFLAGS = -g -Og -ftrapv -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
-LDFLAGS = -I ../dilithium/ref \
+ifeq "${ARCH}" "ref"
+	CPPFLAGS += '-DDILITHIUM_ARCH_REF'
+endif
+ifeq "${ARCH}" "avx2"
+	CPPFLAGS += '-DDILITHIUM_ARCH_AVX2'
+endif
+
+CXXFLAGS := $(CPPFLAGS) -g -Og -ftrapv -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
+LDFLAGS := -I ../dilithium/ref \
           -I ../dilithium/avx2 \
           -L../dilithium/ref \
           -L../dilithium/avx2 \
-          -lpqcrystals_dilithium${MODE}_ref \
-          -lpqcrystals_dilithium${MODE}_avx2 \
+          -lpqcrystals_dilithium$(MODE)_ref \
+          -lpqcrystals_dilithium$(MODE)_avx2 \
           -lpqcrystals_fips202_ref \
           -lpqcrystals_fips202_avx2 \
           -lpqcrystals_fips202x4_avx2
-
-ifeq "${ARCH}" "ref"
-	CXXFLAGS += '-DDILITHIUM_ARCH_REF'
-endif
-ifeq "${ARCH}" "avx2"
-	CXXFLAGS += '-DDILITHIUM_ARCH_AVX2'
-endif
-
 
 TESTS ?= test_fft \
          test_gen_matrix \
@@ -47,6 +46,9 @@ TESTS ?= test_fft \
          bench_keygen \
          bench_sign
 
+JAZZ_TEMPLATES := $(wildcard *.jazz.in)
+JAZZ_GENERATED := $(JAZZ_TEMPLATES:.jazz.in=.jazz)
+
 LIB ?= ../src/${VARIANT}/${ARCH}/lib.s
 
 tests: $(TESTS)
@@ -60,7 +62,10 @@ test_sign: test_sign.cpp $(LIB) ../dilithium/ref/randombytes.o
 test_verify: test_verify.cpp $(LIB) ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $(LIB) test_verify.cpp -o $@ $(LDFLAGS)
 
-test_matrix_mult: test_matrix_mult.cpp matrix_mult_export3.s matrix_mult_export5.s
+test_matrix_mult: test_matrix_mult.cpp matrix_mult_export.s
+	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $^ -o $@ $(LDFLAGS)
+
+test_hashing: test_hashing.cpp hashing_export.s
 	$(CXX) $(CXXFLAGS) ../dilithium/ref/randombytes.o $^ -o $@ $(LDFLAGS)
 
 bench_keygen: bench_keygen.cpp $(LIB) ../dilithium/ref/randombytes.o
@@ -82,6 +87,12 @@ test_%: test_%.cpp %_export.s
 common_phony:
 	$(MAKE) --directory=../src/$(IMPL)/common
 
+%.jazz: %.jazz.in
+	sed -e "1 i// AUTO-GENERATED FILE.  DO NOT EDIT." \
+	    -e "s/{DILITHIUM_VARIANT}/$(VARIANT)/g" \
+	    -e "s/{DILITHIUM_ARCH}/$(ARCH)/g" \
+	    $< >$@
+
 %.s: %.jazz ../src/*/*/*.jazz common_phony
 	jasminc -pasm $< >$@
 
@@ -89,5 +100,4 @@ clean:
 	$(MAKE) --directory=../dilithium/ref clean
 	$(MAKE) --directory=../dilithium/avx2 clean
 	$(MAKE) --directory=../src/common clean
-	$(MAKE) --directory=../src/dilithium3 clean
-	rm -f $(TESTS)
+	$(RM) $(TESTS) $(JAZZ_GENERATED)

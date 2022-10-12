@@ -25,7 +25,8 @@ using std::vector;
 
 extern "C"
 {
-	void dilithium5_mult_mat_vec_jazz(int32_t m[K * L * N], int32_t v[L * N], int32_t prod[K * N]);
+	#include "macros.h"
+	void MULT_MAT_VEC_JAZZ(int32_t m[K * L * N], int32_t v[L * N], int32_t prod[K * N]);
 	// void dilithium_dot_prod_jazz(int32_t v1[L * N], int32_t v2[L * N], int32_t prod[N]);
 	// void dilithium_poly_accumulate_jazz(int32_t f[N], int32_t s[N]);
 	// void dilithium_probe_mult_mat_vec_jazz(int32_t m[K * L * N], int32_t v[L * N], int32_t prod[K * N]);
@@ -277,7 +278,7 @@ void test_matrix_pointwise_montgomery()
 		y_ref = y;
 		y_jazz = y;
 		polyvec_matrix_pointwise_montgomery(&w_ref, mat, &y_ref);
-		dilithium5_mult_mat_vec_jazz(mat->vec->coeffs, y_jazz.vec->coeffs, w_jazz.vec->coeffs);
+		MULT_MAT_VEC_JAZZ(mat->vec->coeffs, y_jazz.vec->coeffs, w_jazz.vec->coeffs);
 
 		for (size_t i = 0; i < K; i++)
 		{

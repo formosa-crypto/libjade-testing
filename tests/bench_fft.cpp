@@ -1,12 +1,13 @@
+#include <array>
+#include <chrono>
+#include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <random>
-#include <cstring>
-#include <array>
 #include <string>
-#include <chrono>
-#include <tuple>
 
 extern "C" {
+#include <immintrin.h>
 #ifdef DILITHIUM_ARCH_REF
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
@@ -57,11 +58,11 @@ static double bench(void fn(poly*)) {
 	double total_time = 0.0;
 	for(int i = 0; i < repetitions; ++i) {
 		auto poly = random_poly();
-		auto start = high_resolution_clock::now();
+		auto start = __rdtsc();
 		fn(&poly);
-		auto end = high_resolution_clock::now();
-		auto duration = duration_cast<nanoseconds>(end - start);
-		total_time += duration.count() / (double)repetitions;
+		auto end = __rdtsc();
+		auto delta = end - start;
+		total_time += delta / (double)repetitions;
 	}
 	return total_time;
 }
@@ -71,7 +72,8 @@ static void wrap_fft_jazz(poly *poly) {
 }
 
 int main() {
-	std::cout << "fft_jazz: " << bench(wrap_fft_jazz) << " ns\n";
-	std::cout << "fft_ref: " << bench(poly_ntt) << " ns\n";
+	std::cout << std::fixed << std::setprecision(2);
+	std::cout << "fft_jazz: " << 1e-3 * bench(wrap_fft_jazz) << " kcc\n";
+	std::cout << "fft_ref: " << 1e-3 * bench(poly_ntt) << " kcc\n";
 	return 0;
 }

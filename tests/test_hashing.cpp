@@ -16,7 +16,8 @@ using std::memcmp;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void dilithium3_sampleInBall_jazz(int32_t f[256], uint8_t seed[32]);
+#include "macros.h"
+void SAMPLE_IN_BALL_JAZZ(int32_t f[N], uint8_t seed[SEEDBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -27,22 +28,15 @@ uint8_t sampleByte() {
 }
 
 int main() {
-	uint8_t seed[32];
-	int32_t f_jazz[256] = {0};
+	uint8_t seed[SEEDBYTES];
+	int32_t f_jazz[N] = {0};
 	poly f_ref = {0};
-
-	if (DILITHIUM_MODE != 3) {
-		// TODO: This test is only implemented for Dilithium3 because of
-		// hashing_export.jazz.  Implement it also for the other variants.
-		std::cerr << "skipped\n";
-		return 0;
-	}
 
 	for(size_t i = 0; i < SEEDBYTES; i++) {
 		seed[i] = sampleByte();
 	}
 	
-	dilithium3_sampleInBall_jazz(f_jazz, seed);
+	SAMPLE_IN_BALL_JAZZ(f_jazz, seed);
 	poly_challenge(&f_ref, seed);
 
 	PRINT(memcmp(f_ref.coeffs, f_jazz, N * sizeof(int32_t)));
