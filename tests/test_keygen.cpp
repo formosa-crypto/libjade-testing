@@ -40,15 +40,12 @@ int main() {
 	SEEDED_KEYGEN_REF(pk_ref, sk_ref, randomness);
 	SEEDED_KEYGEN_JAZZ(pk_jazz, sk_jazz, randomness);
 
-	PRINT(memcmp(pk_ref, pk_jazz, CRYPTO_PUBLICKEYBYTES));
-	PRINT(memcmp(sk_ref, sk_jazz, CRYPTO_SECRETKEYBYTES));
-
 	for(int i = 0; i < CRYPTO_PUBLICKEYBYTES; ++i) {
 		if(pk_ref[i] != pk_jazz[i]) {
 			PRINT(i);
 			PRINT((int)pk_ref[i]);
 			PRINT((int)pk_jazz[i]);
-			break;
+			return 1;
 		}
 	}
 
@@ -57,7 +54,7 @@ int main() {
 			PRINT(i);
 			PRINT((int)sk_ref[i]);
 			PRINT((int)sk_jazz[i]);
-			break;
+			return 1;
 		}
 	}
 

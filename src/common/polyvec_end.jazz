@@ -209,8 +209,8 @@ fn dot_prod_vecs(stack u32[Li2_l * Li2_polydeg] v1 v2, reg ptr u32[Li2_polydeg] 
 		v2_term = v2[Li2_polydeg * i : Li2_polydeg];
 		term_prod_rsp = term_prod;
 		term_prod_rsp = poly_pointwise_montgomery(v1_term, v2_term, term_prod_rsp);
+		dotprod = poly_accumulate(term_prod_rsp, dotprod);
 		term_prod = term_prod_rsp;
-		dotprod = poly_accumulate(term_prod, dotprod);
 	}
 
 	return dotprod;
@@ -327,15 +327,19 @@ inline
 fn checknorm_vecl(reg ptr u32[Li2_l * Li2_polydeg] vec, inline int threshold)
 	-> stack u8
 {
+	reg ptr u32[Li2_polydeg] vec_elem;
+	stack u8 result_s;
 	reg u8 result;
+
 	stack u8 r;
 	reg u8 c;
+
 	inline int ii;
-	stack u8 result_s;
 
 	result = 0;
 	for ii = 0 to Li2_l {
-		r = poly_checknorm(vec[ii * Li2_polydeg : Li2_polydeg], threshold);
+		vec_elem = vec[ii * Li2_polydeg : Li2_polydeg];
+		r = poly_checknorm(vec_elem, threshold);
 		c = r;
 		result |= c;
 	}
