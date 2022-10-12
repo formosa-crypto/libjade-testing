@@ -21,14 +21,8 @@ extern "C"
 }
 
 using std::cout;
-using std::endl;
-using std::make_pair;
 using std::memcmp;
-using std::pair;
 using std::vector;
-using std::chrono::duration_cast;
-using std::chrono::high_resolution_clock;
-using std::chrono::nanoseconds;
 
 constexpr const int repetitions = 10000;
 

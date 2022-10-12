@@ -22,7 +22,6 @@ extern "C" {
 }
 
 using std::cout;
-using std::endl;
 using std::vector;
 using std::memcmp;
 using std::runtime_error;
@@ -31,11 +30,6 @@ using std::array;
 using std::random_device;
 using std::mt19937;
 using std::uniform_int_distribution;
-using std::chrono::high_resolution_clock;
-using std::chrono::duration_cast;
-using std::chrono::nanoseconds;
-using std::make_pair;
-using std::pair;
 
 constexpr const int repetitions = 1000000;
 

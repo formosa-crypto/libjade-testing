@@ -4,104 +4,72 @@
 #include <iostream>
 #include <random>
 
-extern "C" {
-#include "../dilithium/ref/api.h"
+extern "C"
+{
+#ifdef DILITHIUM_ARCH_REF
+#include "../dilithium/ref/sign.h"
 #include "../dilithium/ref/params.h"
+#elif DILITHIUM_ARCH_AVX2
+#include "../dilithium/avx2/sign.h"
+#include "../dilithium/avx2/params.h"
+#else
+#error "None of DILITHIUM_ARCH_REF or DILITHIUM_ARCH_AVX2 is set"
+#endif
 }
 
 using std::cout;
-using std::endl;
-using std::vector;
 using std::memcmp;
-using std::chrono::high_resolution_clock;
-using std::pair;
-using std::make_pair;
+using std::vector;
 
-#define PRINT(X) cout << (#X) << " = " << (X) << endl
+constexpr const int repetitions = 10000;
 
-extern "C" {
-	void diltihium3_sign_jazz(uint8_t signature[pqcrystals_dilithium3_BYTES],
-			uint8_t* msg,
-			uint64_t m_len,
-			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES]);
+extern "C"
+{
+#include "macros.h"
+#include <immintrin.h>
+	uint32_t SIGN_JAZZ(uint8_t sig[CRYPTO_BYTES],
+					   const uint8_t *m,
+					   uint64_t m_len,
+					   const uint8_t sk[CRYPTO_SECRETKEYBYTES]);
 }
 
-uint8_t sampleByte() {
+uint8_t sampleByte()
+{
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
-	static std::uniform_int_distribution<> distrib(0,  255);
+	static std::uniform_int_distribution<> distrib(0, 255);
 	return distrib(gen);
 }
 
-pair<double, int> bench_diltihium3_sign_jazz() {
-	//forced side effect
-	int accumulator = 0;
-
-	auto start = high_resolution_clock::now();
-	for(int i = 0; i < 5000; ++i) {
-		uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
-		uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
-
-		pqcrystals_dilithium3_ref_keypair(pk, sk);
-
-		uint8_t m[1000];
-		for(int i = 0; i < 1000; ++i)
-			m[i] = sampleByte();
-
-		uint8_t signature_jazz[pqcrystals_dilithium3_BYTES];
-		diltihium3_sign_jazz(signature_jazz, m, 1000, sk);
-		accumulator ^= signature_jazz[0];
-	}
-	auto end = high_resolution_clock::now();
-
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-	return make_pair(duration.count(), accumulator);
-}
-
-pair<double, int> bench_sign_ref() {
-	//forced side effect
-	int accumulator = 0;
-
-	auto start = high_resolution_clock::now();
-	for(int i = 0; i < 5000; ++i) {
-		uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
-		uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
-
-		pqcrystals_dilithium3_ref_keypair(pk, sk);
-
-		uint8_t m[1000];
-		for(int i = 0; i < 1000; ++i)
-			m[i] = sampleByte();
-
-		uint8_t signature_ref[pqcrystals_dilithium3_BYTES];
+static double bench(int sign(uint8_t *sig, size_t *siglen, const uint8_t *m, size_t mlen, const uint8_t *sk))
+{
+	double total_time = 0.0;
+	for (int i = 0; i < repetitions; i++)
+	{
+		uint8_t sig[CRYPTO_BYTES] = {};
 		size_t siglen;
-		pqcrystals_dilithium3_ref_signature(signature_ref, &siglen, m, 1000, sk);
-		accumulator ^= signature_ref[0];
+		uint8_t pk[CRYPTO_PUBLICKEYBYTES] = {};
+		uint8_t sk[CRYPTO_SECRETKEYBYTES] = {};
+		crypto_sign_keypair(pk, sk);
+		auto start = __rdtsc();
+		sign(sig, &siglen, nullptr, 0, sk);
+		auto end = __rdtsc();
+		auto delta = end - start;
+		total_time += delta / (double)repetitions;
 	}
-	auto end = high_resolution_clock::now();
-
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-	return make_pair(duration.count(), accumulator);
-
+	return total_time;
 }
 
-int main() {
+static int wrap_sign_jazz(uint8_t *sig, size_t *siglen, const uint8_t *m, size_t mlen, const uint8_t *sk)
+{
+	(void)siglen;
+	return SIGN_JAZZ(sig, m, mlen, sk);
+}
+
+int main()
+{
 	std::cout << std::fixed << std::setprecision(2);
-	auto results_jazz = bench_diltihium3_sign_jazz();
-	PRINT(results_jazz.first);
-	PRINT(results_jazz.second);
-	auto results_ref = bench_sign_ref();
-	PRINT(results_ref.first);
-	PRINT(results_ref.second);
-
-	results_jazz = bench_diltihium3_sign_jazz();
-	PRINT(results_jazz.first);
-	PRINT(results_jazz.second);
-	results_ref = bench_sign_ref();
-	PRINT(results_ref.first);
-	PRINT(results_ref.second);
-
+	std::cout << "sign_jazz: " << 1e-3 * bench(wrap_sign_jazz) << " kcc\n";
+	std::cout << "sign_ref: " << 1e-3 * bench(crypto_sign_signature) << " kcc\n";
 	return 0;
 }
