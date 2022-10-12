@@ -1,17 +1,19 @@
+#include <chrono>
+#include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <random>
-#include <cstring>
-#include <chrono>
 #include <tuple>
 
 extern "C"
 {
 #include "macros.h"
+#include <immintrin.h>
 #ifdef DILITHIUM_ARCH_REF
 #include "../dilithium/ref/sign.h"
 #include "../dilithium/ref/params.h"
 #elif DILITHIUM_ARCH_AVX2
-#include "../dilithium/avx2/api.h"
+#include "../dilithium/avx2/sign.h"
 #include "../dilithium/avx2/params.h"
 #else
 #error "None of DILITHIUM_ARCH_REF or DILITHIUM_ARCH_AVX2 is set"
@@ -57,11 +59,11 @@ static double bench(int keygen(uint8_t pk[CRYPTO_PUBLICKEYBYTES], uint8_t sk[CRY
 		{
 			seed[i] = sampleByte();
 		}
-		auto start = high_resolution_clock::now();
+		auto start = __rdtsc();
 		keygen(pk, sk, seed);
-		auto end = high_resolution_clock::now();
-		auto duration = duration_cast<nanoseconds>(end - start);
-		total_time += duration.count() / (double)repetitions;
+		auto end = __rdtsc();
+		auto delta = end - start;
+		total_time += delta / (double)repetitions;
 	}
 	return total_time;
 }
@@ -72,9 +74,26 @@ static int wrap_keygen_jazz(uint8_t pk[CRYPTO_PUBLICKEYBYTES], uint8_t sk[CRYPTO
 	return 0;
 }
 
+static int wrap_keygen_ref(uint8_t pk[CRYPTO_PUBLICKEYBYTES], uint8_t sk[CRYPTO_SECRETKEYBYTES], uint8_t seed[SEEDBYTES])
+{
+	// The Dilithium avx2 implementation never implemented the 'seeded'
+	// function, so in that case we call the unseeded function and throw away
+	// the seed.
+#ifdef DILITHIUM_ARCH_REF
+	crypto_sign_seeded_keypair(pk, sk, seed);
+#elif DILITHIUM_ARCH_AVX2
+	(void)seed;
+	crypto_sign_keypair(pk, sk);
+#else
+#error
+#endif
+	return 0;
+}
+
 int main()
 {
-	std::cout << "keygen_jazz: " << bench(wrap_keygen_jazz) << " ns\n";
-	std::cout << "keygen_ref: " << bench(crypto_sign_seeded_keypair) << " ns\n";
+	std::cout << std::fixed << std::setprecision(2);
+	std::cout << "keygen_jazz: " << 1e-3 * bench(wrap_keygen_jazz) << " kcc\n";
+	std::cout << "keygen_ref: " << 1e-3 * bench(wrap_keygen_ref) << " kcc\n";
 	return 0;
 }

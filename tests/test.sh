@@ -38,7 +38,7 @@ for test_name in "${TESTS[@]}"; do
 done
 
 echo >&2 "Tests done!"
-(set -x; jasminc -intel -wea -pasm "../src/${VARIANT:-dilithium2}/lib.jazz" >"$ASMFILE" 2>"$LOGFILE")
+(set -x; jasminc -intel -wea -pasm "../src/${ARCH:-ref}/${VARIANT:-dilithium2}/lib.jazz" >"$ASMFILE" 2>"$LOGFILE")
 echo "$(grep -c -F 'extra assignment introduced' "$LOGFILE") extra assignment warnings in $LOGFILE"
 echo "$(wc -l <"$ASMFILE") lines in $ASMFILE"
 
