@@ -44,7 +44,8 @@ TESTS ?= test_fft \
          bench_fft \
          bench_hashing \
          bench_keygen \
-         bench_sign
+         bench_sign \
+		 bench_verify
 
 JAZZ_TEMPLATES := $(wildcard *.jazz.in)
 JAZZ_GENERATED := $(JAZZ_TEMPLATES:.jazz.in=.jazz)
@@ -73,6 +74,9 @@ bench_keygen: bench_keygen.cpp $(LIB) ../dilithium/ref/randombytes.o
 
 bench_sign: bench_sign.cpp $(LIB) ../dilithium/ref/randombytes.o
 	$(CXX) $(CXXFLAGS) -O3 ../dilithium/ref/randombytes.o $(LIB) bench_sign.cpp -o $@ $(LDFLAGS)
+
+bench_verify: bench_verify.cpp $(LIB) ../dilithium/ref/randombytes.o
+	$(CXX) $(CXXFLAGS) -O3 ../dilithium/ref/randombytes.o $(LIB) bench_verify.cpp -o $@ $(LDFLAGS)
 
 bench_fft: bench_fft.cpp fft_export.s
 	$(CXX) $(CXXFLAGS) -O3 ../dilithium/ref/randombytes.o fft_export.s bench_fft.cpp -o $@ $(LDFLAGS)

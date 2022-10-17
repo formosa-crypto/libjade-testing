@@ -23,6 +23,7 @@ readonly DEFAULT_TESTS=(
     # bench_hashing
     # bench_keygen
     # bench_sign
+    # bench_verify
 )
 readonly MAKE="make"
 export TESTS=("${TESTS[@]:-${DEFAULT_TESTS[@]}}")
