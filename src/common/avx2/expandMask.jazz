@@ -145,19 +145,19 @@ fn expandMask_poly_gamma1_217_4x(
 	}
 
 	f = f_4x[0 * Li2_polydeg : Li2_polydeg];
-	f = polyz_unpack_gamma1_217(f, y_packed[0 * Li2_pack_zlen_gamma1_217 : Li2_pack_zlen_gamma1_217]);
+	f = polyz_unpack_gamma1_217(f, y_packed[0 * y_packed_buflen : Li2_pack_zlen_gamma1_217]);
 	f_4x[0 * Li2_polydeg : Li2_polydeg] = f;
 
 	f = f_4x[1 * Li2_polydeg : Li2_polydeg];
-	f = polyz_unpack_gamma1_217(f, y_packed[0 * Li2_pack_zlen_gamma1_217 : Li2_pack_zlen_gamma1_217]);
+	f = polyz_unpack_gamma1_217(f, y_packed[1 * y_packed_buflen : Li2_pack_zlen_gamma1_217]);
 	f_4x[1 * Li2_polydeg : Li2_polydeg] = f;
 
 	f = f_4x[2 * Li2_polydeg : Li2_polydeg];
-	f = polyz_unpack_gamma1_217(f, y_packed[0 * Li2_pack_zlen_gamma1_217 : Li2_pack_zlen_gamma1_217]);
+	f = polyz_unpack_gamma1_217(f, y_packed[2 * y_packed_buflen : Li2_pack_zlen_gamma1_217]);
 	f_4x[2 * Li2_polydeg : Li2_polydeg] = f;
 
 	f = f_4x[3 * Li2_polydeg : Li2_polydeg];
-	f = polyz_unpack_gamma1_217(f, y_packed[0 * Li2_pack_zlen_gamma1_217 : Li2_pack_zlen_gamma1_217]);
+	f = polyz_unpack_gamma1_217(f, y_packed[3 * y_packed_buflen : Li2_pack_zlen_gamma1_217]);
 	f_4x[3 * Li2_polydeg : Li2_polydeg] = f;
 
 	return f_4x;
