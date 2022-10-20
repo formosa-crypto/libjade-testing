@@ -1,3 +1,5 @@
+// TODO: Fix this test for avx2
+
 #include <iostream>
 #include <random>
 #include <cstring>

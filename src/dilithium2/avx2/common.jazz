@@ -27,12 +27,6 @@ fn use_hint(reg u32 a hint)
 inline
 fn expandMask_poly_4x(reg ptr u32[4 * Li2_polydeg] f_4x, reg ptr u8[64] rho_prime, stack u16 kappa)
 	-> reg ptr u32[4 * Li2_polydeg] {
-	// TODO: LEFT HERE:
-	//   * When done, consider parallelizing z-unpack; or
-	//     look at other places to parallelize SHA3; or
-	//     optimize the NTT.
-	//   * Update the other variants
-
 	reg u64 i;
 	reg u32 v32;
 
