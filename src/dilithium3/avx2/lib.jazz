@@ -3,7 +3,7 @@ require "packing.jazz"
 require "params.jazz"
 
 require "../../common/keygen_end.jazz"
-require "../../common/sign_end.jazz"
+require "../../common/avx2/sign_end.jazz"
 require "../../common/verify_end.jazz"
 
 export
