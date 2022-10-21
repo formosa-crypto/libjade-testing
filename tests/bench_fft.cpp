@@ -1,19 +1,27 @@
+#include <array>
+#include <chrono>
+#include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <random>
-#include <cstring>
-#include <array>
 #include <string>
-#include <chrono>
-#include <tuple>
 
 extern "C" {
+#include <immintrin.h>
+#ifdef DILITHIUM_ARCH_REF
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
-#include "../dilithium/ref/ntt.h"
+#include "../dilithium/ref/poly.h"
+#elif DILITHIUM_ARCH_AVX2
+#include "../dilithium/avx2/api.h"
+#include "../dilithium/avx2/params.h"
+#include "../dilithium/avx2/poly.h"
+#else
+#error "None of DILITHIUM_ARCH_REF or DILITHIUM_ARCH_AVX2 is set"
+#endif
 }
 
 using std::cout;
-using std::endl;
 using std::vector;
 using std::memcmp;
 using std::runtime_error;
@@ -22,77 +30,44 @@ using std::array;
 using std::random_device;
 using std::mt19937;
 using std::uniform_int_distribution;
-using std::chrono::high_resolution_clock;
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::make_pair;
-using std::pair;
 
-#define PRINT(X) cout << (#X) << " = " << (X) << endl
+constexpr const int repetitions = 1000000;
 
 extern "C" {
 	void fft_jazz(int32_t f[N]);
 	void ifft_to_mont_jazz(int32_t f[N]);
 }
 
-
-array<int32_t, N> random_poly(bool want_neg = false) {
+poly random_poly(bool want_neg = false) {
 	random_device rd;
 	mt19937 gen(rd());
 	uniform_int_distribution<> distrib(want_neg ? (1 - Q) : 0, Q - 1);
-	array<int32_t, N> arr;
+	poly poly;
 	for(int i = 0; i < N; ++i)
-		arr[i] = distrib(gen);
-	return arr;
+		poly.coeffs[i] = distrib(gen);
+	return poly;
 }
 
-pair<double, int> bench_fft_jazz() {
-	int accumulator = 0;
-
-	auto start = high_resolution_clock::now();
-	for(int i = 0; i < (1 << 18); ++i) {
-		auto arr = random_poly();
-		fft_jazz(arr.data());
-		accumulator += arr[0];
-		accumulator %= 1000;
+static double bench(void fn(poly*)) {
+	double total_time = 0.0;
+	for(int i = 0; i < repetitions; ++i) {
+		auto poly = random_poly();
+		auto start = __rdtsc();
+		fn(&poly);
+		auto end = __rdtsc();
+		auto delta = end - start;
+		total_time += delta / (double)repetitions;
 	}
-
-	auto end = high_resolution_clock::now();
-	auto duration = duration_cast<milliseconds>(end - start);
-
-	return make_pair(duration.count(), accumulator);
+	return total_time;
 }
 
-pair<double, int> bench_fft_ref() {
-	int accumulator = 0;
-
-	auto start = high_resolution_clock::now();
-	for(int i = 0; i < (1 << 18); ++i) {
-		auto arr = random_poly();
-		ntt(arr.data());
-		accumulator += arr[0];
-		accumulator %= 1000;
-	}
-
-	auto end = high_resolution_clock::now();
-	auto duration = duration_cast<milliseconds>(end - start);
-
-	return make_pair(duration.count(), accumulator);
+static void wrap_fft_jazz(poly *poly) {
+	fft_jazz(poly->coeffs);
 }
 
 int main() {
-	auto results_jazz = bench_fft_jazz();
-	PRINT(results_jazz.first);
-	PRINT(results_jazz.second);
-	auto results_ref = bench_fft_ref();
-	PRINT(results_ref.first);
-	PRINT(results_ref.second);
-
-	results_jazz = bench_fft_jazz();
-	PRINT(results_jazz.first);
-	PRINT(results_jazz.second);
-	results_ref = bench_fft_ref();
-	PRINT(results_ref.first);
-	PRINT(results_ref.second);
+	std::cout << std::fixed << std::setprecision(2);
+	std::cout << "fft_jazz: " << 1e-3 * bench(wrap_fft_jazz) << " kcc\n";
+	std::cout << "fft_ref: " << 1e-3 * bench(poly_ntt) << " kcc\n";
 	return 0;
 }

@@ -1,4 +1,4 @@
-require "../src/verify.jazz"
+require "../src/dilithium3/ref/verify.jazz"
 
 // int8_t unpack_hints_jazz(uint8_t hints_buf[OMEGA + K], int32_t hints[K * N]);
 export

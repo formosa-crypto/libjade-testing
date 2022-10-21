@@ -5,6 +5,7 @@
 extern "C" {
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
+#include "macros.h"
 }
 
 using std::cout;
@@ -12,12 +13,10 @@ using std::endl;
 using std::vector;
 using std::memcmp;
 
-#define PRINT(X) cout << (#X) << " = " << (X) << endl
-
 extern "C" {
-	void keygen_jazz(uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES],
-			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES],
-			uint8_t randomness[SEEDBYTES]);
+	void SEEDED_KEYGEN_JAZZ(uint8_t pk[CRYPTO_PUBLICKEYBYTES],
+			                uint8_t sk[CRYPTO_SECRETKEYBYTES],
+			                uint8_t randomness[SEEDBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -28,33 +27,34 @@ uint8_t sampleByte() {
 }
 
 int main() {
-	uint8_t pk_ref[pqcrystals_dilithium3_PUBLICKEYBYTES];
-	uint8_t sk_ref[pqcrystals_dilithium3_SECRETKEYBYTES];
-	uint8_t pk_jazz[pqcrystals_dilithium3_PUBLICKEYBYTES];
-	uint8_t sk_jazz[pqcrystals_dilithium3_SECRETKEYBYTES];
+	uint8_t pk_ref[CRYPTO_PUBLICKEYBYTES];
+	uint8_t sk_ref[CRYPTO_SECRETKEYBYTES];
+	uint8_t pk_jazz[CRYPTO_PUBLICKEYBYTES];
+	uint8_t sk_jazz[CRYPTO_SECRETKEYBYTES];
 
 	uint8_t randomness[32] = { 0 };
 	for(int i = 0; i < 32; ++i) {
 		randomness[i] = sampleByte();
 	}
 
-	pqcrystals_dilithium3_ref_seeded_keypair(pk_ref, sk_ref, randomness);
-	keygen_jazz(pk_jazz, sk_jazz, randomness);
+	SEEDED_KEYGEN_REF(pk_ref, sk_ref, randomness);
+	SEEDED_KEYGEN_JAZZ(pk_jazz, sk_jazz, randomness);
 
-	PRINT(memcmp(pk_ref, pk_jazz, pqcrystals_dilithium3_PUBLICKEYBYTES));
-	PRINT(memcmp(sk_ref, sk_jazz, pqcrystals_dilithium3_SECRETKEYBYTES));
-
-	for(int i = 0; i < pqcrystals_dilithium3_PUBLICKEYBYTES; ++i) {
+	for(int i = 0; i < CRYPTO_PUBLICKEYBYTES; ++i) {
 		if(pk_ref[i] != pk_jazz[i]) {
 			PRINT(i);
-			break;
+			PRINT((int)pk_ref[i]);
+			PRINT((int)pk_jazz[i]);
+			return 1;
 		}
 	}
 
-	for(int i = 96; i < pqcrystals_dilithium3_SECRETKEYBYTES; ++i) {
+	for(int i = 96; i < CRYPTO_SECRETKEYBYTES; ++i) {
 		if(sk_ref[i] != sk_jazz[i]) {
 			PRINT(i);
-			break;
+			PRINT((int)sk_ref[i]);
+			PRINT((int)sk_jazz[i]);
+			return 1;
 		}
 	}
 

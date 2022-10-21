@@ -3,8 +3,9 @@
 #include <cstring>
 
 extern "C" {
-#include "../dilithium/ref/api.h"
-#include "../dilithium/ref/params.h"
+	#include "macros.h"
+	#include "../dilithium/ref/api.h"
+	#include "../dilithium/ref/params.h"
 }
 
 using std::cout;
@@ -15,11 +16,11 @@ using std::memcmp;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	int verify_jazz(
-            uint8_t signature[pqcrystals_dilithium3_BYTES],
+	int VERIFY_JAZZ(
+            uint8_t signature[CRYPTO_BYTES],
 			uint8_t* msg,
 			uint64_t m_len,
-			uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES]);
+			uint8_t pk[CRYPTO_PUBLICKEYBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -30,24 +31,24 @@ uint8_t sampleByte() {
 }
 
 static int test_functional() {
-	uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
-	uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
+	uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+	uint8_t sk[CRYPTO_SECRETKEYBYTES];
 
-	pqcrystals_dilithium3_ref_keypair(pk, sk);
+	KEYGEN_REF(pk, sk);
 
 	uint8_t m[1000];
 	for(int i = 0; i < 1000; ++i) {
 		m[i] = sampleByte();
 	}
 
-	uint8_t sig1[pqcrystals_dilithium3_BYTES];
-	uint8_t sig2[pqcrystals_dilithium3_BYTES];
+	uint8_t sig1[CRYPTO_BYTES];
+	uint8_t sig2[CRYPTO_BYTES];
     size_t siglen;
 
-	pqcrystals_dilithium3_ref_signature(sig1, &siglen, m, 1000, sk);
-	memcpy(sig2, sig1, pqcrystals_dilithium3_BYTES);
-    int ref = pqcrystals_dilithium3_ref_verify(sig1, siglen, m, 1000, pk);
-    int jazz = verify_jazz(sig2, m, 1000, pk);
+	SIGN_REF(sig1, &siglen, m, 1000, sk);
+	memcpy(sig2, sig1, CRYPTO_BYTES);
+    int ref = VERIFY_REF(sig1, siglen, m, 1000, pk);
+    int jazz = VERIFY_JAZZ(sig2, m, 1000, pk);
 
 	if (ref != jazz) {
 		std::cout << std::hex << "ref:  0x" << ref << std::endl;

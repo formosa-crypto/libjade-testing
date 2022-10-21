@@ -5,10 +5,11 @@
 #include <cstring>
 
 extern "C" {
-#include "../dilithium/ref/api.h"
-#include "../dilithium/ref/params.h"
-#include "../dilithium/ref/rounding.h"
-#include "../dilithium/ref/polyvec.h"
+	#include "../dilithium/ref/api.h"
+	#include "../dilithium/ref/params.h"
+	#include "../dilithium/ref/rounding.h"
+	#include "../dilithium/ref/polyvec.h"
+	#include "macros.h"
 }
 
 using std::cout;
@@ -21,10 +22,10 @@ using std::to_string;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void decompose_jazz(int32_t a, int32_t* a0, int32_t* a1);
-	void decompose_vec_jazz(int32_t a[N], int32_t a0[N], int32_t a1[N]);
+	void DECOMPOSE_JAZZ(int32_t a, int32_t* a0, int32_t* a1);
 	uint32_t make_hint_jazz(int32_t a0, int32_t a1);
 	void power2round_jazz(int32_t a, int32_t* a0, int32_t* a1);
+	int32_t USE_HINT_JAZZ(int32_t a, int32_t hint);
 }
 
 int32_t sample() {
@@ -53,11 +54,11 @@ void test_power2round() {
 
 int main() {
 	for(int i = 0; i < 10000; ++i) {
-		int32_t a, a0_ref, a1_ref, a0_jazz, a1_jazz;
+		int32_t a, a_ref, a0_ref, a1_ref, a_jazz, a0_jazz, a1_jazz;
 
 		a = sample();
-		decompose_jazz(a, &a0_jazz, &a1_jazz);
-		a1_ref = decompose(&a0_ref, a);
+		DECOMPOSE_JAZZ(a, &a0_jazz, &a1_jazz);
+		a1_ref = DECOMPOSE_REF(&a0_ref, a);
 
 		if(a0_ref != a0_jazz) {
 			PRINT(a);
@@ -75,54 +76,63 @@ int main() {
 
 		test_power2round();
 
-		int32_t vec_jazz[K * N];
-		int32_t vec0_jazz[K * N];
-		int32_t vec1_jazz[K * N];
+		// int32_t vec_jazz[K * N];
+		// int32_t vec0_jazz[K * N];
+		// int32_t vec1_jazz[K * N];
 
-		polyveck vec_ref;
-		polyveck vec0_ref;
-		polyveck vec1_ref;
+		// polyveck vec_ref;
+		// polyveck vec0_ref;
+		// polyveck vec1_ref;
 
-		for(int i = 0; i < K; ++i) {
-			for(int j = 0; j < N; ++j) {
-				int s = sample();
-				vec_jazz[i * N + j] = s;
-				vec_ref.vec[i].coeffs[j] = s;
-			}
-		}
+		// for(int i = 0; i < K; ++i) {
+		// 	for(int j = 0; j < N; ++j) {
+		// 		int s = sample();
+		// 		vec_jazz[i * N + j] = s;
+		// 		vec_ref.vec[i].coeffs[j] = s;
+		// 	}
+		// }
 
-		decompose_vec_jazz(vec_jazz, vec0_jazz, vec1_jazz);
-		polyveck_decompose(&vec1_ref, &vec0_ref, &vec_ref);
+		// decompose_vec_jazz(vec_jazz, vec0_jazz, vec1_jazz);
+		// polyveck_decompose(&vec1_ref, &vec0_ref, &vec_ref);
 		
-		for(int i = 0; i < K; ++i) {
-			for(int j = 0; j < N; ++j) {
-				if(vec0_jazz[i * N + j] != vec0_ref.vec[i].coeffs[j]) {
-					PRINT(i);
-					PRINT(j);
-					PRINT(vec0_jazz[i * N + j]);
-					PRINT(vec0_ref.vec[i].coeffs[j]);
-					PRINT(vec_jazz[i * N + j]);
-					throw runtime_error("test failed at " + to_string(__LINE__));
-				}
-				if(vec1_jazz[i * N + j] != vec1_ref.vec[i].coeffs[j]) {
-					PRINT(i);
-					PRINT(j);
-					PRINT(vec1_jazz[i * N + j]);
-					PRINT(vec1_ref.vec[i].coeffs[j]);
-					throw runtime_error("test failed at " + to_string(__LINE__));
-				}
-			}
-		}
+		// for(int i = 0; i < K; ++i) {
+		// 	for(int j = 0; j < N; ++j) {
+		// 		if(vec0_jazz[i * N + j] != vec0_ref.vec[i].coeffs[j]) {
+		// 			PRINT(i);
+		// 			PRINT(j);
+		// 			PRINT(vec0_jazz[i * N + j]);
+		// 			PRINT(vec0_ref.vec[i].coeffs[j]);
+		// 			PRINT(vec_jazz[i * N + j]);
+		// 			throw runtime_error("test failed at " + to_string(__LINE__));
+		// 		}
+		// 		if(vec1_jazz[i * N + j] != vec1_ref.vec[i].coeffs[j]) {
+		// 			PRINT(i);
+		// 			PRINT(j);
+		// 			PRINT(vec1_jazz[i * N + j]);
+		// 			PRINT(vec1_ref.vec[i].coeffs[j]);
+		// 			throw runtime_error("test failed at " + to_string(__LINE__));
+		// 		}
+		// 	}
+		// }
+
+		// uint32_t hint_jazz = make_hint_jazz(a0_jazz, a1_jazz);
+
+		// if(hint_ref != hint_jazz) {
+		// 	PRINT(a0_ref);
+		// 	PRINT(a1_ref);
+		// 	PRINT(hint_ref);
+		// 	PRINT(hint_jazz);
+		// 	throw runtime_error("test failed at " + to_string(__LINE__));
+		// }
 
 		unsigned int hint_ref = make_hint(a0_ref, a1_ref);
-		uint32_t hint_jazz = make_hint_jazz(a0_jazz, a1_jazz);
-
-		if(hint_ref != hint_jazz) {
-			PRINT(a0_ref);
+		a_ref = use_hint(hint_ref, a);
+		a_jazz = USE_HINT_JAZZ(hint_ref, a);
+		if (a_ref != a_jazz) {
 			PRINT(a1_ref);
-			PRINT(hint_ref);
-			PRINT(hint_jazz);
-			throw runtime_error("test failed at " + to_string(__LINE__));
+			PRINT(a_jazz);
+			PRINT(a_ref);
+			throw runtime_error("test failed at line " + to_string(__LINE__));
 		}
 	}
 }

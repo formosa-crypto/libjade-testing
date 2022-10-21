@@ -1,104 +1,93 @@
+#include <chrono>
+#include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <random>
-#include <cstring>
-#include <chrono>
 #include <tuple>
 
-extern "C" {
-#include "../dilithium/ref/api.h"
+extern "C"
+{
+#include "macros.h"
+#include <immintrin.h>
+#ifdef DILITHIUM_ARCH_REF
+#include "../dilithium/ref/sign.h"
 #include "../dilithium/ref/params.h"
+#elif DILITHIUM_ARCH_AVX2
+#include "../dilithium/avx2/sign.h"
+#include "../dilithium/avx2/params.h"
+#else
+#error "None of DILITHIUM_ARCH_REF or DILITHIUM_ARCH_AVX2 is set"
+#endif
 }
 
 using std::cout;
-using std::endl;
-using std::vector;
 using std::memcmp;
-using std::chrono::high_resolution_clock;
-using std::chrono::duration_cast;
-using std::chrono::milliseconds;
-using std::make_pair;
-using std::pair;
+using std::vector;
 
-#define PRINT(X) cout << (#X) << " = " << (X) << endl
+constexpr const int repetitions = 10000;
 
-extern "C" {
-	void keygen_jazz(uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES],
-			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES],
-			uint8_t randomness[SEEDBYTES]);
+extern "C"
+{
+	void SEEDED_KEYGEN_JAZZ(uint8_t pk[CRYPTO_PUBLICKEYBYTES],
+							uint8_t sk[CRYPTO_SECRETKEYBYTES],
+							uint8_t randomness[SEEDBYTES]);
 }
 
-uint8_t sampleByte() {
+uint8_t sampleByte()
+{
 	static std::random_device rd;
 	static std::mt19937 gen(rd());
-	static std::uniform_int_distribution<> distrib(0,  255);
+	static std::uniform_int_distribution<> distrib(0, 255);
 	return distrib(gen);
 }
 
-pair<double, int> bench_keygen_jazz() {
-	int accumulator = 0;
-
-	auto start = high_resolution_clock::now();
-	for(int i = 0; i < 5000; ++i) {
-
-		uint8_t randomness[32] = { 0 };
-		for(int i = 0; i < 32; ++i) {
-			randomness[i] = sampleByte();
+static double bench(int keygen(uint8_t pk[CRYPTO_PUBLICKEYBYTES], uint8_t sk[CRYPTO_SECRETKEYBYTES], uint8_t seed[SEEDBYTES]))
+{
+	double total_time = 0.0;
+	for (int i = 0; i < repetitions; i++)
+	{
+		uint8_t pk[CRYPTO_PUBLICKEYBYTES] = {};
+		uint8_t sk[CRYPTO_SECRETKEYBYTES] = {};
+		uint8_t seed[SEEDBYTES] = {};
+		for (int i = 0; i < SEEDBYTES; ++i)
+		{
+			seed[i] = sampleByte();
 		}
-
-		uint8_t pk_jazz[pqcrystals_dilithium3_PUBLICKEYBYTES];
-		uint8_t sk_jazz[pqcrystals_dilithium3_SECRETKEYBYTES];
-		keygen_jazz(pk_jazz, sk_jazz, randomness);
-
-		accumulator ^= pk_jazz[0] ^ sk_jazz[1];
+		auto start = __rdtsc();
+		keygen(pk, sk, seed);
+		auto end = __rdtsc();
+		auto delta = end - start;
+		total_time += delta / (double)repetitions;
 	}
-
-	auto end = high_resolution_clock::now();
-	auto duration = duration_cast<milliseconds>(end - start);
-
-	return make_pair(duration.count(), accumulator);
+	return total_time;
 }
 
-pair<double, int> bench_keygen_ref() {
-	int accumulator = 0;
-
-	auto start = high_resolution_clock::now();
-	for(int i = 0; i < 5000; ++i) {
-
-		uint8_t randomness[32] = { 0 };
-		for(int i = 0; i < 32; ++i) {
-			randomness[i] = sampleByte();
-		}
-
-		uint8_t pk_ref[pqcrystals_dilithium3_PUBLICKEYBYTES];
-		uint8_t sk_ref[pqcrystals_dilithium3_SECRETKEYBYTES];
-
-		pqcrystals_dilithium3_ref_seeded_keypair(pk_ref, sk_ref, randomness);
-
-		accumulator ^= pk_ref[0] ^ sk_ref[1];
-	}
-
-	auto end = high_resolution_clock::now();
-	auto duration = duration_cast<milliseconds>(end - start);
-
-	return make_pair(duration.count(), accumulator);
+static int wrap_keygen_jazz(uint8_t pk[CRYPTO_PUBLICKEYBYTES], uint8_t sk[CRYPTO_SECRETKEYBYTES], uint8_t seed[SEEDBYTES])
+{
+	SEEDED_KEYGEN_JAZZ(pk, sk, seed);
+	return 0;
 }
 
-int main() {
+static int wrap_keygen_ref(uint8_t pk[CRYPTO_PUBLICKEYBYTES], uint8_t sk[CRYPTO_SECRETKEYBYTES], uint8_t seed[SEEDBYTES])
+{
+	// The Dilithium avx2 implementation never implemented the 'seeded'
+	// function, so in that case we call the unseeded function and throw away
+	// the seed.
+#ifdef DILITHIUM_ARCH_REF
+	crypto_sign_seeded_keypair(pk, sk, seed);
+#elif DILITHIUM_ARCH_AVX2
+	(void)seed;
+	crypto_sign_keypair(pk, sk);
+#else
+#error
+#endif
+	return 0;
+}
 
-	auto results_jazz = bench_keygen_jazz();
-	PRINT(results_jazz.first);
-	PRINT(results_jazz.second);
-	auto results_ref = bench_keygen_ref();
-	PRINT(results_ref.first);
-	PRINT(results_ref.second);
-
-	results_jazz = bench_keygen_jazz();
-	PRINT(results_jazz.first);
-	PRINT(results_jazz.second);
-	results_ref = bench_keygen_ref();
-	PRINT(results_ref.first);
-	PRINT(results_ref.second);
-
-
+int main()
+{
+	std::cout << std::fixed << std::setprecision(2);
+	std::cout << "keygen_jazz: " << 1e-3 * bench(wrap_keygen_jazz) << " kcc\n";
+	std::cout << "keygen_ref: " << 1e-3 * bench(wrap_keygen_ref) << " kcc\n";
 	return 0;
 }

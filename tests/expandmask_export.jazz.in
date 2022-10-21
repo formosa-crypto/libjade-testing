@@ -1,0 +1,31 @@
+require "../src/{DILITHIUM_VARIANT}/{DILITHIUM_ARCH}/common.jazz"
+
+// TODO: Simplify with preamble/epilogue subroutines
+
+export
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_expandMask_poly_jazz(reg u64 rho_prime_ptr, reg u16 nonce, reg u64 ptr_y) {
+	stack u8[64] rho_prime;
+	stack u32[Li2_polydeg] y_elem;
+
+	reg u64 i;
+	reg u8 c;
+	reg u32 v;
+
+	?{}, i = #set0_64();
+	while (i < 64) {
+		c = (u8)[rho_prime_ptr + i];
+		rho_prime[(int) i] = c;
+
+		i += 1;
+	}
+
+	y_elem = expandMask_poly(y_elem, rho_prime, nonce);
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = y_elem[(int) i];
+		(u32) [ptr_y + 4 * i] = v;
+
+		i += 1;
+	}
+}

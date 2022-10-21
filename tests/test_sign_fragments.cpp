@@ -6,12 +6,13 @@
 #include <stdexcept>
 
 extern "C" {
-#include "../dilithium/ref/api.h"
-#include "../dilithium/ref/params.h"
-#include "../dilithium/ref/fips202.h"
-#include "../dilithium/ref/polyvec.h"
-#include "../dilithium/ref/poly.h"
-#include "../dilithium/ref/packing.h"
+	#include "../dilithium/ref/api.h"
+	#include "../dilithium/ref/params.h"
+	#include "../dilithium/ref/fips202.h"
+	#include "../dilithium/ref/polyvec.h"
+	#include "../dilithium/ref/poly.h"
+	#include "../dilithium/ref/packing.h"
+	#include "macros.h"
 }
 
 using std::cout;
@@ -66,10 +67,10 @@ void compute_mu_ref(uint8_t *out,
 }
 
 void test_compute_mu(int mlen) {
-	uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
-	uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
+	uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+	uint8_t sk[CRYPTO_SECRETKEYBYTES];
 
-	pqcrystals_dilithium3_ref_keypair(pk, sk);
+	KEYGEN_REF(pk, sk);
 
 	uint8_t mu_ref[64];
 	uint8_t mu_jazz[64];

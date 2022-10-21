@@ -1,3 +1,5 @@
+// TODO: Fix this test for avx2
+
 #include <iostream>
 #include <random>
 #include <cstring>
@@ -7,9 +9,9 @@
 #include <array>
 
 extern "C" {
-#include "../dilithium/ref/api.h"
-#include "../dilithium/ref/params.h"
-#include "../dilithium/ref/polyvec.h"
+	#include "macros.h"
+	#include "../dilithium/ref/params.h"
+	#include "../dilithium/ref/poly.h"
 }
 
 using std::cout;
@@ -25,7 +27,8 @@ using std::array;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void expandMask_jazz(uint8_t seed[64], uint16_t nonce, int32_t y[N * L]);
+	void POLY_UNIFORM_GAMMA1_REF(poly *a, const uint8_t seed[CRHBYTES], uint16_t nonce);
+	void POLY_UNIFORM_GAMMA1_JAZZ(uint8_t seed[64], uint16_t nonce, int32_t y[N]);
 }
 
 uint8_t sampleByte() {
@@ -35,12 +38,10 @@ uint8_t sampleByte() {
 	return distrib(gen);
 }
 
-array<int32_t, L * N> polyvecl_to_arr(polyvecl const& v) {
-	array<int32_t, L * N> arr;
-	for(int k = 0; k < L; ++k) {
-		for(int i = 0; i < N; ++i) {
-			arr[k * N + i] = v.vec[k].coeffs[i];
-		}
+array<int32_t, N> poly_to_arr(poly const& v) {
+	array<int32_t, N> arr;
+	for(int i = 0; i < N; i++) {
+		arr[i] = v.coeffs[i];
 	}
 	return arr;
 }
@@ -48,24 +49,25 @@ array<int32_t, L * N> polyvecl_to_arr(polyvecl const& v) {
 
 uint16_t sampleNonce() {
 	uint16_t upper = sampleByte();
-	upper <<= 8;
-	return upper | sampleByte();
+	upper |= sampleByte() << 8;
+	return upper;
 }
 
 int main() {
 	uint8_t seed[64];
-	for(int i = 0; i < 64; ++i)
+	for(int i = 0; i < 64; i++) {
 		seed[i] = sampleByte();
+	}
 	uint16_t nonce = sampleNonce();
 	
-	polyvecl y_ref;
-	polyvecl_uniform_gamma1(&y_ref, seed, nonce);
-	auto y_ref_arr = polyvecl_to_arr(y_ref);
+	poly y_ref;
+	POLY_UNIFORM_GAMMA1_REF(&y_ref, seed, nonce);
+	auto y_ref_arr = poly_to_arr(y_ref);
 
-	int32_t y_jazz[N * L];
-	expandMask_jazz(seed, nonce, y_jazz);
+	int32_t y_jazz[N];
+	POLY_UNIFORM_GAMMA1_JAZZ(seed, nonce, y_jazz);
 
-	for(int i = 0; i < N * L; ++i) {
+	for(int i = 0; i < N; i++) {
 		if(y_jazz[i] != y_ref_arr[i]) {
 			PRINT(i);
 			PRINT(y_jazz[i]);

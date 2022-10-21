@@ -1,4 +1,5 @@
-require "../src/packing.jazz"
+require "../src/common/packing.jazz"
+require "../src/dilithium3/ref/packing.jazz"
 
 //void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 export
@@ -21,7 +22,7 @@ fn pack_t1_jazz(reg u64 poly_ptr, reg u64 buf_ptr)
 	buf = polyt1_pack(t1, buf);
 
 	//save
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < Li2_pack_t1len)
 	{
 		c = buf[(int) i];
@@ -40,7 +41,7 @@ fn unpack_t1_jazz(reg u64 t1_ptr, reg u64 buf_ptr) {
 	reg u64 i;
 
 	//load
-	i = 0;
+	?{}, i = #set0_64();
 	while (i < Li2_pack_t1len) {
 		byte = (u8)[buf_ptr + i];
 		buf[(int) i] = byte;
@@ -50,7 +51,7 @@ fn unpack_t1_jazz(reg u64 t1_ptr, reg u64 buf_ptr) {
 	t1 = polyt1_unpack(t1, buf);
 
 	//save
-	i = 0;
+	?{}, i = #set0_64();
 	while (i < Li2_polydeg) {
 		coeff = t1[(int) i];
 		(u32)[t1_ptr + 4 * i] = coeff;
@@ -81,8 +82,8 @@ fn polyz_unpack_jazz(reg u64 rp, reg u64 ap) {
 }
 
 export
-fn polyz_pack_jazz(reg u64 rp, reg u64 ap) {
-	stack u8[Li2_pack_zlen] r;
+fn polyz_pack_gamma1_217_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_zlen_gamma1_217] r;
 	stack u32[Li2_polydeg] a;
 	reg u8 c;
 	reg u32 v;
@@ -94,29 +95,121 @@ fn polyz_pack_jazz(reg u64 rp, reg u64 ap) {
 		a[i] = v;
 	}
 
-	r = polyz_pack(r, a);
+	r = polyz_pack_gamma1_217(r, a);
 
-	for i = 0 to Li2_pack_zlen {
+	for i = 0 to Li2_pack_zlen_gamma1_217 {
 		c = r[i];
 		(u8) [rp + i] = c;
 	}
-
 }
 
 export
-fn polyeta_unpack_jazz(reg u64 rp, reg u64 ap) {
+fn polyz_pack_gamma1_219_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_zlen_gamma1_219] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+
+	inline int i;
+
+	for i = 0 to Li2_polydeg {
+		v = (u32) [ap + 4 * i];
+		a[i] = v;
+	}
+
+	r = polyz_pack_gamma1_219(r, a);
+
+	for i = 0 to Li2_pack_zlen_gamma1_219 {
+		c = r[i];
+		(u8) [rp + i] = c;
+	}
+}
+
+export
+fn polyeta_2_pack_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_eta_2_len] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+	reg u64 i;
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [ap + 4 * i];
+		a[(int) i] = v;
+		i += 1;
+	}
+
+	r = polyeta_2_pack(a, r);
+
+	?{}, i = #set0_64();
+	while (i < Li2_pack_eta_2_len) {
+		c = r[(int) i];
+		(u8) [rp + i] = c;
+		i += 1;
+	}
+}
+
+export
+fn polyeta_4_pack_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_eta_4_len] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+	reg u64 i;
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [ap + 4 * i];
+		a[(int) i] = v;
+		i += 1;
+	}
+
+	r = polyeta_4_pack(a, r);
+
+	?{}, i = #set0_64();
+	while (i < Li2_pack_eta_4_len) {
+		c = r[(int) i];
+		(u8) [rp + i] = c;
+		i += 1;
+	}
+}
+
+export
+fn polyeta_2_unpack_jazz(reg u64 rp, reg u64 ap) {
 	stack u32[Li2_polydeg] r;
-	stack u8[Li2_pack_etalen] a;
+	stack u8[Li2_pack_eta_2_len] a;
 	reg u8 c;
 	reg u32 v;
 	inline int i;
 
-	for i = 0 to Li2_pack_etalen {
+	for i = 0 to Li2_pack_eta_2_len {
 		c = (u8) [ap + i];
 		a[i] = c;
 	}
 
-	r = polyeta_unpack(r, a);
+	r = polyeta_2_unpack(r, a);
+
+	for i = 0 to Li2_polydeg {
+		v = r[i];
+		(u32) [rp + 4 * i] = v;
+	}
+}
+
+export
+fn polyeta_4_unpack_jazz(reg u64 rp, reg u64 ap) {
+	stack u32[Li2_polydeg] r;
+	stack u8[Li2_pack_eta_4_len] a;
+	reg u8 c;
+	reg u32 v;
+	inline int i;
+
+	for i = 0 to Li2_pack_eta_4_len {
+		c = (u8) [ap + i];
+		a[i] = c;
+	}
+
+	r = polyeta_4_unpack(r, a);
 
 	for i = 0 to Li2_polydeg {
 		v = r[i];
@@ -142,6 +235,56 @@ fn polyt0_unpack_jazz(reg u64 p_t0, reg u64 p_src) {
 	for i = 0 to Li2_polydeg {
 		v = t0[i];
 		(u32) [p_t0 + 4 * i] = v;
+	}
+}
+
+export
+fn polyw1_pack_gamma2_88_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_highbitslen_gamma2_88] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+	reg u64 i;
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [ap + 4 * i];
+		a[(int) i] = v;
+		i += 1;
+	}
+
+	r = polyw1_pack_gamma2_88(a, r);
+
+	?{}, i = #set0_64();
+	while (i < Li2_pack_highbitslen_gamma2_88) {
+		c = r[(int) i];
+		(u8) [rp + i] = c;
+		i += 1;
+	}
+}
+
+export
+fn polyw1_pack_gamma2_32_jazz(reg u64 rp, reg u64 ap) {
+	stack u8[Li2_pack_highbitslen_gamma2_32] r;
+	stack u32[Li2_polydeg] a;
+	reg u8 c;
+	reg u32 v;
+	reg u64 i;
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [ap + 4 * i];
+		a[(int) i] = v;
+		i += 1;
+	}
+
+	r = polyw1_pack_gamma2_32(a, r);
+
+	?{}, i = #set0_64();
+	while (i < Li2_pack_highbitslen_gamma2_32) {
+		c = r[(int) i];
+		(u8) [rp + i] = c;
+		i += 1;
 	}
 }
 

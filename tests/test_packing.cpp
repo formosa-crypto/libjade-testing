@@ -6,11 +6,13 @@
 #include <array>
 
 extern "C" {
-#include "../dilithium/ref/api.h"
-#include "../dilithium/ref/params.h"
-#include "../dilithium/ref/poly.h"
-#include "../dilithium/ref/polyvec.h"
-#include "../dilithium/ref/packing.h"
+	#include "macros.h"
+	#include "../dilithium/ref/api.h"
+	#include "../dilithium/ref/params.h"
+	#include "../dilithium/ref/poly.h"
+	#include "../dilithium/ref/polyvec.h"
+	#include "../dilithium/ref/packing.h"
+	#include "../dilithium/ref/rounding.h"
 }
 
 using std::cout;
@@ -21,14 +23,14 @@ using std::runtime_error;
 using std::to_string;
 using std::array;
 
-#define PRINT(X) cout << (#X) << " = " << (X) << endl
-
 extern "C" {
 	void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void unpack_t1_jazz(int32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 	void polyz_unpack_jazz(int32_t p[N], uint8_t buf[POLYZ_PACKEDBYTES]);
-	void polyz_pack_jazz(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
-	void polyeta_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
+	void POLY_Z_PACK_JAZZ(uint8_t buf[POLYZ_PACKEDBYTES], int32_t p[N]);
+	void POLY_ETA_PACK_JAZZ(uint8_t buf[POLYETA_PACKEDBYTES], int32_t p[N]);
+	void POLY_ETA_UNPACK_JAZZ(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
+	void POLY_W1_PACK_JAZZ(uint8_t buf[POLYW1_PACKEDBYTES], int32_t p[N]);
 	void polyt0_unpack_jazz(int32_t p[N], uint8_t buf[POLYETA_PACKEDBYTES]);
 	void pack_signature_jazz(uint8_t c_tilde[32],
 			int32_t z[L * N], int32_t h[K * N], uint8_t sig[CRYPTO_BYTES]);
@@ -55,6 +57,15 @@ uint32_t sample_z_component() {
 	return distrib(gen);
 }
 
+uint32_t sample_w1_component() {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_int_distribution<> distrib(0,  Q);
+	int32_t a = distrib(gen);
+	int32_t a0 = 0;
+	return decompose(&a0, a);
+}
+
 void test_pack_t1() {
 	poly p;
 	uint32_t uint_p[N];
@@ -65,7 +76,7 @@ void test_pack_t1() {
 	}
 
 	uint8_t buf_ref[POLYT1_PACKEDBYTES];
-	pqcrystals_dilithium3_ref_polyt1_pack(buf_ref, &p);
+	polyt1_pack(buf_ref, &p);
 
 	uint8_t buf_jazz[POLYT1_PACKEDBYTES];
 	pack_t1_jazz(uint_p, buf_jazz);
@@ -83,7 +94,7 @@ void test_unpack_t1() {
 	}
 
 	poly p_ref;
-	pqcrystals_dilithium3_ref_polyt1_unpack(&p_ref, buf);
+	polyt1_unpack(&p_ref, buf);
 
 	poly p_jazz;
 	unpack_t1_jazz(p_jazz.coeffs, buf);
@@ -104,10 +115,10 @@ void test_pack_z() {
 		p.coeffs[i] = sample_z_component();
 
 	uint8_t buf_ref[POLYZ_PACKEDBYTES];
-	pqcrystals_dilithium3_ref_polyz_pack(buf_ref, &p);
+	polyz_pack(buf_ref, &p);
 
 	uint8_t buf_jazz[POLYZ_PACKEDBYTES];
-	polyz_pack_jazz(buf_jazz, p.coeffs);
+	POLY_Z_PACK_JAZZ(buf_jazz, p.coeffs);
 
 	for(int i = 0; i < POLYZ_PACKEDBYTES; ++i) {
 		if(buf_ref[i] != buf_jazz[i]) {
@@ -142,6 +153,27 @@ void test_unpack_z() {
 	}
 }
 
+void test_pack_eta() {
+	poly p_ref;
+	uint8_t buf_ref[POLYETA_PACKEDBYTES];
+	uint8_t buf_jazz[POLYETA_PACKEDBYTES];
+
+	for (size_t i = 0; i < POLYETA_PACKEDBYTES; i++) {
+		buf_ref[i] = sampleByte();
+	}
+	polyeta_unpack(&p_ref, buf_ref);
+	POLY_ETA_PACK_JAZZ(buf_jazz, p_ref.coeffs);
+
+	for (size_t i = 0; i < POLYETA_PACKEDBYTES; i++) {
+		if (buf_jazz[i] != buf_ref[i]) {
+			PRINT(i);
+			PRINT((int)buf_jazz[i]);
+			PRINT((int)buf_ref[i]);
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
+}
+
 void test_unpack_eta() {
 	poly p_ref;
 	int32_t p_jazz[N];
@@ -152,13 +184,34 @@ void test_unpack_eta() {
 	}
 
 	polyeta_unpack(&p_ref, buf); 
-	polyeta_unpack_jazz(p_jazz, buf);
+	POLY_ETA_UNPACK_JAZZ(p_jazz, buf);
 
 	for(int i = 0; i < N; ++i) {
 		if(p_ref.coeffs[i] != p_jazz[i]) {
 			PRINT(i);
 			PRINT(p_ref.coeffs[i]);
 			PRINT(p_jazz[i]);
+			throw runtime_error("test failed at " + to_string(__LINE__));
+		}
+	}
+}
+
+void test_pack_w1() {
+	poly p_ref;
+	uint8_t buf_ref[POLYW1_PACKEDBYTES];
+	uint8_t buf_jazz[POLYW1_PACKEDBYTES];
+
+	for (size_t i = 0; i < N; i++) {
+		p_ref.coeffs[i] = sample_w1_component();
+	}
+	polyw1_pack(buf_ref, &p_ref);
+	POLY_W1_PACK_JAZZ(buf_jazz, p_ref.coeffs);
+
+	for (size_t i = 0; i < POLYW1_PACKEDBYTES; i++) {
+		if (buf_jazz[i] != buf_ref[i]) {
+			PRINT(i);
+			PRINT((int)buf_jazz[i]);
+			PRINT((int)buf_ref[i]);
 			throw runtime_error("test failed at " + to_string(__LINE__));
 		}
 	}
@@ -243,11 +296,13 @@ void test_pack_signature() {
 
 int main() {
 	test_pack_t1();
-	test_unpack_t1();
-	test_unpack_z();
+	// test_unpack_t1();
+	// test_unpack_z();
+	test_pack_eta();
 	test_unpack_eta();
+	test_pack_w1();
 	test_unpack_t0();
 	test_pack_z();
-	test_pack_signature();
+	// test_pack_signature();
 	return 0;
 }

@@ -5,7 +5,8 @@
 #include <string>
 #include <stdexcept>
 
-extern "C" {
+extern "C"
+{
 #include "../dilithium/ref/api.h"
 #include "../dilithium/ref/params.h"
 #include "../dilithium/ref/fips202.h"
@@ -16,29 +17,31 @@ extern "C" {
 
 using std::cout;
 using std::endl;
-using std::vector;
-using std::memcmp;
-using std::unique_ptr;
 using std::make_unique;
-using std::to_string;
+using std::memcmp;
 using std::runtime_error;
+using std::to_string;
+using std::unique_ptr;
+using std::vector;
 
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
-extern "C" {
-	void test_jazz(uint8_t m[1000],
-			uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES],
-			uint8_t out_buf[5000]);
-//			uint32_t out_buf32[5000]);
+extern "C"
+{
+	void dilithium5_sign_scratch_jazz(uint8_t sig[CRYPTO_BYTES],
+									  uint8_t *m,
+									  uint64_t mlen,
+									  uint8_t sk[CRYPTO_SECRETKEYBYTES]);
 }
 
-void probe(uint8_t *sig,
-		uint8_t *m,
-		size_t mlen,
-		uint8_t *sk)
+static void probe(uint8_t *m,
+				  size_t mlen,
+				  uint8_t *sk)
 {
+	uint8_t sig_ref[CRYPTO_BYTES], sig_jazz[CRYPTO_BYTES];
+
 	unsigned int n;
-	uint8_t seedbuf[3*SEEDBYTES + 2*CRHBYTES];
+	uint8_t seedbuf[3 * SEEDBYTES + 2 * CRHBYTES];
 	uint8_t *rho, *tr, *key, *mu, *rhoprime;
 	uint16_t nonce = 0;
 	polyvecl mat[K], s1, y, z;
@@ -78,30 +81,30 @@ rej:
 	polyveck_reduce(&w1);
 	polyveck_invntt_tomont(&w1);
 
-
 	// Decompose w and call the random oracle
 	polyveck_caddq(&w1);
 	polyveck_decompose(&w1, &w0, &w1);
-	polyveck_pack_w1(sig, &w1);
+	polyveck_pack_w1(sig_ref, &w1);
 
 	shake256_init(&state);
 	shake256_absorb(&state, mu, CRHBYTES);
-	shake256_absorb(&state, sig, K*POLYW1_PACKEDBYTES);
+	shake256_absorb(&state, sig_ref, K * POLYW1_PACKEDBYTES);
 	shake256_finalize(&state);
-	shake256_squeeze(sig, SEEDBYTES, &state);
-	poly_challenge(&cp, sig);
+	shake256_squeeze(sig_ref, SEEDBYTES, &state);
+	poly_challenge(&cp, sig_ref);
 
+#if 0
 	poly_ntt(&cp);
 
 	// Compute z, reject if it reveals secret
 	polyvecl_pointwise_poly_montgomery(&z, &cp, &s1);
 	polyvecl_invntt_tomont(&z);
 	polyvecl_add(&z, &z, &y);
-	polyvecl_reduce(&z); //z =? cs1+y
+	polyvecl_reduce(&z); // z =? cs1+y
 
-	//PRINT(polyvecl_chknorm(&z, GAMMA1 - BETA));
+	// PRINT(polyvecl_chknorm(&z, GAMMA1 - BETA));
 
-	if(polyvecl_chknorm(&z, GAMMA1 - BETA))
+	if (polyvecl_chknorm(&z, GAMMA1 - BETA))
 		goto rej;
 
 	// Check that subtracting cs2 does not change high bits of w and low bits
@@ -110,78 +113,62 @@ rej:
 	polyveck_invntt_tomont(&h); // h = cs2 tested
 
 	polyveck_sub(&w0, &w0, &h);
-	polyveck_reduce(&w0); //correct up to here as w0 = r0
+	polyveck_reduce(&w0); // correct up to here as w0 = r0
 
-	if(polyveck_chknorm(&w0, GAMMA2 - BETA))
+	if (polyveck_chknorm(&w0, GAMMA2 - BETA))
 		goto rej;
 
 	// Compute hints for w1
 	polyveck_pointwise_poly_montgomery(&h, &cp, &t0);
 	polyveck_invntt_tomont(&h);
-	polyveck_reduce(&h); //h = ct0
+	polyveck_reduce(&h); // h = ct0
 
-	if(polyveck_chknorm(&h, GAMMA2))
+	if (polyveck_chknorm(&h, GAMMA2))
 		goto rej;
 
 	polyveck_add(&w0, &w0, &h);
 	n = polyveck_make_hint(&h, &w0, &w1);
 
-	/*
-	uint32_t out_buf32[5000];
-	test_jazz(m, sk, out_buf32);
-
-	PRINT(out_buf32[0]);
-	PRINT(out_buf32[1]);
-	PRINT(out_buf32[2]);
-	PRINT(out_buf32[3]);
-
-	PRINT(z.vec[0].coeffs[0]);
-	PRINT(z.vec[0].coeffs[1]);
-	PRINT(z.vec[0].coeffs[2]);
-	PRINT(z.vec[0].coeffs[3]);
-
-	for(int i = 0; i < L; ++i) {
-		for(int j = 0; j < N; ++j) {
-			int wval = ((z.vec[i].coeffs[j] % Q) + Q) % Q;
-			if(wval != out_buf32[i * N + j]) {
-				PRINT(i);
-				PRINT(j);
-				PRINT(out_buf32[i * N + j]);
-				PRINT(wval);
-				return;
-			}
-		}
-	}
-	*/
-	/*
-	PRINT(out_buf32[0]);
-	PRINT(polyveck_chknorm(&h, GAMMA2));
-	return;
-	*/
-	//PRINT(n > OMEGA);
-	if(n > OMEGA)
+	if (n > OMEGA)
 		goto rej;
 
-	uint8_t out_buf[5000];
-	test_jazz(m, sk, out_buf);
-
 	// Write signature
-	pack_sig(sig, sig, &z, &h);
+	pack_sig(sig_ref, sig_ref, &z, &h);
+#endif
 
-	PRINT(memcmp(out_buf, sig, pqcrystals_dilithium3_BYTES));
+	dilithium5_sign_scratch_jazz(sig_jazz, m, mlen, sk);
+
+	// Observations:
+	//   * w1 is still completely correct
+	//   * ctilde is completely wrong (even first bytes)	
+	//   => Either:
+	//     - Hashing operation is incorrect
+
+	// PRINT(((uint32_t *)sig_ref)[0]);
+	// PRINT(((uint32_t *)sig_jazz)[0]);
+	// PRINT(memcmp(sig_jazz, sig_ref, K*POLYW1_PACKEDBYTES));
+
+	// PRINT((int) sig_ref[0]);
+	// PRINT((int) sig_jazz[0]);
+	// PRINT(memcmp(sig_jazz, sig_ref, SEEDBYTES));
+
+	PRINT((int) sig_ref[0]);
+	PRINT((int) sig_jazz[0]);
+	PRINT(memcmp(sig_ref, sig_jazz, SEEDBYTES));
 }
 
-int main() {
-	uint8_t pk[pqcrystals_dilithium3_PUBLICKEYBYTES];
-	uint8_t sk[pqcrystals_dilithium3_SECRETKEYBYTES];
-	uint8_t randomness[32] = { 0 };
-	pqcrystals_dilithium3_ref_seeded_keypair(pk, sk, randomness);
-
-	uint8_t sig[pqcrystals_dilithium3_BYTES];
-
-	uint8_t m[1000] = { 0 };
-	probe(sig, m, 1000, sk);
+int main()
+{
+	uint8_t pk[CRYPTO_PUBLICKEYBYTES];
+	uint8_t sk[CRYPTO_SECRETKEYBYTES];
+	uint8_t m[1000] = {0};
+	uint8_t randomness[32] = {0};
+	for (int i = 0; i < 100; i++)
+	{
+		randomness[0] = i;
+		pqcrystals_dilithium5_ref_seeded_keypair(pk, sk, randomness);
+		probe(m, 1000, sk);
+	}
 
 	return 0;
 }
-

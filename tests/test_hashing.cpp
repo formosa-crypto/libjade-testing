@@ -16,7 +16,8 @@ using std::memcmp;
 #define PRINT(X) cout << (#X) << " = " << (X) << endl
 
 extern "C" {
-	void sampleInBall_jazz(int32_t f[256], uint8_t seed[32]);
+#include "macros.h"
+void SAMPLE_IN_BALL_JAZZ(int32_t f[N], uint8_t seed[SEEDBYTES]);
 }
 
 uint8_t sampleByte() {
@@ -27,17 +28,17 @@ uint8_t sampleByte() {
 }
 
 int main() {
-	uint8_t seed[32];
-	for(int i = 0; i < 32; ++i)
+	uint8_t seed[SEEDBYTES];
+	int32_t f_jazz[N] = {0};
+	poly f_ref = {0};
+
+	for(size_t i = 0; i < SEEDBYTES; i++) {
 		seed[i] = sampleByte();
-
-	int32_t f_jazz[256];
-	sampleInBall_jazz(f_jazz, seed);
-
-	poly f_ref;
+	}
+	
+	SAMPLE_IN_BALL_JAZZ(f_jazz, seed);
 	poly_challenge(&f_ref, seed);
 
-	PRINT(memcmp(f_ref.coeffs, f_jazz, 4 * 256));
-
-	return 0;
+	PRINT(memcmp(f_ref.coeffs, f_jazz, N * sizeof(int32_t)));
+	return memcmp(f_ref.coeffs, f_jazz, N * sizeof(int32_t)) != 0;
 }

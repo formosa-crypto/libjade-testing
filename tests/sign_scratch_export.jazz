@@ -1,9 +1,5 @@
-require "../src/params.jazz"
-require "../src/hashing.jazz"
-require "../src/packing.jazz"
-require "../src/gen_matrix.jazz"
-require "../src/fft.jazz"
-require "../src/polyvec.jazz"
+require "../src/ref/dilithium5/common.jazz"
+
 
 inline
 fn compute_mu(reg u64 ptr_m, reg u64 m_len, reg ptr u8[Li2_SK_LEN] sk)
@@ -25,7 +21,7 @@ fn compute_rho_prime(reg ptr u8[32] k, reg ptr u8[64] mu)
 	reg u64 mu_loc;
 
 	state = st0(state);
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < 32) {
 		c = k[(int) i];
 		state[u8 (int) i] = c;	
@@ -44,7 +40,7 @@ fn compute_rho_prime(reg ptr u8[32] k, reg ptr u8[64] mu)
 
     state = __keccakf1600_ref(state);
 
-	i = 0;
+	?{}, i = #set0_64();
 	while(i < 64) {
 		c = state[u8 (int) i];
 		rho_prime[(int) i] = c;
@@ -54,16 +50,12 @@ fn compute_rho_prime(reg ptr u8[32] k, reg ptr u8[64] mu)
 }
 
 inline
-fn sign(reg u64 ptr_m,
+fn sign_inner(reg u64 ptr_m,
 		reg u64 m_len,
 		reg ptr u8[Li2_SK_LEN] sk)
-//		-> stack u32[5000]
-		-> stack u8[Li2_SIGN_LEN]
+		-> stack u8[Li2_SIGN_LEN], stack u32
 {
-	stack u8[5000] probe_val;
-	stack u32[5000] probe_val32;
-
-	stack u8[Li2_SIGN_LEN] signature;
+	stack u8[Li2_SIGN_LEN] sig;
 
 	// parts of sk
 	stack u32[Li2_l * Li2_polydeg] s1;
@@ -96,6 +88,14 @@ fn sign(reg u64 ptr_m,
 
 	// while loop condition
 	stack u8 done;
+	// attempt: abort with error if we have tried too many times
+	stack u16 attempt;
+	// return status: ok == 0, err == -1
+	stack u32 status;
+	// temporary bools used for while loop condition
+	reg bool tmpbool;
+	reg bool zf;
+	reg u8 tmpboolu8;
 
 	// extra intermediate values
 	// not space-efficient...
@@ -111,147 +111,145 @@ fn sign(reg u64 ptr_m,
 	stack u32 hints_weight;
 	stack u8 normcheck_result;
 
-	reg u64 i;
-	// loop/output tests var
-	reg u8 c;
-	reg u32 val32;
-
 	s1, s2, t0 = unpack_sk(sk);
 	mu = compute_mu(ptr_m, m_len, sk);
 	rho_prime = compute_rho_prime(sk[32:32], mu);
 
-	fft_matA = gen_matrix(sk[0:32]);
+	fft_matA = expandA(sk[0:32]);
 
-	s1 = polyvecl_caddq(s1);
 	s1 = fft_vec(s1);
-	s2 = polyveck_caddq(s2);
 	s2 = fft_veck(s2);
-	t0 = polyveck_caddq(t0);
 	t0 = fft_veck(t0);
 
 	nonce = 0;
 	done = 0;
-	while(done == 0) {
-		//TODO remove me
-		//done = 1;
+	attempt = 1;
+	status = -1;
+	// while {
+	// 	// The probability of a single attempt failing is, according to
+	// 	// Equation (5) from the spec approximate to
+	// 	//
+	// 	//   Pr[reject] = 1 - exp[ -256*beta * (l/gamma1 + k/gamma2) ]
+	// 	//
+	// 	// We can rewrite this equation in order to find the number of attempts
+	// 	// for which the probability becomes so small that we should not
+	// 	// expect that it ever happens:
+	// 	//
+	// 	//                       128
+	// 	//   #attempts = - ---------------
+	// 	//                 log2 Pr[reject]
+	// 	//
+	// 	// The resulting value for the maximum number of attempts is set in
+	// 	// the Li2_max_attempts param.
+	// 	tmpbool = attempt > Li2_max_attempts;
+	// 	tmpboolu8 = #SETcc(tmpbool);
+	// 	tmpboolu8 |= done;
+	// 	_, _, _, _, zf = #TEST_8(tmpboolu8, tmpboolu8);
+	// } (zf) {
+		attempt += 1;
 
 		reg_nonce = nonce;
 		y = expandMask(rho_prime, reg_nonce);
-		y = polyvecl_caddq(y);
 
 		nonce += 1;
 		fft_y = deep_copy_vecl(y);
 		fft_y = fft_vec(fft_y);
 		w = mult_mat_vec(fft_matA, fft_y);
+		w = reduce32_veck(w);
 		w = ifft_to_mont_vec(w);
+		w = polyveck_caddq(w);
 
-		// not sure why this order but oh well...
 		w0, w1 = decompose_vec(w);
-
-		//packed_w1 tested
 		packed_w1 = pack_w1(w1);
 
 		c_tilde = hash_mu_w1(mu, packed_w1);
 
-		challenge = sampleInBall(challenge, c_tilde);
-
-		//more scuffed workarounds and crutches...
-		challenge = poly_caddq(challenge);
-
-		challenge = fft(challenge);
-
-		cs1 = mult_scalar_vec(challenge, s1);
-		cs1 = ifft_to_mont_vecl(cs1);
-
-		z = sum_vecl(cs1, y);
-
-		normcheck_result = checknorm_vecl(z, (int) (Li2_gamma1 - Li2_beta));
-
-		if(normcheck_result == 0) {
-			cs2 = mult_scalar_veck(challenge, s2);
-			cs2 = ifft_to_mont_vec(cs2);
-
-			//cs2 is correct up to here
-
-			w0 = polyveck_caddq(w0);
-			r0 = subtract_veck(w0, cs2);
-
-			normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
-			if(normcheck_result == 0) {
-				ct0 = mult_scalar_veck(challenge, t0);
-				ct0 = ifft_to_mont_vec(ct0);
-
-				normcheck_result = checknorm_veck(ct0, Li2_gamma2);
-				if(normcheck_result == 0) {
-					r0_plus_ct0 = sum_vecs(r0, ct0);
-
-					hints_weight, h = polyveck_make_hint(r0_plus_ct0, w1);
-					if(hints_weight < Li2_omega) {
-						done = 1;
-					}
-				}
-			}
+		reg u8 tmp;
+		reg u64 eph_i;
+		eph_i = 0;
+		while (eph_i < Li2_pack_w1len) {
+			tmp = c_tilde[(int) eph_i];
+			sig[(int) eph_i] = tmp;
+			eph_i += 1;
 		}
-	}
-	// test outputs
-	/*
-	i = 0;
-	while(i < Li2_l * Li2_polydeg) {
-		val32 = z[(int) i];
-		probe_val32[(int) i] = val32;
-		i += 1;
-	}
-	//val32 = hints_weight;
-	//probe_val32[0] = val32;
-	return probe_val32;
-	*/
 
-	/*
+	// 	challenge = sampleInBall(challenge, c_tilde);
+	// 	challenge = fft(challenge);
 
-	c = normcheck_result;
-	val32 = (32u) c;
-	probe_val32[0] = val32;
-	return probe_val32;
-	*/
+	// 	cs1 = mult_scalar_vec(challenge, s1);
+	// 	cs1 = ifft_to_mont_vecl(cs1);
+	// 	z = sum_vecl(cs1, y);
+	// 	z = reduce32_vecl(z);
+	// 	normcheck_result = checknorm_vecl(z, (int) (Li2_gamma1 - Li2_beta));
 
-	signature = pack_signature(c_tilde, z, h);
-	return signature;
+	// 	if(normcheck_result == 0) {
+	// 		cs2 = mult_scalar_veck(challenge, s2);
+	// 		cs2 = ifft_to_mont_vec(cs2);
+	// 		r0 = subtract_veck(w0, cs2);
+	// 		w0 = reduce32_veck(w0);
+	// 		normcheck_result = checknorm_veck(r0, (int) (Li2_gamma2 - Li2_beta));
+	// 		if(normcheck_result == 0) {
+	// 			ct0 = mult_scalar_veck(challenge, t0);
+	// 			ct0 = ifft_to_mont_vec(ct0);
+	// 			ct0 = reduce32_veck(ct0);
+	// 			normcheck_result = checknorm_veck(ct0, Li2_gamma2);
+	// 			if(normcheck_result == 0) {
+	// 				r0_plus_ct0 = sum_vecs(r0, ct0);
+
+	// 				hints_weight, h = polyveck_make_hint(r0_plus_ct0, w1);
+	// 				if(hints_weight < Li2_omega) {
+	// 					done = 1;
+	// 					status = 0;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// sig = pack_signature(c_tilde, z, h);
+	return sig, status;
 }
 
-export
-fn test_jazz(reg u64 p_m p_sk p_out) {
-	reg u64 i;
-	reg u8 c;
-	reg u32 v32;
-	stack u8[5000] out;
-	stack u32[5000] out32;
-	stack u8[Li2_SIGN_LEN] out_sig;
-	reg u64 mlen;
+inline
+fn sign(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) -> stack u32 {
 	stack u8[Li2_SK_LEN] sk;
+	reg u8 c;
+	stack u32 status;
+	reg u64 i;
+	stack u8[Li2_SIGN_LEN] signature;
 
-	i = 0;
+	stack u64 s_ptr_signature;
+	reg u64 sig_addr;
+
+	// spilling this
+	s_ptr_signature = ptr_signature;
+	
+	?{}, i = #set0_64();
 	while(i < Li2_SK_LEN) {
-		c = (u8)[p_sk + i];
+		c = (u8)[ptr_sk + i];
 		sk[(int) i] = c;
 		i += 1;
 	}
+	
+	signature, status = sign_inner(ptr_m, m_len, sk);
 
-	mlen = 1000;
-	out_sig = sign(p_m, mlen, sk);
-
-	i = 0;
+	sig_addr = s_ptr_signature;
+	
+	?{}, i = #set0_64();
 	while(i < Li2_SIGN_LEN) {
-		c = out_sig[(int) i];
-		(u8) [p_out + i] = c;
+		c = signature[(int) i];
+		(u8) [sig_addr + i] = c;
 		i += 1;
 	}
 
-/*
-	i = 0;
-	while(i < 5000) {
-		v32 = out32[(int) i];
-		(u32) [p_out + 4 * i] = v32;
-		i += 1;
-	}
-	*/
+	return status;
+}
+
+export
+fn dilithium5_sign_scratch_jazz(reg u64 ptr_signature, reg u64 ptr_m, reg u64 m_len, reg u64 ptr_sk) -> reg u32 {
+    stack u32 status;
+    reg u32 status_reg;
+	status = sign(ptr_signature, ptr_m, m_len, ptr_sk);
+    status_reg = status;
+    return status_reg;
 }

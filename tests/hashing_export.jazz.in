@@ -1,0 +1,33 @@
+require "../src/{DILITHIUM_VARIANT}/{DILITHIUM_ARCH}/common.jazz"
+
+export
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_sampleInBall_jazz(reg u64 ptr_f, reg u64 ptr_seed) {
+	stack u32[Li2_polydeg] f;
+	reg ptr u32[Li2_polydeg] f_rsp;
+	stack u8[32] seed;
+	reg ptr u8[32] seed_rsp;
+
+	reg u32 v32;
+	reg u8 v8;
+
+	reg u64 i;
+
+	f_rsp = f;
+	seed_rsp = seed;
+
+	?{}, i = #set0_64();
+	while(i < Li2_seedbytes) {
+		v8 = (u8)[ptr_seed + i];
+		seed_rsp[(int) i] = v8;
+		i += 1;
+	}
+
+	f_rsp = sampleInBall(f_rsp, seed_rsp);
+	
+	?{}, i = #set0_64();
+	while(i < Li2_polydeg) {
+		v32 = f_rsp[(int) i];
+		(u32)[ptr_f + 4 * i] = v32;
+		i += 1;
+	}
+}

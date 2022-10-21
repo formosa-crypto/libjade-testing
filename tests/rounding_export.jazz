@@ -1,50 +1,44 @@
-require "../src/high-low-order.jazz"
-require "../src/polyvec.jazz"
+require "../src/common/rounding.jazz"
 
 export
-fn decompose_jazz(reg u32 a, reg u64 pa0, reg u64 pa1)
+fn decompose_gamma2_88_jazz(reg u32 a, reg u64 pa0, reg u64 pa1)
 {
 	reg u32 a0;
 	reg u32 a1;
-	a0, a1 = decompose(a);
+	a0, a1 = decompose_gamma2_88(a);
 	(u32)[pa0] = a0;
 	(u32)[pa1] = a1;
 }
 
 export
-fn decompose_vec_jazz(reg u64 ptr_vec ptr_vec0 ptr_vec1) {
-	stack u32[Li2_k * Li2_polydeg] vec vec0 vec1;
-	reg u32 val;
-	inline int i;
-
-	for i = 0 to Li2_k * Li2_polydeg {
-		val = (u32)[ptr_vec + 4 * i];
-		vec[i] = val;
-	}
-	vec0, vec1 = decompose_vec(vec);
-	
-	for i = 0 to Li2_k * Li2_polydeg {
-		val = vec0[i];
-		(u32)[ptr_vec0 + 4 * i] = val;
-		val = vec1[i];
-		(u32)[ptr_vec1 + 4 * i] = val;
-	}
-}
-
-export
-fn make_hint_jazz(reg u32 a0, reg u32 a1) -> reg u32
+fn decompose_gamma2_32_jazz(reg u32 a, reg u64 pa0, reg u64 pa1)
 {
-	reg u32 result;
-	result = make_hint(a0, a1);
-	return result;
+	reg u32 a0;
+	reg u32 a1;
+	a0, a1 = decompose_gamma2_32(a);
+	(u32)[pa0] = a0;
+	(u32)[pa1] = a1;
 }
 
-export
-fn use_hint_jazz(reg u32 a hint) -> reg u32 {
-	reg u32 result;
-	result = use_hint(a, hint);
-	return result;
-}
+// export
+// fn decompose_vec_jazz(reg u64 ptr_vec ptr_vec0 ptr_vec1) {
+// 	stack u32[Li2_k * Li2_polydeg] vec vec0 vec1;
+// 	reg u32 val;
+// 	inline int i;
+
+// 	for i = 0 to Li2_k * Li2_polydeg {
+// 		val = (u32)[ptr_vec + 4 * i];
+// 		vec[i] = val;
+// 	}
+// 	vec0, vec1 = decompose_vec(vec);
+	
+// 	for i = 0 to Li2_k * Li2_polydeg {
+// 		val = vec0[i];
+// 		(u32)[ptr_vec0 + 4 * i] = val;
+// 		val = vec1[i];
+// 		(u32)[ptr_vec1 + 4 * i] = val;
+// 	}
+// }
 
 export
 fn power2round_jazz(reg u32 r, reg u64 ph pl)
@@ -53,4 +47,26 @@ fn power2round_jazz(reg u32 r, reg u64 ph pl)
 	h, l = power2round(r);
 	(u32)[ph] = h;
 	(u32)[pl] = l;
+}
+
+// export
+// fn make_hint_jazz(reg u32 a0, reg u32 a1) -> reg u32
+// {
+// 	reg u32 result;
+// 	result = make_hint(a0, a1);
+// 	return result;
+// }
+
+export
+fn use_hint_gamma2_88_jazz(reg u32 a hint) -> reg u32 {
+	reg u32 result;
+	result = use_hint_gamma2_88(a, hint);
+	return result;
+}
+
+export
+fn use_hint_gamma2_32_jazz(reg u32 a hint) -> reg u32 {
+	reg u32 result;
+	result = use_hint_gamma2_32(a, hint);
+	return result;
 }

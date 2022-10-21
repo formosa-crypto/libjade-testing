@@ -1,0 +1,164 @@
+require "../src/{DILITHIUM_VARIANT}/{DILITHIUM_ARCH}/common.jazz"
+
+export
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
+	stack u32[Li2_k * Li2_l * Li2_polydeg] mat;
+	stack u32[Li2_l * Li2_polydeg] vec;
+	stack u32[Li2_k * Li2_polydeg] prod;
+
+	reg u32 v;
+	reg u64 i;
+
+	i = 0;
+	while(i < Li2_k * Li2_l * Li2_polydeg) {
+		v = (u32) [ptr_mat + 4 * i];
+		mat[(int) i] = v;
+		i += 1;
+	}
+
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		v = (u32) [ptr_vec + 4 * i];
+		vec[(int) i] = v;
+		i += 1;
+	}
+
+	prod = mult_mat_vec(mat, vec);
+
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		v = prod[(int) i];
+		(u32) [ptr_prod + 4 * i] = v;
+		i += 1;
+	}
+}
+
+export
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_dot_prod_jazz(reg u64 ptr_v1 ptr_v2 ptr_prod) {
+	stack u32[Li2_l * Li2_polydeg] v1 v2;
+	stack u32[Li2_polydeg] prod;
+
+	reg u32 value;
+	reg u64 i;
+
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		value = (u32) [ptr_v1 + 4 * i];
+		v1[(int) i] = value;
+		value = (u32) [ptr_v2 + 4 * i];
+		v2[(int) i] = value;
+		i += 1;
+	}
+
+	prod = dot_prod_vecs(v1, v2, prod);
+
+	i = 0;
+	while(i < Li2_polydeg) {
+		value = prod[(int) i];
+		(u32) [ptr_prod + 4 * i] = value;
+		i += 1;
+	}
+}
+
+export
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_poly_accumulate_jazz(reg u64 ptr_f ptr_sum)
+{
+	stack u32[Li2_polydeg] f sum;
+
+	reg u64 i;
+	reg u32 value;
+
+	i = 0;
+	while(i < Li2_polydeg) {
+		value = (u32)[ptr_f + 4 * i];
+		f[(int) i] = value;
+		value = (u32)[ptr_sum + 4 * i];
+		sum[(int) i] = value;
+		i += 1;
+	}
+
+	sum = poly_accumulate(f, sum);
+
+	i = 0;
+	while(i < Li2_polydeg) {
+		value = sum[(int) i];
+		(u32)[ptr_sum + 4 * i] = value;
+		i += 1;
+	}
+}
+
+export
+fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_probe_mult_mat_vec_jazz(reg u64 ptr_mat, reg u64 ptr_vec, reg u64 ptr_prod) {
+	stack u32[Li2_k * Li2_l * Li2_polydeg] mat;
+	stack u32[Li2_l * Li2_polydeg] vec;
+	stack u32[Li2_k * Li2_polydeg] prod;
+
+	reg ptr u32[Li2_polydeg] p;
+
+	reg u32 v;
+	reg u64 i;
+
+	inline int ii;
+
+	i = 0;
+	while(i < Li2_k * Li2_l * Li2_polydeg) {
+		v = (u32) [ptr_mat + 4 * i];
+		mat[(int) i] = v;
+		i += 1;
+	}
+
+	i = 0;
+	while(i < Li2_l * Li2_polydeg) {
+		v = (u32) [ptr_vec + 4 * i];
+		vec[(int) i] = v;
+		i += 1;
+	}
+
+	//prod = mult_mat_vec(mat, vec);
+	for ii = 0 to Li2_k {
+	/*
+		p = prod[Li2_polydeg * ii : Li2_polydeg];
+		p = dot_prod_vecs(
+			mat[Li2_l * Li2_polydeg * ii : Li2_l * Li2_polydeg], 
+			vec, p);
+		prod[Li2_polydeg * ii : Li2_polydeg] = p;
+		*/
+		prod[Li2_polydeg * ii : Li2_polydeg] = dot_prod_vecs(
+			mat[Li2_l * Li2_polydeg * ii : Li2_l * Li2_polydeg], 
+			vec,
+			prod[Li2_polydeg * ii : Li2_polydeg]);
+	}
+
+	i = 0;
+	while(i < Li2_k * Li2_polydeg) {
+		v = prod[(int) i];
+		(u32) [ptr_prod + 4 * i] = v;
+		i += 1;
+	}
+}
+
+export
+fn poly_pointwise_montgomery_jazz(reg u64 f_ptr, reg u64 g_ptr, reg u64 prod_ptr) {
+	stack u32[Li2_polydeg] f g prod;
+
+	reg u32 v;
+	reg u64 i;
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = (u32) [f_ptr + 4 * i];
+		f[(int) i] = v;
+		v = (u32) [g_ptr + 4 * i];
+		g[(int) i] = v;
+		i += 1;
+	}
+
+	prod = poly_pointwise_montgomery(f, g, prod);
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v = prod[(int) i];
+		(u32) [prod_ptr + 4 * i] = v;
+		i += 1;
+	}
+}

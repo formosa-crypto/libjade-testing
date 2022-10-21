@@ -1,3 +1,0 @@
-require "keygen.jazz"
-require "sign.jazz"
-require "verify.jazz"
