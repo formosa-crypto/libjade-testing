@@ -1,0 +1,32 @@
+require import AllCore List Distr DBool DList.
+import StdBigop.Bigreal StdOrder.IntOrder.
+
+require Mat.
+
+clone include Mat.
+import ZR.
+
+op scalarv a (v : vector) = offunv (fun i => a * v.[i], size v).
+abbrev (**) = scalarv.
+
+lemma size_scalarv a v : size (a ** v) = size v by [].
+
+lemma scalarvN a (v : vector) : a ** -v = - (a ** v).
+proof. 
+rewrite /scalarv offunvN /=; do ! congr.
+apply/fun_ext => i; by rewrite mulrN.
+qed.
+
+lemma scalarNv (a : R) (v : vector) : (-a) ** v = - (a ** v).
+proof.
+rewrite /scalarv offunvN /=; do ! congr.
+apply/fun_ext => i; by rewrite mulNr.
+qed.
+
+(* TOTHINK: this proof seems very low-level *)
+lemma colmxc v c : (colmx v) *^ vectc 1 c = c ** v. 
+proof. 
+apply eq_vectorP; rewrite /= rows_mulmx //= size_scalarv /= => i Hi.
+rewrite get_offunv // get_mulmx /dotp /= lez_maxr //=.
+by rewrite (Big.BAdd.big_int1 0) /= get_matrixc 1:/# mulrC.
+qed.

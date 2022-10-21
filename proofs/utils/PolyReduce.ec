@@ -72,13 +72,11 @@ hint exact : idI.
 (* -------------------------------------------------------------------- *)
 type polyXnD1.
 
-clone include RingQuotient
-  with type qT <- polyXnD1, op p <- I
+clone include RingQuotient with
+  type qT <- polyXnD1,
+  op p <- I
 
-  proof IdealAxioms.*
-
-  rename [op] "zeror" as "zeroXnD1"
-  rename [op] "oner"  as "oneXnD1".
+  proof IdealAxioms.*.
 
 realize IdealAxioms.ideal_p by apply/idI.
 
@@ -93,20 +91,23 @@ rewrite deg_polyXnDC // -!addrA /= gtr_eqF //.
 by rewrite (_ : 1 = 1 + 0) 1:// ler_lt_add // deg_ge1.
 qed.
 
+op zeroXnD1 = zeror.
+op oneXnD1 = oner.
+
 (* -------------------------------------------------------------------- *)
 clone BigComRing as BigXnD1 with
-  type CR.t      <- polyXnD1,
-    op CR.zeror  <- zeroXnD1,
-    op CR.oner   <- oneXnD1,
-    op CR.( + )  <- ( + ),
-    op CR.([-])  <- ([-]),
-    op CR.( * )  <- ( * ),
-    op CR.invr   <- invr,
-    op CR.intmul <- ComRing.intmul,
-    op CR.ofint  <- ComRing.ofint,
-    op CR.exp    <- ComRing.exp,
-    op CR.lreg   <- ComRing.lreg,
-  pred CR.unit   <- unit
+  type CR.t      <= polyXnD1,
+    op CR.zeror  <= zeroXnD1,
+    op CR.oner   <= oneXnD1,
+    op CR.( + )  <= ( + ),
+    op CR.([-])  <= ([-]),
+    op CR.( * )  <= ( * ),
+    op CR.invr   <= invr,
+    op CR.intmul <= ComRing.intmul,
+    op CR.ofint  <= ComRing.ofint,
+    op CR.exp    <= ComRing.exp,
+    op CR.lreg   <= ComRing.lreg,
+  pred CR.unit   <= unit
 
   proof *
 
@@ -146,8 +147,9 @@ op ( ** ) (c : coeff) (p : polyXnD1) =
 op pevalX (p : polyXnD1) (c : coeff) =
   peval (repr p) c.
 
-op polyLX (a : coeff list) : polyXnD1 =
-  pi (polyL a).
+op polyLX (a : coeff list) : polyXnD1 = pinject (polyL a).
+
+op polyCX (c : coeff) = pinject (polyC c).
 
 (* -------------------------------------------------------------------- *)
 lemma scale0p (p : polyXnD1) : Coeff.zeror ** p = zeroXnD1.
@@ -478,6 +480,17 @@ rewrite addrC BCA.big_seq BCA.big1 ?addr0 /=.
 by rewrite add0r &(BCA.eq_bigr) => i; rewrite !piK.
 qed.
 
+lemma polyLXE coeffs i :
+  size coeffs <= n =>
+  (polyLX coeffs).[i] = nth Coeff.zeror coeffs i.
+proof.
+move => H.
+rewrite /"_.[_]" /polyLX.
+rewrite piK.
+- by rewrite reduced_polyL //.
+smt(BasePoly.polyLE).
+qed.
+
 (* -------------------------------------------------------------------- *)
 lemma finite_for_polyXnD1 s :
      is_finite_for predT s
@@ -500,8 +513,8 @@ type Zp.
 op p : { int | 2 <= p } as ge2_p.
 
 clone import ZModRing as Zp with
-    type  zmod  <- Zp,
-    op    p     <- p
+    type  zmod  <= Zp,
+    op    p     <= p
     proof ge2_p by exact/ge2_p.
 
 clone include PolyReduce with
@@ -545,6 +558,9 @@ import BasePoly.
 (* We already know that polyXnD1 is finite. However, we prove here that *)
 (* we can build the full-uniform distribution over polyXnD1 by sampling *)
 (* uniformly each coefficient in the reduced form representation.       *)
+
+op dpolyX (dcoeff : Zp distr) : polyXnD1 distr =
+  dmap (dpoly n dcoeff) pinject.
 
 op dpolyXnD1 = dmap (dpoly n Zp.DZmodP.dunifin) pinject.
 
