@@ -4,3 +4,6 @@
 [submodule "proofs/verifyhashbased"]
 	path = proofs/utils/verifyhashbased
 	url = git@gitlab.tue.nl:ahuelsin/verifyhashbased.git
+[submodule "libjade"]
+	path = libjade
+	url = https://github.com/dsprenkels/libjade/
