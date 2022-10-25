@@ -1,4 +1,4 @@
-from Jade require "crypto_sign/dilithium/{DILITHIUM_VARIANT}/amd64/{DILITHIUM_ARCH}/common.jazz"
+from Jade require "crypto_sign/dilithium/{DILITHIUM_VARIANT}/amd64/{DILITHIUM_ARCH}/common.jinc"
 
 export
 fn {DILITHIUM_VARIANT}_{DILITHIUM_ARCH}_sampleInBall_jazz(reg u64 ptr_f, reg u64 ptr_seed) {

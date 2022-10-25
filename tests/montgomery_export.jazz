@@ -1,4 +1,4 @@
-from Jade require "crypto_sign/dilithium/dilithium3/amd64/ref/montgomery.jazz"
+from Jade require "crypto_sign/dilithium/dilithium3/amd64/ref/montgomery.jinc"
 
 export
 fn montgomery_REDC_jazz(reg u64 a) -> reg u32

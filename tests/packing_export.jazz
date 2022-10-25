@@ -1,5 +1,5 @@
-from Jade require "crypto_sign/dilithium/common/amd64/packing.jazz"
-from Jade require "crypto_sign/dilithium/dilithium3/amd64/ref/packing.jazz"
+from Jade require "crypto_sign/dilithium/common/amd64/packing.jinc"
+from Jade require "crypto_sign/dilithium/dilithium3/amd64/ref/packing.jinc"
 
 //void pack_t1_jazz(uint32_t p[N], uint8_t buf[POLYT1_PACKEDBYTES]);
 export

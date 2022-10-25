@@ -17,7 +17,6 @@ readonly DEFAULT_TESTS=(
     test_packing
     test_rounding
     test_sign
-    test_sign_fragments
     test_verify
     # bench_fft
     # bench_hashing

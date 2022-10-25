@@ -35,7 +35,6 @@ TESTS ?= test_fft \
          test_keygen_firsthalf \
          test_hashing \
          test_matrix_mult \
-         test_sign_fragments \
          test_expandmask \
          test_sign \
          test_rounding \
@@ -117,5 +116,4 @@ common_phony:
 clean:
 	$(MAKE) --directory=../dilithium/ref clean
 	$(MAKE) --directory=../dilithium/avx2 clean
-	# $(MAKE) --directory=../src/common clean
-	$(RM) $(TESTS) $(JAZZ_GENERATED) $(wildcard *.s)
+	$(RM) $(TESTS) $(LIB) $(JAZZ_GENERATED) $(wildcard *.s)

@@ -1,4 +1,4 @@
-require "../src/ref/dilithium5/common.jazz"
+require "../src/ref/dilithium5/common.jinc"
 
 
 inline

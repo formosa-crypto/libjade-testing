@@ -1,4 +1,4 @@
-from Jade require "crypto_sign/dilithium/common/amd64/rounding.jazz"
+from Jade require "crypto_sign/dilithium/common/amd64/rounding.jinc"
 
 export
 fn decompose_gamma2_88_jazz(reg u32 a, reg u64 pa0, reg u64 pa1)

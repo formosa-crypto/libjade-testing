@@ -1,6 +1,6 @@
-from Jade require "crypto_sign/dilithium/common/amd64/fft.jazz"
-from Jade require "crypto_sign/dilithium/common/amd64/montgomery.jazz"
-from Jade require "crypto_sign/dilithium/dilithium3/amd64/ref/common.jazz"
+from Jade require "crypto_sign/dilithium/common/amd64/fft.jinc"
+from Jade require "crypto_sign/dilithium/common/amd64/montgomery.jinc"
+from Jade require "crypto_sign/dilithium/dilithium3/amd64/ref/common.jinc"
 
 export
 fn fft_jazz(reg u64 vec)
