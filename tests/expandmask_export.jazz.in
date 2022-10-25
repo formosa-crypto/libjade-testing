@@ -1,4 +1,4 @@
-require "../src/{DILITHIUM_VARIANT}/{DILITHIUM_ARCH}/common.jazz"
+from Jade require "crypto_sign/dilithium/{DILITHIUM_VARIANT}/amd64/{DILITHIUM_ARCH}/common.jazz"
 
 // TODO: Simplify with preamble/epilogue subroutines
 

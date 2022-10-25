@@ -71,7 +71,7 @@ static int wrap_verify_jazz(const uint8_t *sig, size_t siglen, const uint8_t *m,
 int main()
 {
     std::cout << std::fixed << std::setprecision(2);
-    std::cout << "sign_jazz: " << 1e-3 * bench(wrap_verify_jazz) << " kcc\n";
-    std::cout << "sign_ref: " << 1e-3 * bench(crypto_sign_verify) << " kcc\n";
+    std::cout << "verify_jazz: " << 1e-3 * bench(wrap_verify_jazz) << " kcc\n";
+    std::cout << "verify_ref: " << 1e-3 * bench(crypto_sign_verify) << " kcc\n";
     return 0;
 }

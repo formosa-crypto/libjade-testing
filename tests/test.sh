@@ -43,7 +43,7 @@ done
 echo >&2 "Tests done!"
 (
     set -x
-    if ! jasminc -intel -wea -pasm "../src/${VARIANT:-dilithium2}/${ARCH:-ref}/lib.jazz" >"$ASMFILE" 2>"$LOGFILE"; then
+    if ! jasminc -I Jade:../libjade/src -intel -wea -pasm "../libjade/src/crypto_sign/dilithium/${VARIANT:-dilithium2}/amd64/${ARCH:-ref}/lib.jazz" >"$ASMFILE" 2>"$LOGFILE"; then
         cat "$LOGFILE" >&2
     fi
 )
