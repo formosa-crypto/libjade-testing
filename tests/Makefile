@@ -12,6 +12,15 @@ endif
 ARCH ?= ref
 
 ifeq "${ARCH}" "ref"
+CPPFLAGS += '-DDILITHIUM_ARCH_REF'
+LDFLAGS := -I ../dilithium/ref
+endif
+ifeq "${ARCH}" "avx2"
+CPPFLAGS += '-DDILITHIUM_ARCH_AVX2'
+LDFLAGS := -I ../dilithium/avx2
+endif
+
+ifeq "${ARCH}" "ref"
 	CPPFLAGS += '-DDILITHIUM_ARCH_REF'
 endif
 ifeq "${ARCH}" "avx2"
@@ -19,17 +28,18 @@ ifeq "${ARCH}" "avx2"
 endif
 
 CXXFLAGS := $(CPPFLAGS) -g -Og -ftrapv -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
-LDFLAGS := -I ../dilithium/ref \
-          -I ../dilithium/avx2 \
-          -L../dilithium/ref \
-          -L../dilithium/avx2 \
-          -lpqcrystals_dilithium$(MODE)_ref \
-          -lpqcrystals_dilithium$(MODE)_avx2 \
-          -lpqcrystals_fips202_ref \
-          -lpqcrystals_fips202_avx2 \
-          -lpqcrystals_fips202x4_avx2
+LDFLAGS += -L../dilithium/ref \
+	-L../dilithium/avx2 \
+	-lpqcrystals_dilithium$(MODE)_ref \
+	-lpqcrystals_dilithium$(MODE)_avx2 \
+	-lpqcrystals_fips202_ref \
+	-lpqcrystals_fips202_avx2 \
+	-lpqcrystals_fips202x4_avx2
 
-TESTS ?= test_fft \
+CXXFLAGS := $(CPPFLAGS) -g -Og -ftrapv -Wall -Wextra -Wpedantic -std=c++17 "-DDILITHIUM_MODE=${MODE}"
+
+TESTS ?= test_ref_fft \
+         test_avx2_fft \
          test_gen_matrix \
          test_packing \
          test_keygen_firsthalf \
@@ -86,8 +96,14 @@ bench_sign: bench_sign.cpp $(LIB) $(RANDOMBYTES)
 bench_verify: bench_verify.cpp $(LIB) $(RANDOMBYTES)
 	$(CXX) $(CXXFLAGS) -O3 $(RANDOMBYTES) $(LIB) bench_verify.cpp -o $@ $(LDFLAGS)
 
-bench_fft: bench_fft.cpp fft_export.s
-	$(CXX) $(CXXFLAGS) -O3 $(RANDOMBYTES) fft_export.s bench_fft.cpp -o $@ $(LDFLAGS)
+ifeq "${ARCH}" "ref"
+bench_fft: bench_fft.cpp ref_fft_export.s
+	$(CXX) $(CXXFLAGS) -O3 $(RANDOMBYTES) ref_fft_export.s bench_fft.cpp -o $@ $(LDFLAGS)
+endif
+ifeq "${ARCH}" "avx2"
+bench_fft: bench_fft.cpp avx2_fft_export.s
+	$(CXX) $(CXXFLAGS) -O3 $(RANDOMBYTES) avx2_fft_export.s bench_fft.cpp -o $@ $(LDFLAGS)
+endif
 
 bench_hashing: bench_hashing.cpp hashing_export.s
 	$(CXX) $(CXXFLAGS) -O3 $(RANDOMBYTES) hashing_export.s bench_hashing.cpp -o $@ $(LDFLAGS)
@@ -110,8 +126,8 @@ common_phony:
 	    -e "s/{DILITHIUM_ARCH}/$(ARCH)/g" \
 	    $< >$@
 
-%.s: %.jazz $(SRC_DIR)/**
-	$(JASMINC) -pasm $< >$@
+%.s: %.jazz $(shell find $(SRC_DIR) -iname '*.jazz' -o -iname '*.jinc')
+	$(JASMINC) -pasm -o $@ $<
 
 clean:
 	$(MAKE) --directory=../dilithium/ref clean

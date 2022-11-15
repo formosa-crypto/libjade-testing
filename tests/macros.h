@@ -62,6 +62,8 @@
 
 #if DILITHIUM_MODE == 2
 
+#define NTT_REF pqcrystals_dilithium2_ref_ntt
+#define INVNTT_REF pqcrystals_dilithium2_ref_invntt_tomont
 #define SEEDED_KEYGEN_REF pqcrystals_dilithium2_ref_seeded_keypair
 #define KEYGEN_REF pqcrystals_dilithium2_ref_keypair
 #define SIGN_REF pqcrystals_dilithium2_ref_signature
@@ -78,6 +80,8 @@
 
 #elif DILITHIUM_MODE == 3
 
+#define NTT_REF pqcrystals_dilithium3_ref_ntt
+#define INVNTT_REF pqcrystals_dilithium3_ref_invntt_tomont
 #define SEEDED_KEYGEN_REF pqcrystals_dilithium3_ref_seeded_keypair
 #define KEYGEN_REF pqcrystals_dilithium3_ref_keypair
 #define SIGN_REF pqcrystals_dilithium3_ref_signature
@@ -94,6 +98,8 @@
 
 #elif DILITHIUM_MODE == 5
 
+#define NTT_REF pqcrystals_dilithium5_ref_ntt
+#define INVNTT_REF pqcrystals_dilithium5_ref_invntt_tomont
 #define SEEDED_KEYGEN_REF pqcrystals_dilithium5_ref_seeded_keypair
 #define KEYGEN_REF pqcrystals_dilithium5_ref_keypair
 #define SIGN_REF pqcrystals_dilithium5_ref_signature

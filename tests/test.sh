@@ -9,8 +9,9 @@ export LD_LIBRARY_PATH
 LD_LIBRARY_PATH="$(dirname "$0")/../dilithium/ref:$LD_LIBRARY_PATH"
 LD_LIBRARY_PATH="$(dirname "$0")/../dilithium/avx2:$LD_LIBRARY_PATH"
 readonly DEFAULT_TESTS=(
-    test_expandmask
-    test_fft
+    # test_expandmask
+    test_ref_fft
+    test_avx2_fft
     test_hashing
     test_keygen
     test_matrix_mult
@@ -42,11 +43,11 @@ done
 echo >&2 "Tests done!"
 (
     set -x
-    if ! jasminc -I Jade:../libjade/src -intel -wea -pasm "../libjade/src/crypto_sign/dilithium/${VARIANT:-dilithium2}/amd64/${ARCH:-ref}/lib.jazz" >"$ASMFILE" 2>"$LOGFILE"; then
+    if ! jasminc -I Jade:../libjade/src -intel -wea -pasm -o "$ASMFILE" "../libjade/src/crypto_sign/dilithium/${VARIANT:-dilithium2}/amd64/${ARCH:-ref}/lib.jazz" 2>"$LOGFILE"; then
         cat "$LOGFILE" >&2
     fi
 )
 echo "$(grep -c -F 'extra assignment introduced' "$LOGFILE") extra assignment warnings in $LOGFILE"
-echo "$(wc -l <"$ASMFILE") lines in $ASMFILE"
+echo "$(wc -l <"$ASMFILE" || true) lines in $ASMFILE"
 
 exit 0
