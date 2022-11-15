@@ -1,0 +1,56 @@
+from Jade require "crypto_sign/dilithium/common/amd64/avx2/ntt.jinc"
+
+export
+fn fft_jazz(reg u64 poly_ptr) {
+	stack u32[Li2_polydeg] poly_ssp;
+	reg ptr u32[Li2_polydeg] poly_rsp;
+
+	reg u32 v32;
+
+	reg u64 i;
+
+	poly_rsp = poly_ssp;
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v32 = (u32) [poly_ptr + (4 * (int) i)];
+		poly_rsp[(int) i] = v32;
+		i += 1;
+	}
+
+	poly_rsp = fft(poly_rsp);
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v32 = poly_rsp[(int) i];
+		(u32) [poly_ptr + (4 * (int) i)] = v32;
+		i += 1;
+	}
+}
+
+export
+fn ifft_jazz(reg u64 poly_ptr) {
+	stack u32[Li2_polydeg] poly_ssp;
+	reg ptr u32[Li2_polydeg] poly_rsp;
+
+	reg u32 v32;
+
+	reg u64 i;
+
+	poly_rsp = poly_ssp;
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v32 = (u32) [poly_ptr + (4 * (int) i)];
+		poly_rsp[(int) i] = v32;
+		i += 1;
+	}
+
+	poly_rsp = ifft_to_mont(poly_rsp);
+
+	?{}, i = #set0_64();
+	while (i < Li2_polydeg) {
+		v32 = poly_rsp[(int) i];
+		(u32) [poly_ptr + (4 * (int) i)] = v32;
+		i += 1;
+	}
+}
+
