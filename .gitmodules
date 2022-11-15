@@ -1,9 +1,9 @@
 [submodule "dilithium"]
-	path = dilithium
+	path = dilithium/dilithium
 	url = https://github.com/ethanlee515/dilithium
 [submodule "proofs/verifyhashbased"]
-	path = proofs/utils/verifyhashbased
+	path = dilithium/proofs/utils/verifyhashbased
 	url = git@gitlab.tue.nl:ahuelsin/verifyhashbased.git
 [submodule "libjade"]
-	path = libjade
+	path = dilithium/libjade
 	url = https://github.com/dsprenkels/libjade/
